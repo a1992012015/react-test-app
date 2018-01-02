@@ -11,7 +11,7 @@ let calculateWinner = squares => {
         [1, 4, 7],
         [2, 5, 8],
         [0, 4, 8],
-        [2, 4, 6]
+        [2, 4, 6],
     ];
     for (let i = 0; i < lines.length; i++) {
         const [a, b, c] = lines[i];
@@ -214,6 +214,24 @@ let arr = [{
         children: [],
     }]
 }];
+
+class Checkerboard extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            arr : Array(9).fill(Array(9).fill(null))
+        }
+    }
+
+    render(){
+        console.log(this.state.arr);
+        return (
+            <ul>
+                {}
+            </ul>
+        );
+    }
+}
 
 class Demo extends React.Component {
     render(){
