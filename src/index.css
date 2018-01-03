@@ -21,28 +21,6 @@ body {
 ol, ul {
     padding-left: 30px;
 }
-/*
-
-button{
-    line-height: 30px;
-    border: 1px solid #434be4;
-    color: #434be4;
-    padding: 0 10px;
-    background: #fff;
-    border-radius: 3px;
-    outline:none
-}
-
-button:active {
-    top:1px;
-    background-image: linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -o-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -moz-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -webkit-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -ms-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -webkit-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-}
-*/
 
 .board-row:after {
     clear: both;
@@ -112,7 +90,11 @@ button:active {
 }
 
 .checker-board .checker-board-col:hover{
-    
+    background-image: linear-gradient(transparent, transparent), linear-gradient(to left, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(#0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(to right, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(to bottom, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0);
+    background-clip: content-box, border-box, border-box, border-box, border-box;
+    background-position: 0 0, 0 0, 100% 0, 0 100%, 0;
+    background-size: 100%, 100% 5px, 5px 100%, 100% 5px, 5px 100%;
+    background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
 }
 
 .checker-board-col .chess {
@@ -146,4 +128,23 @@ button:active {
     top: 50%;
     left: 50%;
     margin: -350px 0 0 -350px;
+}
+
+.item{
+    overflow: hidden;
+    list-style: none;
+}
+
+.item li{
+    float: left;
+    width: 100px;
+    line-height: 30px;
+}
+
+.item a{
+    text-decoration: none;
+}
+
+.item a.active{
+    text-decoration: none;
 }
