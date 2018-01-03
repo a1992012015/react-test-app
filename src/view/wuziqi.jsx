@@ -150,14 +150,14 @@ class Piece extends React.Component {
     direction(numStr, numEnd, num, accelerator, direction) {
         let str = null;
         switch(accelerator) {
-            case 1: //垂直 y变化
+            case 1: //垂直=90度
                 if(direction) {
                     str = [numStr - num, numEnd];
                 } else {
                     str = [numStr + num, numEnd];
                 }
                 break;
-            case 2: //水平 x变化
+            case 2: //水平=0度
                 if(direction) {
                     str = [numStr, numEnd - num];
                 } else {
