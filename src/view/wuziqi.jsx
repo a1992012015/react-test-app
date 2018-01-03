@@ -187,7 +187,6 @@ class Piece extends React.Component {
     }
 
     render(){
-        console.log(this.state.arr);
         return (
             <div style={{overflow: 'hidden',position: 'relative',height: '852px',width: '852px'}}>
                 <Checkerboard />
