@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';//导入的方式跟之前有点变化
-//import { Router, Route, Link } from 'react-router';
 import './index.css';
 import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
 import MyComponent from './view/toPass';
+import Storage from './view/storage';
 
 let arr = [{
     name: '一号',
@@ -27,10 +27,34 @@ let arr = [{
     }]
 }];
 
+let data = {
+    history: [
+        {
+            squares: Array(9).fill(null)
+        }
+    ],//历史记录
+    stepNumber: 0,//步数
+    xIsNext: true,//执棋手
+};
+
+let storage = [
+    '吴梦婷',
+    '赵春梅',
+    '贾悦',
+];
+
 class Demo extends React.Component {
     render(){
         return (
-            <MyComponent  children={arr}/>
+            <MyComponent children={arr}/>
+        );
+    }
+}
+
+class demo2 extends React.Component {
+    render(){
+        return (
+            <Game data={data}/>
         );
     }
 }
@@ -69,23 +93,40 @@ const Topic = ({ match }) => (
     </div>
 );
 
+class demo3 extends React.Component {
+    render(){
+        return (
+            <Piece arr={arr} data={data}/>
+        );
+    }
+}
+
+class demo4 extends React.Component {
+    render(){
+        return (
+            <Storage storage={storage}/>
+        );
+    }
+}
 
 const BasicExample = () => (
     <Router>
         <div>
-            <ul>
+            <ul className='item'>
                 <li><Link to="/">五子棋</Link></li>
                 <li><Link to="/Game">黑白棋</Link></li>
                 <li><Link to="/Demo">归递组件</Link></li>
                 <li><Link to="/Topics">二级菜单</Link></li>
+                <li><Link to="/Storage">储存</Link></li>
             </ul>
 
             <hr/>
 
-            <Route exact path="/" component={Piece}/>
-            <Route path="/Game" component={Game}/>
+            <Route exact path="/" component={demo3}/>
+            <Route path="/Game" component={demo2}/>
             <Route path="/Demo" component={Demo}/>
             <Route path="/Topics" component={Topics}/>
+            <Route path="/Storage" component={demo4}/>
         </div>
     </Router>
 );

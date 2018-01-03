@@ -32,12 +32,13 @@ class Checkerboard extends React.Component {
         );
     }
 }
+
 //棋子的每一列
 function Row(props) {
     let list = props.row.map((v, i) => {
-        let name = v?`chess ${i%2?'chess-white':'chess-black'}`:'disappear';
+        const name = v?`chess ${v%2 === 0?'chess-white':'chess-black'}`:'disappear';
         return (
-            <li className='checker-board-col' key={i}>
+            <li className='checker-board-col' key={i} onClick={() => props.onClick(props.index, i)}>
                 <button  className={name}></button>
             </li>
         );
@@ -45,13 +46,40 @@ function Row(props) {
 
     return (list);
 }
+
 //棋子的每一排
 class Piece extends React.Component {
-    constructor() {
-        super();
-        this.state = {
-            arr : Array(15).fill(Array(15).fill(null))
+    constructor(props) {
+        super(props);
+        let arr = Array();
+        for(var i = 0; i < 15; i++) {
+            arr[i] = new Array();
+            for(var j = 0; j < 15; j++) {
+                arr[i][j] = null;
+            }
         }
+        console.log(arr)
+        this.state = {
+            arr : arr,
+            stepNumber: 1,//步数
+            xIsNext: true,//执棋手
+        }
+    }
+
+    laizi(index, item){
+        console.log('==================');
+        if(this.state.arr[index][item]){
+            return;
+        }
+        console.log(this.state.arr[index][item]);
+        console.log(this.state.stepNumber);
+        this.state.arr[index][item] = this.state.stepNumber;
+        console.log(this.state.arr);
+        this.setState({
+            arr: this.state.arr,
+            xIsNext: this.state.stepNumber++,
+        });
+        console.log('==================');
     }
 
     render(){
@@ -65,7 +93,11 @@ class Piece extends React.Component {
                             return (
                                 <li className='checker-board-row' key={i}>
                                     <ul>
-                                        <Row row={v}/>
+                                        <Row
+                                            index={i}
+                                            onClick={(i,a) => this.laizi(i,a)}
+                                            row={v}
+                                        />
                                     </ul>
                                 </li>
                             );

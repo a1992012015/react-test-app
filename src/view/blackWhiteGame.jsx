@@ -22,16 +22,11 @@ let calculateWinner = squares => {
 };
 
 let gameOver = (chess, squares) => {
-    console.log(chess);
-    console.log(squares);
-    console.log(chess[squares - 1]);
-    console.log(chess[squares + 1]);
     if(chess[squares - 1] !== undefined && chess[squares + 1] !== undefined){
         console.log('进入成功');
     }else{
         console.log('进入错误');
     }
-
 };
 
 //每个棋子
@@ -82,47 +77,41 @@ class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            history: [
-                {
-                    squares: Array(9).fill(null)
-                }
-            ],//历史记录
-            stepNumber: 0,//步数
-            xIsNext: true//执棋手
+            data: this.props.data
         };
     }
 
     handleClick(i) {
-        const history = this.state.history.slice(0, this.state.stepNumber + 1);
+        const history = this.state.data.history.slice(0, this.state.data.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
         if (calculateWinner(squares) || squares[i]) {
             return;
         }
-        squares[i] = this.state.xIsNext ? "X" : "O";
-        this.setState({
-            history: history.concat([
-                {
-                    squares: squares
-                }
-            ]),
-            stepNumber: history.length,
-            xIsNext: !this.state.xIsNext
-        });
-        gameOver(squares,i);
+        squares[i] = this.state.data.xIsNext ? "X" : "O";
+        this.state.data.history = history.concat([{squares: squares}]);
+        this.state.data.stepNumber = history.length;
+        this.state.data.xIsNext = !this.state.xIsNext;
+        this.setState({data: this.state.data});
     }
 
     jumpTo(step) {
+        this.state.data.stepNumber = step;
+        this.state.data.xIsNext = (step % 2) === 0;
+
         this.setState({
-            stepNumber: step,
-            xIsNext: (step % 2) === 0
+            data: this.state.data
         });
     }
 
     render() {
-        const history = this.state.history;
-        const current = history[this.state.stepNumber];
+        const history = this.state.data.history;
+        console.log(history)
+        const current = history[this.state.data.stepNumber];
+        console.log(this.state.data.stepNumber)
+        console.log(current)
         const winner = calculateWinner(current.squares);
+        console.log(this.state);
 
         const moves = history.map((step, move) => {
             const desc = move ?
@@ -139,7 +128,7 @@ class Game extends React.Component {
         if (winner) {
             status = "赢家: " + winner;
         } else {
-            status = "落子玩家: " + (this.state.xIsNext ? "X" : "O");
+            status = "落子玩家: " + (this.state.data.xIsNext ? "X" : "O");
         }
 
         return (
