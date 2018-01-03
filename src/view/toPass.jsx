@@ -1,5 +1,4 @@
 import React from "react";
-import Game from "./blackWhiteGame";
 
 //归递组件写法
 class MyComponent extends React.Component {

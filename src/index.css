@@ -21,28 +21,6 @@ body {
 ol, ul {
     padding-left: 30px;
 }
-/*
-
-button{
-    line-height: 30px;
-    border: 1px solid #434be4;
-    color: #434be4;
-    padding: 0 10px;
-    background: #fff;
-    border-radius: 3px;
-    outline:none
-}
-
-button:active {
-    top:1px;
-    background-image: linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -o-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -moz-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -webkit-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -ms-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-    background-image: -webkit-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
-}
-*/
 
 .board-row:after {
     clear: both;

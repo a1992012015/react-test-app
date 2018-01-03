@@ -1,5 +1,6 @@
 import React from "react";
-
+/*
+* 五子棋*/
 //棋盘
 class Checkerboard extends React.Component {
 

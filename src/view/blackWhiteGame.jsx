@@ -1,5 +1,4 @@
 import React from "react";
-import Piece from "./wuziqi";
 
 //输赢判断
 let calculateWinner = squares => {
