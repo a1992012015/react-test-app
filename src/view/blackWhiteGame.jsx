@@ -21,14 +21,6 @@ let calculateWinner = squares => {
     return null;
 };
 
-let gameOver = (chess, squares) => {
-    if(chess[squares - 1] !== undefined && chess[squares + 1] !== undefined){
-        console.log('进入成功');
-    }else{
-        console.log('进入错误');
-    }
-};
-
 //每个棋子
 function Square(props) {
     return (
