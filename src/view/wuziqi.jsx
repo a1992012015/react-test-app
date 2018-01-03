@@ -1,8 +1,6 @@
-
-
-//棋盘
 import React from "react";
 
+//棋盘
 class Checkerboard extends React.Component {
 
     componentDidMount(){
@@ -74,7 +72,6 @@ class Piece extends React.Component {
                     }
                 </ul>
             </div>
-
         );
     }
 }
