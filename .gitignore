@@ -21,4 +21,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # 忽略ide自动生成的文件
-.idea
+/.ide/workspace.xml
