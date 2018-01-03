@@ -10,6 +10,7 @@
     -ms-user-select: none;
     /* Internet Explorer/Edge */
     user-select: none;
+    box-sizing: border-box;
 }
 
 body {
@@ -20,6 +21,28 @@ body {
 ol, ul {
     padding-left: 30px;
 }
+/*
+
+button{
+    line-height: 30px;
+    border: 1px solid #434be4;
+    color: #434be4;
+    padding: 0 10px;
+    background: #fff;
+    border-radius: 3px;
+    outline:none
+}
+
+button:active {
+    top:1px;
+    background-image: linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -o-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -moz-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -webkit-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -ms-linear-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+    background-image: -webkit-gradient(bottom, rgb(62,184,229) 0%, rgb(44,160,202) 100%);
+}
+*/
 
 .board-row:after {
     clear: both;
@@ -61,4 +84,66 @@ ol, ul {
 
 .game-info {
     margin-left: 20px;
+}
+
+/*ul li*/
+.checker-board,.checker-board ul{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    overflow: hidden;
+}
+
+.checker-board{
+    float: left;
+    padding:50px;
+    border: 1px solid #000;
+}
+
+.checker-board .checker-board-row{
+    display:table;
+}
+
+.checker-board .checker-board-col{
+    width: 50px;
+    height: 50px;
+    float: left;
+    position: relative;
+}
+
+.checker-board .checker-board-col:hover{
+    
+}
+
+.checker-board-col .chess {
+    height: 1.5rem;
+    width: 1.5rem;
+    border-radius: 1rem;
+    -webkit-box-shadow: .01rem .01rem .1rem rgba(0, 0, 0, .5), 0 0 .05rem rgba(240, 240, 240, .5), .05rem .05rem .01rem rgba(255, 255, 255, .15) inset, .1rem .1rem .1rem rgba(255, 255, 255, .05) inset, -.05rem -.05rem .25rem rgba(0, 0, 0, .15) inset, -.1rem -.1rem .35rem rgba(0, 0, 0, .05) inset;
+    box-shadow: .01rem .01rem .1rem rgba(0, 0, 0, .5), 0 0 .05rem rgba(240, 240, 240, .5), .05rem .05rem .01rem rgba(255, 255, 255, .15) inset, .1rem .1rem .1rem rgba(255, 255, 255, .05) inset, -.05rem -.05rem .25rem rgba(0, 0, 0, .15) inset, -.1rem -.1rem .35rem rgba(0, 0, 0, .05) inset;
+    border: 0;
+    outline:none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -0.75rem 0 0 -0.75rem;
+}
+
+.checker-board-col .chess-white {
+    background: #EEE;
+}
+
+.checker-board-col .chess-black {
+    background: #000;
+}
+
+.checker-board-col .disappear {
+    display: none;
+}
+
+#myCanvas{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -350px 0 0 -350px;
 }
