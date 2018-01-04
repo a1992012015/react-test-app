@@ -19,7 +19,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>React App</title>
+    <title>这个是一个页面~</title>
   </head>
   <body>
     <noscript>
@@ -38,3 +38,19 @@
     -->
   </body>
 </html>
+<script>
+    var titleget = null;
+    document.addEventListener("visibilitychange", function() {
+        if(document.hidden) {
+            if(titleget) {
+                clearTimeout(titleget)
+            }
+            document.title = "主人你到哪里去了~";
+        } else {
+            document.title = "欢迎回来~";
+            titleget = setTimeout(function() {
+                document.title = "这个是一个页面~";
+            }, 2000);
+        }
+    }, false);
+</script>
