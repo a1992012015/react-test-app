@@ -6,6 +6,7 @@ import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
 import MyComponent from './view/toPass';
 import Storage from './view/storage';
+import Console from './view/console';
 
 let arr = [{
     name: '一号',
@@ -93,10 +94,46 @@ const Topic = ({ match }) => (
     </div>
 );
 
+let stateDataArr = new Array();
+for(let i = 0; i < 15; i++) {
+    stateDataArr[i] = new Array();
+    for(let j = 0; j < 15; j++) {
+        stateDataArr[i][j] = {
+            stepNumber: null,
+            xIsNext: null,
+        };
+    }
+}
+
+//构建五子棋的全部数据
+const stateData = {
+    arr : stateDataArr,
+    stepNumber: 1,//步数
+    xIsNext: true,//执棋手true为白棋false为黑棋
+    flag: false,//赢了还是输了
+};
+
 class demo3 extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            data: stateData
+        }
+    }
+
+    componentWillUpdate(){
+        console.log('改变了');
+    }
+
     render(){
+        const styleH = {
+            overflow: 'hidden'
+        };
         return (
-            <Piece arr={arr} data={data}/>
+            <div style={styleH}>
+                <Piece data={this.state.data}/>
+                <Console  data={this.state.data}/>
+            </div>
         );
     }
 }

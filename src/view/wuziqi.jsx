@@ -51,61 +51,44 @@ function Row(props) {
 class Piece extends React.Component {
     constructor(props) {
         super(props);
-        let arr = new Array();
-        for(let i = 0; i < 15; i++) {
-            arr[i] = new Array();
-            for(let j = 0; j < 15; j++) {
-                arr[i][j] = {
-                    stepNumber: null,
-                    xIsNext: null,
-                };
-            }
-        }
         this.state = {
-            arr : arr,
-            stepNumber: 1,//步数
-            xIsNext: true,//执棋手true为白棋false为黑棋
-            flag: false,//赢了还是输了
+            data: props.data
         }
     }
 
     goOn(index, item){
         console.log('=========获取输赢=========');
-        console.log(this.state.flag);
-        if(this.state.flag){
+        console.log(this.state.data.flag);
+        if(this.state.data.flag){
             console.log('游戏结束');
             return;
         }
-        if(this.state.arr[index][item].stepNumber !== null && this.state.arr[index][item].xIsNext !== null){
+        if(this.state.data.arr[index][item].stepNumber !== null && this.state.data.arr[index][item].xIsNext !== null){
             console.log('重复落子无效');
             return;
         }
-        this.state.arr[index][item].stepNumber = this.state.stepNumber;
-        this.state.arr[index][item].xIsNext = this.state.xIsNext;
+        this.state.data.arr[index][item].stepNumber = this.state.data.stepNumber;
+        this.state.data.arr[index][item].xIsNext = this.state.data.xIsNext;
+        this.state.data.xIsNext = !this.state.data.xIsNext;
+        this.state.data.flag = this.referee(index, item);
         this.setState({
-            arr: this.state.arr,
-            xIsNext: !this.state.xIsNext,
+            data: this.state.data
         });
-        this.state.flag = this.referee(index, item);
-        this.setState({
-            flag: this.referee(index, item)
-        });
-        if(this.state.flag){
-            let result = this.state.xIsNext?'白棋获胜':'黑棋获胜';
+        if(this.state.data.flag){
+            let result = !this.state.data.xIsNext?'白棋获胜':'黑棋获胜';
             console.log(result);
         }
         console.log('=========继续落子=========');
     }
 
     referee(numStr, numEnd, flag = 1, direction = 0) {
-        console.log("改变？");
         if(flag > 4)return false;
         let count = 0, //count&&计算有几个连着的
-        arr = this.state.arr;
+        arr = this.state.data.arr;
         for(let i = 0; i < 5; i++) {
             let [y,x] = this.direction(numStr, numEnd, i, flag, direction);
             if(x >= 0 && x <= 14 && y >= 0 && y <= 14){
-                if(arr[y][x].xIsNext === this.state.xIsNext){
+                if(arr[y][x].xIsNext === !this.state.data.xIsNext){
                     count+=1
                 }else{
                     break;
@@ -118,8 +101,8 @@ class Piece extends React.Component {
         for(let i = 1; i < 5; i++) {
             let [y,x] = this.direction(numStr, numEnd, i, flag, direction);//获取周围的坐标
             if(x >= 0 && x <= 14 && y >= 0 && y <= 14){//判断坐标是否合法
-                if(arr[y][x].xIsNext === this.state.xIsNext){//判断当前坐标是否是自己的落子
-                    count+=1
+                if(arr[y][x].xIsNext === !this.state.data.xIsNext){//判断当前坐标是否是自己的落子
+                    count+=1;
                 }else{
                     break;
                 }
@@ -182,17 +165,17 @@ class Piece extends React.Component {
         return str;
     }
 
-    componentWillUpdate(){
+    /*componentWillUpdate(){
         //this.referee();
-    }
+    }*/
 
     render(){
         return (
-            <div style={{overflow: 'hidden',position: 'relative',height: '852px',width: '852px'}}>
+            <div style={{overflow: 'hidden',position: 'relative',height: '852px',width: '852px',minHeight: '852px',float:'left'}}>
                 <Checkerboard />
                 <ul className='checker-board'>
                     {
-                        this.state.arr.map((v, i) => {
+                        this.state.data.arr.map((v, i) => {
                             return (
                                 <li className='checker-board-row' key={i}>
                                     <ul>

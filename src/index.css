@@ -148,3 +148,23 @@ ol, ul {
 .item a.active{
     text-decoration: none;
 }
+/*五子棋控制台样式*/
+.operation{
+    list-style: none;
+    padding: 0;
+}
+
+.operation button{
+    padding: 0 20px;
+    line-height: 30px;
+    border: 1px solid #456df3;
+    outline:none;
+    cursor: pointer;
+    background: #fff;
+    border-radius: 5px;
+    margin: 0 20px;
+}
+
+.operation h3{
+    margin: 0 0 50px;
+}
