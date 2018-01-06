@@ -110,7 +110,7 @@ const stateData = {
     arr: stateDataArr,
     stepNumber: 1,//步数
     xIsNext: true,//执棋手true为白棋false为黑棋
-    flag: false,//赢了还是输了
+    flag: true,//赢了还是输了
 };
 
 const copyObj = JSON.parse(JSON.stringify(stateData));

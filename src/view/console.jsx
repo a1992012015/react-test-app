@@ -20,7 +20,8 @@ function Operation(props) {
         fontSize: '20px'
     };
     let dom = null;
-    if (props.chessPlayer) {
+    console.log(props.chessPlayer.data.flag);
+    if (!props.chessPlayer.data.flag) {
         dom = (
             <li>
                 <button>悔棋</button>
