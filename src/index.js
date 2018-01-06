@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';//导入的方式跟之前有点变化
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';//导入的方式跟之前有点变化
 import './index.css';
 import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
@@ -13,16 +13,16 @@ let arr = [{
     children: [{
         name: '一号下的一号',
         children: [],
-    },{
+    }, {
         name: '一号下的二号',
         children: [],
     }]
-},{
+}, {
     name: '二号',
     children: [{
         name: '二号下的一号',
         children: [],
-    },{
+    }, {
         name: '二号下的二号',
         children: [],
     }]
@@ -45,7 +45,7 @@ let storage = [
 ];
 
 class Demo extends React.Component {
-    render(){
+    render() {
         return (
             <MyComponent children={arr}/>
         );
@@ -53,14 +53,14 @@ class Demo extends React.Component {
 }
 
 class demo2 extends React.Component {
-    render(){
+    render() {
         return (
             <Game data={data}/>
         );
     }
 }
 
-const Topics = ({ match }) => (
+const Topics = ({match}) => (
     <div>
         <h2>Topics</h2>
         <ul>
@@ -88,16 +88,16 @@ const Topics = ({ match }) => (
     </div>
 );
 
-const Topic = ({ match }) => (
+const Topic = ({match}) => (
     <div>
         <h3>{match.params.topicId}</h3>
     </div>
 );
 
 let stateDataArr = new Array();
-for(let i = 0; i < 15; i++) {
+for (let i = 0; i < 15; i++) {
     stateDataArr[i] = new Array();
-    for(let j = 0; j < 15; j++) {
+    for (let j = 0; j < 15; j++) {
         stateDataArr[i][j] = {
             stepNumber: null,
             xIsNext: null,
@@ -107,7 +107,7 @@ for(let i = 0; i < 15; i++) {
 
 //构建五子棋的全部数据
 const stateData = {
-    arr : stateDataArr,
+    arr: stateDataArr,
     stepNumber: 1,//步数
     xIsNext: true,//执棋手true为白棋false为黑棋
     flag: false,//赢了还是输了
@@ -124,31 +124,31 @@ class demo3 extends React.Component {
         };
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log('改变了');
     }
 
-    setFather(){
+    setFather() {
         this.setState({
             data: this.state.data
         });
     }
 
-    render(){
+    render() {
         const styleH = {
             overflow: 'hidden'
         };
         return (
             <div style={styleH}>
                 <Piece data={this.state.data} setFather={() => this.setFather()}/>
-                <Console  data={this.state.data} onClick={()=> this.setFather()}/>
+                <Console data={this.state.data} onClick={() => this.setFather()}/>
             </div>
         );
     }
 }
 
 class demo4 extends React.Component {
-    render(){
+    render() {
         return (
             <Storage storage={storage}/>
         );

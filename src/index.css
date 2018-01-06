@@ -1,4 +1,4 @@
-*{
+* {
     -webkit-touch-callout: none;
     /* iOS Safari */
     -webkit-user-select: none;
@@ -65,31 +65,31 @@ ol, ul {
 }
 
 /*ul li*/
-.checker-board,.checker-board ul{
+.checker-board, .checker-board ul {
     padding: 0;
     margin: 0;
     list-style: none;
     overflow: hidden;
 }
 
-.checker-board{
+.checker-board {
     float: left;
-    padding:50px;
+    padding: 50px;
     border: 1px solid #000;
 }
 
-.checker-board .checker-board-row{
-    display:table;
+.checker-board .checker-board-row {
+    display: table;
 }
 
-.checker-board .checker-board-col{
+.checker-board .checker-board-col {
     width: 50px;
     height: 50px;
     float: left;
     position: relative;
 }
 
-.checker-board .checker-board-col:hover{
+.checker-board .checker-board-col:hover {
     background-image: linear-gradient(transparent, transparent), linear-gradient(to left, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(#0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(to right, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0), linear-gradient(to bottom, #0292f3 33.3%, transparent 0, transparent 66.6%, #0292f3 0);
     background-clip: content-box, border-box, border-box, border-box, border-box;
     background-position: 0 0, 0 0, 100% 0, 0 100%, 0;
@@ -104,7 +104,7 @@ ol, ul {
     -webkit-box-shadow: .01rem .01rem .1rem rgba(0, 0, 0, .5), 0 0 .05rem rgba(240, 240, 240, .5), .05rem .05rem .01rem rgba(255, 255, 255, .15) inset, .1rem .1rem .1rem rgba(255, 255, 255, .05) inset, -.05rem -.05rem .25rem rgba(0, 0, 0, .15) inset, -.1rem -.1rem .35rem rgba(0, 0, 0, .05) inset;
     box-shadow: .01rem .01rem .1rem rgba(0, 0, 0, .5), 0 0 .05rem rgba(240, 240, 240, .5), .05rem .05rem .01rem rgba(255, 255, 255, .15) inset, .1rem .1rem .1rem rgba(255, 255, 255, .05) inset, -.05rem -.05rem .25rem rgba(0, 0, 0, .15) inset, -.1rem -.1rem .35rem rgba(0, 0, 0, .05) inset;
     border: 0;
-    outline:none;
+    outline: none;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -123,53 +123,54 @@ ol, ul {
     display: none;
 }
 
-#myCanvas{
+#myCanvas {
     position: absolute;
     top: 50%;
     left: 50%;
     margin: -350px 0 0 -350px;
 }
 
-.item{
+.item {
     overflow: hidden;
     list-style: none;
 }
 
-.item li{
+.item li {
     float: left;
     width: 100px;
     line-height: 30px;
 }
 
-.item a{
+.item a {
     text-decoration: none;
 }
 
-.item a.active{
+.item a.active {
     text-decoration: none;
 }
+
 /*五子棋控制台样式*/
-.operation{
+.operation {
     list-style: none;
     padding: 0;
 }
 
-.operation button{
+.operation button {
     padding: 0 20px;
     line-height: 30px;
     border: 1px solid #456df3;
-    outline:none;
+    outline: none;
     cursor: pointer;
     background: #fff;
     border-radius: 5px;
     margin: 0 20px;
 }
 
-.operation h3{
+.operation h3 {
     margin: 0 0 50px;
 }
 
-.operation .active{
+.operation .active {
     background: #456df3;
     color: #ffffff;
 }

@@ -1,13 +1,13 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
-import { createStore } from 'redux'
-import { Provider, connect } from 'react-redux'
+import {createStore} from 'redux'
+import {Provider, connect} from 'react-redux'
 
 // React component
 class Counter extends Component {
     render() {
-        const { value, onIncreaseClick } = this.props;
+        const {value, onIncreaseClick} = this.props;
         return (
             <div>
                 <span>{value}</span>
@@ -23,14 +23,14 @@ Counter.propTypes = {
 }
 
 // Action
-const increaseAction = { type: 'increase' }
+const increaseAction = {type: 'increase'}
 
 // Reducer
-function counter(state = { count: 0 }, action) {
+function counter(state = {count: 0}, action) {
     const count = state.count
     switch (action.type) {
         case 'increase':
-            return { count: count + 1 }
+            return {count: count + 1}
         default:
             return state
     }
@@ -61,7 +61,7 @@ const App = connect(
 
 ReactDOM.render(
     <Provider store={store}>
-        <App />
+        <App/>
     </Provider>,
     document.getElementById('root')
 )
