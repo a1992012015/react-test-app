@@ -113,16 +113,25 @@ const stateData = {
     flag: false,//赢了还是输了
 };
 
+const copyObj = JSON.parse(JSON.stringify(stateData));
+
 class demo3 extends React.Component {
     constructor() {
         super();
         this.state = {
-            data: stateData
-        }
+            data: stateData,
+            copyObj: copyObj
+        };
     }
 
     componentWillUpdate(){
         console.log('改变了');
+    }
+
+    setFather(){
+        this.setState({
+            data: this.state.data
+        });
     }
 
     render(){
@@ -131,8 +140,8 @@ class demo3 extends React.Component {
         };
         return (
             <div style={styleH}>
-                <Piece data={this.state.data}/>
-                <Console  data={this.state.data}/>
+                <Piece data={this.state.data} setFather={() => this.setFather()}/>
+                <Console  data={this.state.data} onClick={()=> this.setFather()}/>
             </div>
         );
     }

@@ -168,3 +168,8 @@ ol, ul {
 .operation h3{
     margin: 0 0 50px;
 }
+
+.operation .active{
+    background: #456df3;
+    color: #ffffff;
+}

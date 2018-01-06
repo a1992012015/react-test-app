@@ -4,7 +4,6 @@ import React from "react";
 class Storage extends React.Component {
     constructor(props) {
         super(props);
-        console.log(this.props.storage);
         this.state = {
             storage : this.props.storage
         }
@@ -20,8 +19,7 @@ class Storage extends React.Component {
     render(){
         const children = this.state.storage;
         let list = null;
-        console.log(this.state);
-        console.log(this.props);
+        console.log(children);
         if (children){
             list = children.map((v, i) => {
                 return (
