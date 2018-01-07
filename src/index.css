@@ -79,7 +79,7 @@ ol, ul {
 }
 
 .checker-board .checker-board-row {
-    display: table;
+    -display: table;
 }
 
 .checker-board .checker-board-col {

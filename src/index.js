@@ -129,8 +129,9 @@ class demo3 extends React.Component {
     setFather(flag) {
         let data = this.state.data;
         if(flag){
-            data.arr[0][0].xIsNext = null;
-            data.arr[0][0].stepNumber = null;
+            data.arr = data.arr.slice(0,1);
+            //data.xIsNext = (data.stepNumber % 2) === data.xIsNext;
+            data.stepNumber = 0;
         }
         this.setState({
             data: data

@@ -29,7 +29,7 @@ class Checkerboard extends React.Component {
 
     render() {
         return (
-            <canvas id='myCanvas' height='700' width='700'></canvas>
+            <canvas id='myCanvas' height='700' width='700'>你的电脑浏览器不支持canvas，换电脑吧~</canvas>
         );
     }
 }
