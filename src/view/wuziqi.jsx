@@ -77,13 +77,14 @@ class Piece extends React.Component {
         data.arr = history.concat([current]);
         data.flag = this.referee(index, item);
         data.stepNumber = history.length;
+        if (this.state.data.flag) {
+            let result = !this.state.data.xIsNext ? '白棋获胜' : '黑棋获胜';
+            data.king = result;
+            console.log(result);
+        }
         this.setState({
             data: this.state.data
         });
-        if (this.state.data.flag) {
-            let result = !this.state.data.xIsNext ? '白棋获胜' : '黑棋获胜';
-            console.log(result);
-        }
         this.props.setFather();
         console.log('=========继续落子=========');
     }

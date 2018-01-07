@@ -19,13 +19,21 @@ function Operation(props) {
         textAlign: 'center',
         fontSize: '20px'
     };
+    let king = null;
+    if(props.chessPlayer.data.king){
+        king = (
+            <h1>{props.chessPlayer.data.king}</h1>
+        );
+    }
+
     let dom = null;
     if (!props.chessPlayer.data.flag) {
         dom = (
             <li>
-                <button>悔棋</button>
+                {king}
+                <button onClick={props.onClick.Initialization}>悔棋</button>
                 <button onClick={() => {
-                    props.onClick(0)
+                    props.onClick.start(0)
                 }}>认输
                 </button>
             </li>
@@ -33,8 +41,9 @@ function Operation(props) {
     } else {
         dom = (
             <li>
+                {king}
                 <button onClick={() => {
-                    props.onClick(1)
+                    props.onClick.start(1)
                 }}>开始
                 </button>
             </li>
@@ -51,11 +60,11 @@ function Operation(props) {
                 </li>
                 <li>
                     <button disabled={!prop.data.flag} onClick={() => {
-                        props.successively(0)
+                        props.onClick.successively(0)
                     }} className={prop.active ? 'active' : ''}>白棋
                     </button>
                     <button disabled={!prop.data.flag} onClick={() => {
-                        props.successively(1)
+                        props.onClick.successively(1)
                     }} className={prop.active ? '' : 'active'}>黑棋
                     </button>
                     <h3>{`玩家执棋为${prop.active ? '白棋' : '黑棋'}`}</h3>
@@ -84,14 +93,16 @@ class Console extends React.Component {
 
     }
 
-    start(flag) {//开始游戏||投降认输
+    start(flag) {//1开始游戏||0投降认输
         console.log("改变状态");
-        console.log(flag);
-        flag ?
-            this.state.data.flag = false :(() => {
-                this.state.data.flag = true;
-                this.props.onClick(1);
-            })();
+        flag ?(() => {
+            this.state.data.flag = false;
+            this.state.data.king = null;
+            this.props.Initialization(1);
+        })() :(() => {
+            this.state.data.flag = true;
+            this.props.Initialization(1);
+        })();
         this.setState({
             data: this.state.data
         })
@@ -118,14 +129,15 @@ class Console extends React.Component {
             data: this.state.data,
             active: this.state.flag
         };
+        let clicks = {
+            start: (i) => {this.start(i)},
+            successively: (i) => {this.successively(i)},
+            Initialization: () => {this.props.Initialization(0)},
+        };
         return (
             <div style={styleD}>
                 <ChessPlayer chessPlayer={this.state.data}/>
-                <Operation chessPlayer={data} onClick={(i) => {
-                    this.start(i)
-                }} successively={(i) => {
-                    this.successively(i)
-                }}/>
+                <Operation chessPlayer={data} onClick={clicks}/>
             </div>
         );
     }

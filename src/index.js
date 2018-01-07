@@ -111,7 +111,8 @@ const stateData = {
     stepNumber: 0,//步数
     xIsNext: true,//执棋手true为白棋false为黑棋
     earlyOrLate: false,//先攻||后攻
-    flag: true,//赢了还是输了
+    flag: true,//true为完成对局||还未开始||暂停false为游戏进行中
+    king: null,//最后的赢家是
 };
 
 class demo3 extends React.Component {
@@ -126,13 +127,8 @@ class demo3 extends React.Component {
         console.log('改变了');
     }
 
-    setFather(flag) {
+    setFather() {
         let data = this.state.data;
-        if(flag){
-            data.arr = data.arr.slice(0,1);
-            //data.xIsNext = (data.stepNumber % 2) === data.xIsNext;
-            data.stepNumber = 0;
-        }
         this.setState({
             data: data
         }, ()=> {
@@ -140,9 +136,14 @@ class demo3 extends React.Component {
         });
     }
 
-    Initialization(){
+    Initialization(index){
+        let data = this.state.data;
+        if(!data.stepNumber) return;
+        data.arr = data.arr.slice(0,index?1:data.arr.length-1);
+        data.xIsNext = (data.stepNumber % 2) === 0?index?data.xIsNext:!data.xIsNext:!data.xIsNext;
+        data.stepNumber = index?0:data.stepNumber-1;
         this.setState({
-            data: JSON.parse(this.state.copyObj),
+            data: data
         });
     }
 
@@ -153,7 +154,7 @@ class demo3 extends React.Component {
         return (
             <div style={styleH}>
                 <Piece data={this.state.data} setFather={() => this.setFather()}/>
-                <Console data={this.state.data} onClick={(i) => this.setFather(i)} Initialization={() => this.Initialization()}/>
+                <Console data={this.state.data} onClick={(i) => this.setFather(i)} Initialization={(i) => this.Initialization(i)}/>
             </div>
         );
     }
