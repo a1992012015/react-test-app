@@ -2,63 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';//导入的方式跟之前有点变化
 import './index.css';
+import {toastIt} from './view/common';
 import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
 import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
-
-let arr = [{
-    name: '一号',
-    children: [{
-        name: '一号下的一号',
-        children: [],
-    }, {
-        name: '一号下的二号',
-        children: [],
-    }]
-}, {
-    name: '二号',
-    children: [{
-        name: '二号下的一号',
-        children: [],
-    }, {
-        name: '二号下的二号',
-        children: [],
-    }]
-}];
-
-let data = {
-    history: [
-        {
-            squares: Array(9).fill(null)
-        }
-    ],//历史记录
-    stepNumber: 0,//步数
-    xIsNext: true,//执棋手
-};
-
-let storage = [
-    '吴梦婷',
-    '赵春梅',
-    '贾悦',
-];
-
-class Demo extends React.Component {
-    render() {
-        return (
-            <MyComponent children={arr}/>
-        );
-    }
-}
-
-class demo2 extends React.Component {
-    render() {
-        return (
-            <Game data={data}/>
-        );
-    }
-}
 
 const Topics = ({match}) => (
     <div>
@@ -125,6 +74,7 @@ class demo3 extends React.Component {
 
     componentWillUpdate() {
         console.log('改变了');
+        toastIt('改变了', 2500, {fontSize: '18px'});
     }
 
     setFather() {
@@ -160,21 +110,13 @@ class demo3 extends React.Component {
     }
 }
 
-class demo4 extends React.Component {
-    render() {
-        return (
-            <Storage storage={storage}/>
-        );
-    }
-}
-
 const BasicExample = () => (
     <Router>
         <div>
             <ul className='item'>
                 <li><Link to="/">五子棋</Link></li>
                 <li><Link to="/Game">黑白棋</Link></li>
-                <li><Link to="/Demo">归递组件</Link></li>
+                <li><Link to="/MyComponent">归递组件</Link></li>
                 <li><Link to="/Topics">二级菜单</Link></li>
                 <li><Link to="/Storage">储存</Link></li>
             </ul>
@@ -182,10 +124,10 @@ const BasicExample = () => (
             <hr/>
 
             <Route exact path="/" component={demo3}/>
-            <Route path="/Game" component={demo2}/>
-            <Route path="/Demo" component={Demo}/>
+            <Route path="/Game" component={Game}/>
+            <Route path="/MyComponent" component={MyComponent}/>
             <Route path="/Topics" component={Topics}/>
-            <Route path="/Storage" component={demo4}/>
+            <Route path="/Storage" component={Storage}/>
         </div>
     </Router>
 );

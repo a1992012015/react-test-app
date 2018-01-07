@@ -64,12 +64,22 @@ class Board extends React.Component {
     }
 }
 
+let data = {
+    history: [
+        {
+            squares: Array(9).fill(null)
+        }
+    ],//历史记录
+    stepNumber: 0,//步数
+    xIsNext: true,//执棋手
+};
+
 //判断
 class Game extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: props.data
+            data: data
         };
     }
 

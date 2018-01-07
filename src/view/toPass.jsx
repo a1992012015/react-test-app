@@ -1,7 +1,27 @@
 import React from "react";
 
+let arr = [{
+    name: '一号',
+    children: [{
+        name: '一号下的一号',
+        children: [],
+    }, {
+        name: '一号下的二号',
+        children: [],
+    }]
+}, {
+    name: '二号',
+    children: [{
+        name: '二号下的一号',
+        children: [],
+    }, {
+        name: '二号下的二号',
+        children: [],
+    }]
+}];
+
 //归递组件写法
-class MyComponent extends React.Component {
+class Subject extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -25,7 +45,7 @@ class MyComponent extends React.Component {
                     <li key={i}>
                         {v.name}&nbsp;&nbsp;&nbsp;
                         <button onClick={() => this.changeName(i)}>按钮</button>
-                        <MyComponent children={v.children}/>
+                        <Subject children={v.children}/>
                     </li>
                 );
             });
@@ -38,5 +58,14 @@ class MyComponent extends React.Component {
         );
     }
 }
+
+class MyComponent extends React.Component {
+    render() {
+        return (
+            <Subject children={arr}/>
+        );
+    }
+}
+
 
 export default MyComponent;

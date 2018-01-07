@@ -1,11 +1,17 @@
 import React from "react";
 
+let storage = [
+    '吴梦婷',
+    '赵春梅',
+    '贾悦',
+];
+
 //储存
 class Storage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            storage: this.props.storage
+            storage: storage
         }
     }
 
