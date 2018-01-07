@@ -114,43 +114,34 @@ const stateData = {
     flag: true,//赢了还是输了
 };
 
-const copyObj = JSON.stringify(stateData);
-
 class demo3 extends React.Component {
     constructor() {
         super();
         this.state = {
-            data: stateData,
-            copyObj: copyObj
+            data: stateData
         };
     }
 
     componentWillUpdate() {
         console.log('改变了');
-        console.log(this.state.data);
-        console.log(stateData);
     }
 
     setFather(flag) {
         let data = this.state.data;
         if(flag){
-            this.state.data.arr[0][0].xIsNext = null;
-            this.state.data.arr[0][0].stepNumber = null;
+            data.arr[0][0].xIsNext = null;
+            data.arr[0][0].stepNumber = null;
         }
-        console.log(data);
         this.setState({
             data: data
         }, ()=> {
-
             console.log(this.state.data);
         });
     }
 
     Initialization(){
-        console.log(this.state.copyObj);
         this.setState({
             data: JSON.parse(this.state.copyObj),
-            copyObj: this.state.copyObj
         });
     }
 
@@ -158,8 +149,6 @@ class demo3 extends React.Component {
         const styleH = {
             overflow: 'hidden'
         };
-        console.log('=========加载==========');
-        console.log(this.state.data);
         return (
             <div style={styleH}>
                 <Piece data={this.state.data} setFather={() => this.setFather()}/>

@@ -118,8 +118,6 @@ class Console extends React.Component {
             data: this.state.data,
             active: this.state.flag
         };
-        console.log('=========子级组件==========');
-        console.log(this.state.data);
         return (
             <div style={styleD}>
                 <ChessPlayer chessPlayer={this.state.data}/>

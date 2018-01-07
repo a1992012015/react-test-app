@@ -66,18 +66,17 @@ class Piece extends React.Component {
             return;
         }
         const history = data.arr.slice(0, data.stepNumber + 1);
-        console.log(history);
-        const current = history[history.length - 1];
-        const squares = current.slice();
-        if (data.arr[data.stepNumber][index][item].stepNumber !== null && data.arr[data.stepNumber][index][item].xIsNext !== null) {
+        const current = JSON.parse(JSON.stringify(history[history.length - 1]));
+        if (current[index][item].stepNumber !== null && current[index][item].xIsNext !== null) {
             console.log('重复落子无效');
             return;
         }
-        return;
-        this.state.data.arr[index][item].stepNumber = this.state.data.stepNumber;
-        this.state.data.arr[index][item].xIsNext = this.state.data.xIsNext;
-        this.state.data.xIsNext = !this.state.data.xIsNext;
-        this.state.data.flag = this.referee(index, item);
+        current[index][item].stepNumber = data.stepNumber;
+        current[index][item].xIsNext = data.xIsNext;
+        data.xIsNext = !data.xIsNext;
+        data.arr = history.concat([current]);
+        data.flag = this.referee(index, item);
+        data.stepNumber = history.length;
         this.setState({
             data: this.state.data
         });
@@ -92,7 +91,7 @@ class Piece extends React.Component {
     referee(numStr, numEnd, flag = 1, direction = 0) {
         if (flag > 4) return false;
         let count = 0, //count&&计算有几个连着的
-            arr = this.state.data.arr;
+            arr = this.state.data.arr[this.state.data.stepNumber + 1];
         for (let i = 0; i < 5; i++) {
             let [y, x] = this.direction(numStr, numEnd, i, flag, direction);
             if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
