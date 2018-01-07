@@ -4,25 +4,23 @@ import React from "react";
 class Storage extends React.Component {
     constructor(props) {
         super(props);
-        console.log(this.props.storage);
         this.state = {
-            storage : this.props.storage
+            storage: this.props.storage
         }
     }
 
-    changeName(index){
+    changeName(index) {
         this.state.storage[index] = this.state.storage[index] + "添加";
         this.setState({
             storage: this.state.storage
         });
     }
 
-    render(){
+    render() {
         const children = this.state.storage;
         let list = null;
-        console.log(this.state);
-        console.log(this.props);
-        if (children){
+        console.log(children);
+        if (children) {
             list = children.map((v, i) => {
                 return (
                     <li key={i}>

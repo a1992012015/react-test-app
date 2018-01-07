@@ -23,7 +23,7 @@
   </head>
   <body>
     <noscript>
-      You need to enable JavaScript to run this app.
+      您需要启用JavaScript来运行这个应用程序.
     </noscript>
     <div id="root"></div>
     <!--
@@ -39,16 +39,16 @@
   </body>
 </html>
 <script>
-    var titleget = null;
+    let titleGet = null;
     document.addEventListener("visibilitychange", function() {
         if(document.hidden) {
-            if(titleget) {
-                clearTimeout(titleget)
+            if(titleGet) {
+                clearTimeout(titleGet)
             }
             document.title = "主人你到哪里去了~";
         } else {
             document.title = "欢迎回来~";
-            titleget = setTimeout(function() {
+            titleGet = setTimeout(function() {
                 document.title = "这个是一个页面~";
             }, 2000);
         }

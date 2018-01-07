@@ -5,27 +5,27 @@ class MyComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            arr : this.props.children
+            arr: this.props.children
         }
     }
 
-    changeName(index){
+    changeName(index) {
         this.state.arr[index].name = this.state.arr[index].name + "san";
         this.setState({
             arr: this.state.arr
         });
     }
 
-    render(){
+    render() {
         const children = this.state.arr;
         let list = null;
-        if (children){
+        if (children) {
             list = children.map((v, i) => {
                 return (
                     <li key={i}>
                         {v.name}&nbsp;&nbsp;&nbsp;
                         <button onClick={() => this.changeName(i)}>按钮</button>
-                        <MyComponent children={v.children} />
+                        <MyComponent children={v.children}/>
                     </li>
                 );
             });

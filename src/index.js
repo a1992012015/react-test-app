@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom';//导入的方式跟之前有点变化
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';//导入的方式跟之前有点变化
 import './index.css';
 import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
@@ -13,16 +13,16 @@ let arr = [{
     children: [{
         name: '一号下的一号',
         children: [],
-    },{
+    }, {
         name: '一号下的二号',
         children: [],
     }]
-},{
+}, {
     name: '二号',
     children: [{
         name: '二号下的一号',
         children: [],
-    },{
+    }, {
         name: '二号下的二号',
         children: [],
     }]
@@ -45,7 +45,7 @@ let storage = [
 ];
 
 class Demo extends React.Component {
-    render(){
+    render() {
         return (
             <MyComponent children={arr}/>
         );
@@ -53,14 +53,14 @@ class Demo extends React.Component {
 }
 
 class demo2 extends React.Component {
-    render(){
+    render() {
         return (
             <Game data={data}/>
         );
     }
 }
 
-const Topics = ({ match }) => (
+const Topics = ({match}) => (
     <div>
         <h2>Topics</h2>
         <ul>
@@ -88,16 +88,16 @@ const Topics = ({ match }) => (
     </div>
 );
 
-const Topic = ({ match }) => (
+const Topic = ({match}) => (
     <div>
         <h3>{match.params.topicId}</h3>
     </div>
 );
 
 let stateDataArr = new Array();
-for(let i = 0; i < 15; i++) {
+for (let i = 0; i < 15; i++) {
     stateDataArr[i] = new Array();
-    for(let j = 0; j < 15; j++) {
+    for (let j = 0; j < 15; j++) {
         stateDataArr[i][j] = {
             stepNumber: null,
             xIsNext: null,
@@ -107,39 +107,70 @@ for(let i = 0; i < 15; i++) {
 
 //构建五子棋的全部数据
 const stateData = {
-    arr : stateDataArr,
-    stepNumber: 1,//步数
+    arr: [stateDataArr],
+    stepNumber: 0,//步数
     xIsNext: true,//执棋手true为白棋false为黑棋
-    flag: false,//赢了还是输了
+    earlyOrLate: false,//先攻||后攻
+    flag: true,//赢了还是输了
 };
+
+const copyObj = JSON.stringify(stateData);
 
 class demo3 extends React.Component {
     constructor() {
         super();
         this.state = {
-            data: stateData
-        }
+            data: stateData,
+            copyObj: copyObj
+        };
     }
 
-    componentWillUpdate(){
+    componentWillUpdate() {
         console.log('改变了');
+        console.log(this.state.data);
+        console.log(stateData);
     }
 
-    render(){
+    setFather(flag) {
+        let data = this.state.data;
+        if(flag){
+            this.state.data.arr[0][0].xIsNext = null;
+            this.state.data.arr[0][0].stepNumber = null;
+        }
+        console.log(data);
+        this.setState({
+            data: data
+        }, ()=> {
+
+            console.log(this.state.data);
+        });
+    }
+
+    Initialization(){
+        console.log(this.state.copyObj);
+        this.setState({
+            data: JSON.parse(this.state.copyObj),
+            copyObj: this.state.copyObj
+        });
+    }
+
+    render() {
         const styleH = {
             overflow: 'hidden'
         };
+        console.log('=========加载==========');
+        console.log(this.state.data);
         return (
             <div style={styleH}>
-                <Piece data={this.state.data}/>
-                <Console  data={this.state.data}/>
+                <Piece data={this.state.data} setFather={() => this.setFather()}/>
+                <Console data={this.state.data} onClick={(i) => this.setFather(i)} Initialization={() => this.Initialization()}/>
             </div>
         );
     }
 }
 
 class demo4 extends React.Component {
-    render(){
+    render() {
         return (
             <Storage storage={storage}/>
         );

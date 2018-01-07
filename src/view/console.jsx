@@ -6,7 +6,7 @@ function ChessPlayer(props) {
         textAlign: 'center',
         fontSize: '20px'
     };
-    const chessPlayer = `当前${props.xIsNext?'白方':'黑方'}执棋`;
+    const chessPlayer = `当前${props.chessPlayer.xIsNext ? '白方' : '黑方'}执棋`;
 
     return (
         <h1 style={styleH}>{chessPlayer}</h1>
@@ -20,32 +20,45 @@ function Operation(props) {
         fontSize: '20px'
     };
     let dom = null;
-    if(props.chessPlayer){
+    if (!props.chessPlayer.data.flag) {
         dom = (
             <li>
                 <button>悔棋</button>
-                <button onClick={() => {props.onClick()}}>认输</button>
+                <button onClick={() => {
+                    props.onClick(0)
+                }}>认输
+                </button>
             </li>
         )
-    }else{
+    } else {
         dom = (
             <li>
-                <button onClick={() => {props.onClick()}}>开始</button>
+                <button onClick={() => {
+                    props.onClick(1)
+                }}>开始
+                </button>
             </li>
         )
     }
+    let prop = props.chessPlayer;
     return (
         <div style={box}>
             <ul className='operation'>
                 <li>
-                    <button>先手</button>
-                    <button>后手</button>
-                    <h3>默认黑棋先手</h3>
+                    <button disabled={!prop.data.flag}>先手</button>
+                    <button disabled={!prop.data.flag}>后手</button>
+                    <h3>默认电脑先手</h3>
                 </li>
                 <li>
-                    <button>白棋</button>
-                    <button>黑棋</button>
-                    <h3>默认玩家先手</h3>
+                    <button disabled={!prop.data.flag} onClick={() => {
+                        props.successively(0)
+                    }} className={prop.active ? 'active' : ''}>白棋
+                    </button>
+                    <button disabled={!prop.data.flag} onClick={() => {
+                        props.successively(1)
+                    }} className={prop.active ? '' : 'active'}>黑棋
+                    </button>
+                    <h3>{`玩家执棋为${prop.active ? '白棋' : '黑棋'}`}</h3>
                 </li>
                 {dom}
             </ul>
@@ -58,29 +71,63 @@ class Console extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data : props.data
+            data: props.data,
+            flag: !props.data.xIsNext
         }
     }
 
-    start(){
-        console.log("改变状态");
+    componentDidMount() {
+        //this.successively(1);
+    }
 
+    componentWillUpdate() {
+
+    }
+
+    start(flag) {//开始游戏||投降认输
+        console.log("改变状态");
+        console.log(flag);
+        flag ?
+            this.state.data.flag = false :(() => {
+                this.state.data.flag = true;
+                this.props.onClick(1);
+            })();
         this.setState({
-            storage: this.state.data?0:1
+            data: this.state.data
         })
     }
 
-    render(){
+    successively(index) {//修改执棋的颜色
+        console.log("触发");
+        const flag = index === 1 ? true : false;
+        this.state.data.xIsNext = flag;
+        this.setState({
+            data: this.state.data,
+            flag: !flag
+        });
+        this.props.onClick();
+    }
+
+    render() {
         const styleD = {
             flexGrow: 1,
             minHeight: '220px',
-            float:'left'
+            float: 'left'
         };
+        let data = {
+            data: this.state.data,
+            active: this.state.flag
+        };
+        console.log('=========子级组件==========');
         console.log(this.state.data);
         return (
             <div style={styleD}>
-                <ChessPlayer chessPlayer={this.state.data} />
-                <Operation chessPlayer={this.state.data} onClick={() => {this.start()}} />
+                <ChessPlayer chessPlayer={this.state.data}/>
+                <Operation chessPlayer={data} onClick={(i) => {
+                    this.start(i)
+                }} successively={(i) => {
+                    this.successively(i)
+                }}/>
             </div>
         );
     }

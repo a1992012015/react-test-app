@@ -84,7 +84,9 @@ class Game extends React.Component {
         this.state.data.history = history.concat([{squares: squares}]);
         this.state.data.stepNumber = history.length;
         this.state.data.xIsNext = !this.state.data.xIsNext;
-        this.setState({data: this.state.data});
+        this.setState({
+            data: this.state.data
+        });
     }
 
     jumpTo(step) {
@@ -98,12 +100,8 @@ class Game extends React.Component {
 
     render() {
         const history = this.state.data.history;
-        console.log(history)
         const current = history[this.state.data.stepNumber];
-        console.log(this.state.data.stepNumber)
-        console.log(current)
         const winner = calculateWinner(current.squares);
-        console.log(this.state);
 
         const moves = history.map((step, move) => {
             const desc = move ?
