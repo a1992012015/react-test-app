@@ -1,20 +1,15 @@
-import m from "negamax";
-import R from "role";
-import zobrist from "zobrist";
-import config from "config";
-import board from "board";
-
-/*var m = require("./negamax.js");
-var R = require("./role.js");
-var zobrist = require("./zobrist.js");
-var config = require("./config.js");
-var board = require("./board.js");*/
+import m from "./negamax";
+import R from "./role";
+import zobrist from "./zobrist";
+import config from "./config";
+import board from "./board";
 
 let AI = function() {
     this.steps = [];
 };
 
 AI.prototype.start = function(size) {//第一步
+    console.log("我们开始吧！");
     board.init(size);
 };
 
@@ -28,5 +23,5 @@ AI.prototype.set = function(x, y) {
 AI.prototype.back = function() {
     board.back();
 };
-//module.exports = AI;
+
 export default AI;

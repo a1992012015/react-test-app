@@ -1,6 +1,4 @@
-import T from "score";
-
-/*var T = require("./score.js");*/
+import T from "./score";
 
 /*
  * 只做一件事，就是修复冲四:
@@ -23,5 +21,4 @@ let s = function(type) {
     return type;
 };
 
-//module.exports = s;
 export default s;

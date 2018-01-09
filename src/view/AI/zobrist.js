@@ -1,6 +1,4 @@
-import R from "role";
-
-//var R = require("./role.js");
+import R from "./role";
 
 let Zobrist = function(size) {
     this.size = size || 15;
@@ -30,5 +28,4 @@ Zobrist.prototype.go = function(x, y, role) {
 let z = new Zobrist();
 z.init();
 
-//module.exports = z;
 export default z;

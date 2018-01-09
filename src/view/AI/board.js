@@ -1,16 +1,9 @@
-import scorePoint from "evaluate-point";
-import zobrist from "zobrist";
-import hasNeighbor from "neighbor";
-import R from "role";
-import S from "score";
-import config from "config";
-
-/*var scorePoint = require("./evaluate-point.js");
-var zobrist = require("./zobrist.js");
-var hasNeighbor = require("./neighbor.js");
-var R = require("./role.js");
-var S = require("./score.js");
-var config = require("./config.js");*/
+import scorePoint from "./evaluate-point";
+import zobrist from "./zobrist";
+import hasNeighbor from "./neighbor";
+import R from "./role";
+import S from "./score";
+import config from "./config";
 
 let Board = function() {};
 
@@ -274,5 +267,4 @@ Board.prototype.gen = function() {
 
 let board = new Board();
 
-//module.exports = board;
 export default board;

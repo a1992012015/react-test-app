@@ -2,12 +2,21 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router, Route, Link} from 'react-router-dom';//导入的方式跟之前有点变化
 import './index.css';
-import {toastIt} from './view/common';
 import Piece from './view/wuziqi';
 import Game from './view/blackWhiteGame';
 import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
+
+let worker = new Worker('./view/testCase/fibonacci.js');
+worker.addEventListener('message', function(event) {
+    console.log(event.data);
+}, false);
+let num = 400;
+worker.postMessage({
+    num: num,
+    flag: 0
+});
 
 const Topics = ({match}) => (
     <div>
@@ -72,17 +81,15 @@ class demo3 extends React.Component {
         };
     }
 
-    componentWillUpdate() {
-        console.log('改变了');
-        toastIt('改变了', 2500, {fontSize: '18px'});
+    crossDomain(){
+        console.log("跨与通信中转");
+        this.refs.getMeet.meet();
     }
 
     setFather() {
         let data = this.state.data;
         this.setState({
             data: data
-        }, ()=> {
-            console.log(this.state.data);
         });
     }
 
@@ -103,8 +110,8 @@ class demo3 extends React.Component {
         };
         return (
             <div style={styleH}>
-                <Piece data={this.state.data} setFather={() => this.setFather()}/>
-                <Console data={this.state.data} onClick={(i) => this.setFather(i)} Initialization={(i) => this.Initialization(i)}/>
+                <Piece data={this.state.data} setFather={() => this.setFather()} ref="getMeet"/>
+                <Console data={this.state.data} onClick={(i) => this.setFather(i)} crossDomain={() => {this.crossDomain()}} Initialization={(i) => this.Initialization(i)}/>
             </div>
         );
     }

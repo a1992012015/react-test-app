@@ -1,6 +1,5 @@
-import R from "role";
+import R from "./role";
 
-/*var R = require("./role");*/
 //有邻居
 let hasNeighbor = function(board, point, distance, count) {
     let len = board.length;
@@ -22,5 +21,4 @@ let hasNeighbor = function(board, point, distance, count) {
     return false;
 };
 
-//module.exports = hasNeighbor;
 export default hasNeighbor;

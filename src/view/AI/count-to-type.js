@@ -1,6 +1,4 @@
-import score from "score";
-
-/*var score = require("./score.js");*/
+import score from "./score";
 
 let t = function(count, block, empty) {
 
@@ -179,7 +177,6 @@ let t = function(count, block, empty) {
     }
 
     return 0;
-}
+};
 
-//module.exports = t;
 export default t;

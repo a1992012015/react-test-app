@@ -1,5 +1,6 @@
 import React from "react";
-/*import server from "./AI/server";*/
+import {toastIt} from './common';
+import server from "./AI/server";
 /*
 * 五子棋*/
 
@@ -54,18 +55,29 @@ class Piece extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: props.data
+            data: props.data,
+            abc:true
         }
     }
 
-    componentDidMount(){
-        console.log("123");
-        let workere = new Worker('./AI/server.js');
-        //console.log(server);
-        workere.postMessage('去吧');
-        workere.onmessage = function(e){
-            console.log(e.data)
+    componentWillUpdate() {
+        console.log('改变了');
+        //toastIt('改变了', 2500, {fontSize: '18px'});
+    }
+
+    meet(){
+        console.log("收到");
+        let type = {
+            type: "START"
         };
+        server(type);
+        this.state.abc = true;
+        if(this.state.abc){
+            this.goOn(7,7);
+            this.setState({
+                abc: false
+            });
+        }
     }
 
     goOn(index, item) {
@@ -74,6 +86,7 @@ class Piece extends React.Component {
         console.log(data.flag);
         if (data.flag) {
             console.log('游戏结束');
+            toastIt('游戏结束',2500,{fontSize:"18px"});
             return;
         }
         const history = data.arr.slice(0, data.stepNumber + 1);
@@ -98,6 +111,16 @@ class Piece extends React.Component {
         });
         this.props.setFather();
         console.log('=========继续落子=========');
+        let type = {
+            type: "GO",
+            x: item,
+            y: index
+        };
+        if(this.state.data.xIsNext){
+            let jieGuo = server(type);
+            console.log(jieGuo);
+            this.goOn(jieGuo[1],jieGuo[0])
+        }
     }
 
     referee(numStr, numEnd, flag = 1, direction = 0) {

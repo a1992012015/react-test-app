@@ -1,21 +1,12 @@
-import R from "role";
-import T from "score";
-import math from "math";
-import checkmate from "checkmate";
-import checkmateFast from "checkmate-fast";
-import config from "config";
-import debug from "debug";
-import board from "board";
+import R from "./role";
+import SCORE from "./score";
+import math from "./math";
+import checkmateFast from "./checkmate-fast";
+import config from "./config";
+import debug from "./debug";
+import board from "./board";
 
-/*var R = require("./role");
-var T = SCORE = require("./score.js");
-var math = require("./math.js");
-var checkmate = require("./checkmate.js");
-var checkmateFast = require("./checkmate-fast.js");
-var config = require("./config.js");
-var debug = require("./debug.js");
-var board = require("./board.js");*/
-
+let T = SCORE;
 let MAX = SCORE.FIVE * 10;
 let MIN = -1 * MAX;
 
@@ -152,5 +143,5 @@ let deeping = function(deep) {
     }
     return result;
 };
-//module.exports = deeping;
+
 export default deeping;

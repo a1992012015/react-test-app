@@ -1,11 +1,11 @@
-import R from "role";
-import hasNeighbor from "neighbor";
-import scorePoint from "evaluate-point";
-import S from "dup";
-import W from "win";
-import config from "config";
-import zobrist from "zobrist";
-import debug from "debug";
+import R from "./role";
+import hasNeighbor from "./neighbor";
+import scorePoint from "./evaluate-point";
+import S from "./dup";
+import W from "./win";
+import config from "./config";
+import zobrist from "./zobrist";
+import debug from "./debug";
 
 /*
  * 算杀
@@ -215,7 +215,8 @@ let cache = function(deep, result) {
 //迭代加深
 let deeping = function(board, role, deep) {
     let start = new Date();
-    debugNodeCount = 0;
+    let debugNodeCount = 0;
+    let result;
     for(let i = 1; i <= deep; i++) {
         let result = max(board, role, i);
         if(result) break; //找到一个就行

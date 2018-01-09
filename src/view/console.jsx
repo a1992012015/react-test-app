@@ -85,20 +85,13 @@ class Console extends React.Component {
         }
     }
 
-    componentDidMount() {
-        //this.successively(1);
-    }
-
-    componentWillUpdate() {
-
-    }
-
     start(flag) {//1开始游戏||0投降认输
         console.log("改变状态");
         flag ?(() => {
             this.state.data.flag = false;
             this.state.data.king = null;
             this.props.Initialization(1);
+            this.props.crossDomain();
         })() :(() => {
             this.state.data.flag = true;
             this.props.Initialization(1);

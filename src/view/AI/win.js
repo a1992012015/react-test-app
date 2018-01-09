@@ -1,6 +1,4 @@
-import R from "role";
-
-/*var R = require("./role.js");*/
+import R from "./role";
 
 let isFive = function(board, p, role) {
     let len = board.length;
@@ -8,7 +6,7 @@ let isFive = function(board, p, role) {
 
     let reset = function() {
         count = 1;
-    }
+    };
 
     for(let i = p[1] + 1; true; i++) {
         if(i >= len) break;
@@ -120,5 +118,4 @@ let w = function(board) {
     return false;
 };
 
-//module.exports = w;
 export default w;

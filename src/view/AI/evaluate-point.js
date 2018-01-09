@@ -1,14 +1,11 @@
-import R from "role";
-import type from "count-to-type";
-import typeToScore from "type-to-score";
+import R from "./role";
+import type from "./count-to-type";
+import typeToScore from "./type-to-score";
 /*
 		 * 启发式评价函数
 		 * 这个是专门给某一个空位打分的，不是给整个棋盘打分的
 		 * 并且是只给某一个角色打分
 		 */
-/*let R = require("./role.js");
-let type = require("./count-to-type.js");
-let typeToScore = require("./type-to-score.js");*/
 /*
  * 表示在当前位置下一个棋子后的分数
  */
@@ -20,7 +17,7 @@ let s = function(board, p, role) {
         secondCount = 0; //另一个方向的count
 
     let len = board.length;
-
+    let empty = -1;
     function reset() {
         count = 1;
         block = 0;
@@ -251,5 +248,4 @@ let s = function(board, p, role) {
     return typeToScore(result);
 };
 
-//module.exports = s;
 export default s;

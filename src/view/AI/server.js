@@ -1,10 +1,8 @@
-/*
-import AI from "ai";
+import AI from "./ai";
 
-/!*var AI = require("./ai.js");*!/
 let ai = new AI();
 
-onmessage = function(e) {
+/*onmessage = function(e) {
     let d = e.data;
     console.log(d);
     if(d.type == "START") {
@@ -17,12 +15,24 @@ onmessage = function(e) {
         ai.back();
     }
 };
-*/
-onmessage =function(e){
+self.onmessage = function (e) {
     let d = e.data;
     console.log(d);
     postMessage(d);
-};
-/*
-let a =3;
-export default a;*/
+};*/
+
+function AIS(e) {
+    let d = e;
+    console.log(d);
+    if(d.type == "START") {
+        ai.start(15);
+    } else if(d.type == "GO") {
+        let p = ai.set(e.x, e.y);
+        console.log(p);
+        return p;
+    } else if(d.type == "BACK") {
+        ai.back();
+    }
+}
+
+export default AIS;
