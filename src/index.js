@@ -8,7 +8,7 @@ import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
 
-let worker = new Worker('./view/testCase/fibonacci.js');
+let worker = new Worker('./static/js/fibonacci.js');
 worker.addEventListener('message', function(event) {
     console.log(event.data);
 }, false);
