@@ -1,4 +1,5 @@
 import React from "react";
+/*import server from "AI/server";*/
 /*
 * 五子棋*/
 
@@ -52,6 +53,12 @@ function Row(props) {
 class Piece extends React.Component {
     constructor(props) {
         super(props);
+        let worker = new Worker('./view/AI/server.js');
+        console.log(worker);
+        worker.postMessage('去吧');
+        worker.onmessage = function(e){
+            console.log(e.data)
+        };
         this.state = {
             data: props.data
         }
