@@ -23,3 +23,6 @@ onmessage =function(e){
     console.log(d);
     postMessage(d);
 };
+/*
+let a =3;
+export default a;*/

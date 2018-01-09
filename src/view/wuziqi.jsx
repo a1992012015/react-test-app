@@ -1,5 +1,5 @@
 import React from "react";
-/*import server from "AI/server";*/
+/*import server from "./AI/server";*/
 /*
 * 五子棋*/
 
@@ -53,15 +53,19 @@ function Row(props) {
 class Piece extends React.Component {
     constructor(props) {
         super(props);
-        let worker = new Worker('./view/AI/server.js');
-        console.log(worker);
-        worker.postMessage('去吧');
-        worker.onmessage = function(e){
-            console.log(e.data)
-        };
         this.state = {
             data: props.data
         }
+    }
+
+    componentDidMount(){
+        console.log("123");
+        let workere = new Worker('./AI/server.js');
+        //console.log(server);
+        workere.postMessage('去吧');
+        workere.onmessage = function(e){
+            console.log(e.data)
+        };
     }
 
     goOn(index, item) {
@@ -179,10 +183,6 @@ class Piece extends React.Component {
         }
         return str;
     }
-
-    /*componentWillUpdate(){
-        //this.referee();
-    }*/
 
     render() {
         let data = this.state.data.arr;
