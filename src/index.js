@@ -8,15 +8,31 @@ import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
 
-let worker = new Worker('./static/js/fibonacci.js');
-worker.addEventListener('message', function(event) {
+/*let worker = new Worker('./static/js/fibonacci.js');
+worker.addEventListener('message', function (event) {
     console.log(event.data);
 }, false);
 let num = 400;
 worker.postMessage({
     num: num,
     flag: 0
-});
+});*/
+const child_process = require('child_process');
+for (let i = 0; i < 3; i++) {
+    let workerProcess = child_process.exec('node support.js ' + i, function (error, stdout, stderr) {
+        if (error) {
+            console.log(error.stack);
+            console.log('Error code: ' + error.code);
+            console.log('Signal received: ' + error.signal);
+        }
+        console.log('stdout: ' + stdout);
+        console.log('stderr: ' + stderr);
+    });
+
+    workerProcess.on('exit', function (code) {
+        console.log('子进程已退出，退出码 ' + code);
+    });
+}
 
 const Topics = ({match}) => (
     <div>
@@ -81,7 +97,7 @@ class demo3 extends React.Component {
         };
     }
 
-    crossDomain(){
+    crossDomain() {
         console.log("跨与通信中转");
         this.refs.getMeet.meet();
     }
@@ -93,12 +109,12 @@ class demo3 extends React.Component {
         });
     }
 
-    Initialization(index){
+    Initialization(index) {
         let data = this.state.data;
-        if(!data.stepNumber) return;
-        data.arr = data.arr.slice(0,index?1:data.arr.length-1);
-        data.xIsNext = (data.stepNumber % 2) === 0?index?data.xIsNext:!data.xIsNext:!data.xIsNext;
-        data.stepNumber = index?0:data.stepNumber-1;
+        if (!data.stepNumber) return;
+        data.arr = data.arr.slice(0, index ? 1 : data.arr.length - 1);
+        data.xIsNext = (data.stepNumber % 2) === 0 ? index ? data.xIsNext : !data.xIsNext : !data.xIsNext;
+        data.stepNumber = index ? 0 : data.stepNumber - 1;
         this.setState({
             data: data
         });
@@ -111,7 +127,9 @@ class demo3 extends React.Component {
         return (
             <div style={styleH}>
                 <Piece data={this.state.data} setFather={() => this.setFather()} ref="getMeet"/>
-                <Console data={this.state.data} onClick={(i) => this.setFather(i)} crossDomain={() => {this.crossDomain()}} Initialization={(i) => this.Initialization(i)}/>
+                <Console data={this.state.data} onClick={(i) => this.setFather(i)} crossDomain={() => {
+                    this.crossDomain()
+                }} Initialization={(i) => this.Initialization(i)}/>
             </div>
         );
     }
