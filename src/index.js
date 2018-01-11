@@ -8,31 +8,7 @@ import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
 
-/*let worker = new Worker('./static/js/fibonacci.js');
-worker.addEventListener('message', function (event) {
-    console.log(event.data);
-}, false);
-let num = 400;
-worker.postMessage({
-    num: num,
-    flag: 0
-});*/
-const child_process = require('child_process');
-for (let i = 0; i < 3; i++) {
-    let workerProcess = child_process.exec('node support.js ' + i, function (error, stdout, stderr) {
-        if (error) {
-            console.log(error.stack);
-            console.log('Error code: ' + error.code);
-            console.log('Signal received: ' + error.signal);
-        }
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
-    });
 
-    workerProcess.on('exit', function (code) {
-        console.log('子进程已退出，退出码 ' + code);
-    });
-}
 
 const Topics = ({match}) => (
     <div>
