@@ -29,7 +29,17 @@
     background-position: 50% 50%;
     background-size: 100%;
     float: left;
-    transition: width 1.5s ease;
+    -transition: width 1.5s ease;
+    animation:
+}
+
+.slider .slider-item.active{
+
+}
+
+@keyframes sliderAnimation {
+    from {width:500px;}
+    to {width:0;}
 }
 /* line 22, ../sass/index.scss */
 .slider .slider-item > img {
