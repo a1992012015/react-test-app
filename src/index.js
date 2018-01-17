@@ -7,6 +7,7 @@ import Game from './view/blackWhiteGame';
 import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
+import LunBo from './view/lunbo';
 
 
 
@@ -120,6 +121,7 @@ const BasicExample = () => (
                 <li><Link to="/MyComponent">归递组件</Link></li>
                 <li><Link to="/Topics">二级菜单</Link></li>
                 <li><Link to="/Storage">储存</Link></li>
+                <li><Link to="/LunBo">轮播图</Link></li>
             </ul>
 
             <hr/>
@@ -129,6 +131,7 @@ const BasicExample = () => (
             <Route path="/MyComponent" component={MyComponent}/>
             <Route path="/Topics" component={Topics}/>
             <Route path="/Storage" component={Storage}/>
+            <Route path="/LunBo" component={LunBo}/>
         </div>
     </Router>
 );
