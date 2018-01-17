@@ -10,24 +10,98 @@ export default class Slider extends Component {
         super(props);
         this.state = {
             nowLocal: 0,
+            items: props.items
         };
     }
 
-    render() {
-        let { items } = this.props;
-        items = items.slice(0,3);
-        let li = items.map((item,index) => {
-            return (
-                <SliderItem item={item} key={index}/>
-            )
+    componentWillMount(){
+        let { items } = this.state;
+        let end = items.slice(items.length - 1,items.length);
+        items.pop();
+        items.unshift(end[0]);
+        this.setState({
+            items:items
         });
-        console.log(this.props);
+    }
+
+    componentDidUpdate(){
+        console.log("调用")
+    }
+
+    goOn(){
+        let { start } = this.refs;
+        let { speed } = this.props;
+        let { items } = this.state;
+        let startLi = start.getElementsByTagName('li')[0];
+        let width = start.clientWidth / items.length;
+        console.log(width);
+        startLi.style.width = 0;
+        //let a = setTimeout(() => {
+            console.log("计时器生效中。。。");
+            this.returnOn();
+        //},speed * 1000);
+        //console.log(a)
+    }
+
+    returnOn(){
+        let { items } = this.state,arr = new Array(items.length).fill(null);
+        items = items.map((item,index) => {
+            let num = index - 1 < 0?items.length-1:index - 1;
+            arr[num] = item
+        });
+        let { start } = this.refs;
+        let startLi = start.getElementsByTagName('li')[0];
+        this.setState({
+            items:arr
+        },() => {
+            let width = start.clientWidth / items.length;
+            //startLi.style.transition = 'none';
+            //startLi.style.width = `${width}px`;
+        });
+        console.log('暂停');
+        let { speed } = this.props;
+        //startLi.style.transition = `width ${speed}s ease`;
+        console.log('完成');
+    }
+
+    demo(){
+        console.log('从父级过来的消息');
+        this.goOn();
+    }
+
+    render() {
+        let { speed } = this.props;
+        let { items } = this.state;
+        let list = items.map((item,index) => {
+            if(index === 0){
+                console.log(`width ${speed}s ease`);
+                return (
+                    <SliderItem
+                        styles={`width ${speed}s ease`}
+                        item={item}
+                        count={items.length}
+                        key={index}
+                    />
+                )
+            }else{
+                return (
+                    <SliderItem
+                        item={item}
+                        count={items.length}
+                        key={index}
+                    />
+                )
+            }
+        });
         let style = {
-            width: '300%'
+            width: `${items.length * 100}%`
         };
         return (
-            <ul className='sliderUl' style={style}>
-                {li}
+            <ul className='sliderUl'
+                style={style}
+                ref='start'
+            >
+                {list}
             </ul>
         );
     }

@@ -12,21 +12,24 @@
     width: 500px;
     height: 309px;
     position: relative;
+    margin: 0 auto;
 }
 .sliderUl{
-    height: auto;
+    height: 100%;
     overflow: hidden;
     position: relative;
     left: 0;
     transition: left 1s;
-}
-.sliderUl li{
-    height: 100%;
+    margin-left: -100%;
 }
 /* line 18, ../sass/index.scss */
 .slider .slider-item {
-    display: inline-block;
-    height: auto;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 100%;
+    float: left;
+    transition: width 1.5s ease;
 }
 /* line 22, ../sass/index.scss */
 .slider .slider-item > img {

@@ -49,20 +49,36 @@ class LunBo extends React.Component {
         }
     }
 
+    goSon(){
+        let { slider } = this.refs;
+        console.log(slider.clientWidth);
+        slider.demo();
+    }
+
     render() {
 
         return (
-            <div className='slider'>
-                <Slider
-                    items={IMAGE_DATA}
-                    speed={1.2}
-                    delay={2.1}
-                    pause={true}
-                    autoplay={true}
-                    dots={true}
-                    arrows={true}
-                />
+            <div>
+                <div className='slider'>
+                    <Slider
+                        items={IMAGE_DATA}
+                        speed={1.2}
+                        delay={2.1}
+                        pause={true}
+                        autoplay={true}
+                        dots={true}
+                        arrows={true}
+                        ref='slider'
+                    />
+                </div>
+                <button
+                    onClick={() => this.goSon()}
+                    style={{
+                        color:'#000'
+                    }}
+                >触发子级函数</button>
             </div>
+
         );
     }
 }
