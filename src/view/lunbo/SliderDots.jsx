@@ -8,25 +8,25 @@ export default class SliderDots extends Component {
         super(props);
     }
 
-    handleDotClick(i) {
-        var option = i - this.props.nowLocal;
-        this.props.turn(option);
+    handleDotClick(option) {
+        let { nowLocal,GoTo } = this.props;
+        option = option + 1 - nowLocal;
+        GoTo(option);
     }
 
     render() {
-        let dotNodes = [];
-        let { count, nowLocal } = this.props;
-        for(let i = 0; i < count; i++) {
-            dotNodes[i] = (
+        let { items, nowLocal } = this.props;
+        let dotNodes = items.map((item,index) => {
+            return (
                 <span
-                    key={'dot' + i}
-                    className={"slider-dot" + (i === this.props.nowLocal?" slider-dot-selected":"")}
-                    onClick={this.handleDotClick.bind(this, i)}>
-        </span>
-            );
-        }
+                    className={"sliderDot" + (index === nowLocal - 1?" sliderDotSelected":"")}
+                    key={'dot' + index}
+                    onClick={() => this.handleDotClick(index)}
+                />
+            )
+        });
         return (
-            <div className="slider-dots-wrap">
+            <div className="sliderDotsWrap">
                 {dotNodes}
             </div>
         );

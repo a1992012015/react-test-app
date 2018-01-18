@@ -20,7 +20,7 @@
     position: relative;
     left: 0;
     transition: left 1s;
-    margin-left: -100%;
+    margin-left: -200%;
 }
 /* line 18, ../sass/index.scss */
 .slider .slider-item {
@@ -29,17 +29,19 @@
     background-position: 50% 50%;
     background-size: 100%;
     float: left;
-    -transition: width 1.5s ease;
-    animation:
 }
 
 .slider .slider-item.active{
-
+    animation:sliderAnimation 2s;
 }
 
-@keyframes sliderAnimation {
+@keyframes sliderAnimationLeft {
     from {width:500px;}
     to {width:0;}
+}
+@keyframes sliderAnimationRight {
+    from {width:500px;}
+    to {width:1000px;}
 }
 /* line 22, ../sass/index.scss */
 .slider .slider-item > img {
@@ -47,54 +49,34 @@
     height: auto;
     width: 100%;
 }
-/* line 29, ../sass/index.scss */
-.slider .slider-arrow {
-    display: inline-block;
-    color: #fff;
-    font-size: 50px;
+
+.slider .control{
     position: absolute;
+    display: block;
+    width: 100px;
+    height: 50px;
     top: 50%;
-    margin-top: -50px;
-    z-index: 100;
-    padding: 20px;
-    cursor: pointer;
-    font-weight: bold;
+    margin-top: -25px;
+    background-color: #3b9bdb;
 }
-/* line 41, ../sass/index.scss */
-.slider .slider-arrow:hover {
-    background: rgba(0, 0, 0, 0.2);
-}
-/* line 45, ../sass/index.scss */
-.slider .slider-arrow.slider-arrow-right {
-    right: 0;
-}
-/* line 48, ../sass/index.scss */
-.slider .slider-arrow.slider-arrow-left {
-    left: 0;
-}
-/* line 53, ../sass/index.scss */
-.slider .slider-dots-wrap {
-    z-index: 99;
-    text-align: center;
-    width: 100%;
+
+.sliderDotsWrap{
     position: absolute;
     bottom: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
-/* line 60, ../sass/index.scss */
-.slider .slider-dots-wrap .slider-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border: 3px solid #ccc;
-    margin: 6px;
-    cursor: pointer;
-    border-radius: 20px;
+
+.sliderDotsWrap .sliderDot{
+    display: block;
+    width: 15px;
+    height: 15px;
+    margin: 5px;
+    border-radius: 10px;
+    background-color: #0292f3;
 }
-/* line 69, ../sass/index.scss */
-.slider .slider-dots-wrap .slider-dot:hover {
-    border: 3px solid #868686;
-}
-/* line 73, ../sass/index.scss */
-.slider .slider-dots-wrap .slider-dot.slider-dot-selected {
-    background: #ccc;
+
+.sliderDotsWrap .sliderDotSelected{
+    background-color: #fff1df;
 }

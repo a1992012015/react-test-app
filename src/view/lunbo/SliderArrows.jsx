@@ -5,24 +5,15 @@ export default class SliderArrows extends Component {
         super(props);
     }
 
-    handleArrowClick(option) {
-        this.props.turn(option);
-    }
-
     render() {
+        let { goSon,flag } = this.props;
+        let style = flag?{right: '30px'}:{left: '30px'};
         return (
-            <div className="slider-arrows-wrap">
-        <span
-            className="slider-arrow slider-arrow-left"
-            onClick={this.handleArrowClick.bind(this, -1)}>
-          &lt;
-        </span>
-                <span
-                    className="slider-arrow slider-arrow-right"
-                    onClick={this.handleArrowClick.bind(this, 1)}>
-          &gt;
-        </span>
-            </div>
+            <span
+                style={style}
+                className="control"
+                onClick={goSon}
+            />
         );
     }
 }

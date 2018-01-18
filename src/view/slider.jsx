@@ -2,85 +2,193 @@ import React, { Component } from 'react';
 import './Slider.css'
 
 import SliderItem from './lunbo/SliderItem';
-/*import SliderDots from './lunbo/SliderDots';
-import SliderArrows from './lunbo/SliderArrows';*/
 
 export default class Slider extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            nowLocal: 0,
-            items: props.items
+            nowLocal: false,//控制动画的执行参数
+            direction: true,//接收动画方向的参数
+            items: props.items,//接收需要显示的每个元素
+            dots: props.dots,//接收下面的远点显示那一个
+            frequency: null,//控制动画需要执行几次的参数
+            speed: props.speed,//动画过度的速度
+            delay: props.delay,//画面的停顿时间
+            flag: true,//控制事件速度的执行次数
         };
+    }
+
+    componentWillReceiveProps(newProps){
+        let { frequency } = newProps;
+        let { speed,delay,flag } = this.state;
+        console.log(frequency > 0?frequency:-frequency);
+        let num = frequency > 0?frequency:-frequency;
+        console.log(num);
+        console.log('这里是几次');
+        console.log(speed/num);
+        console.log(delay/num);
+        let speeds = null;
+        let delays = null;
+        if(flag){
+            speeds = speed/num;
+            delays = delay/num;
+        }else{
+            speeds = speed;
+            delays = delay;
+        }
+        if(frequency > 0){
+            this.setState({
+                nowLocal: true,
+                frequency:frequency,
+                speed:speeds,
+                delay:delays,
+            });
+        }else{
+            this.setState({
+                nowLocal: true,
+                frequency:frequency,
+                direction:false,
+                speed:speeds,
+                delay:delays,
+            });
+        }
     }
 
     componentWillMount(){
         let { items } = this.state;
-        let end = items.slice(items.length - 1,items.length);
+
+        let sliceItems = items.slice(items.length - 2,items.length);
+        items = sliceItems.concat(items);
         items.pop();
-        items.unshift(end[0]);
+        items.pop();
         this.setState({
             items:items
         });
+
+        let self = this;
+        document.addEventListener("webkitAnimationEnd", () => self.overAni(), false);
+        document.addEventListener("mozAnimationEnd", () => self.overAni(), false);
+        document.addEventListener("MSAnimationEnd", () => self.overAni(), false);
+        document.addEventListener("oanimationend", () => self.overAni(), false);
+        document.addEventListener("animationend", () => self.overAni(), false);
     }
 
     componentDidUpdate(){
-        console.log("调用")
+        console.log("刷新了页面");
     }
-
+    /*设置鼠标移入事件*/
+    setMouseover(){
+        console.log(this);
+        clearInterval(this.autoPlayFlag);
+    }
+    /*设置鼠标移出事件*/
+    setMouseout(){
+        /*let { delay } = this.state;
+        this.autoPlayFlag = setInterval(() => {
+            this.goOn();
+        },delay * 1000)*/
+    }
+    /*开始执行动画*/
     goOn(){
-        let { start } = this.refs;
-        let { speed } = this.props;
-        let { items } = this.state;
-        let startLi = start.getElementsByTagName('li')[0];
-        let width = start.clientWidth / items.length;
-        console.log(width);
-        startLi.style.width = 0;
-        //let a = setTimeout(() => {
-            console.log("计时器生效中。。。");
-            this.returnOn();
-        //},speed * 1000);
-        //console.log(a)
+        //添加动画执行的属性
+        this.setState({
+            nowLocal: true
+        });
     }
-
+    /*动画结束*/
+    overAni(){
+        /*结束之后调用界面刷新*/
+        this.returnOn();
+    }
+    /*结束后刷新页面*/
     returnOn(){
-        let { items } = this.state,arr = new Array(items.length).fill(null);
+        let { items,direction,frequency } = this.state,
+            arr = new Array(items.length).fill(null),
+            { GoToZ } = this.props;
         items = items.map((item,index) => {
-            let num = index - 1 < 0?items.length-1:index - 1;
+            let num = direction?index - 1 < 0?items.length-1:index - 1:index + 1 >= items.length?0:index + 1;
             arr[num] = item
         });
-        let { start } = this.refs;
-        let startLi = start.getElementsByTagName('li')[0];
-        this.setState({
-            items:arr
-        },() => {
-            let width = start.clientWidth / items.length;
-            //startLi.style.transition = 'none';
-            //startLi.style.width = `${width}px`;
-        });
-        console.log('暂停');
-        let { speed } = this.props;
-        //startLi.style.transition = `width ${speed}s ease`;
-        console.log('完成');
+        GoToZ(arr[2].alt);
+        if(frequency > 1 || frequency < -1){
+            this.setState({
+                items:arr,
+                nowLocal: false,
+            });
+        }else{
+            this.setState({
+                items:arr,
+                nowLocal: false,
+                direction: true,
+                flag: true,
+            });
+        }
+
+        console.log('再执行');
+        //let { frequency } = this.props;
+        console.log(frequency);
+        if(frequency > 1){
+            setTimeout(() =>{
+                this.goOn();
+            },0);
+            this.setState({
+                frequency: frequency - 1
+            })
+        }else if(frequency < -1){
+            setTimeout(() =>{
+                this.goOn();
+            },0);
+            this.setState({
+                frequency: frequency + 1
+            })
+        }
     }
 
-    demo(){
-        console.log('从父级过来的消息');
-        this.goOn();
+    demo(index,frequency = 1){
+        let { delay } = this.state;
+        if(index === 0){//开启计时器
+            this.autoPlayFlag = setInterval(() => {
+                this.goOn();
+            },delay * 1000)
+        }else if(index === 1){//关闭计时器
+            clearInterval(this.autoPlayFlag);
+        }else if(index === 2){//下一张
+            if(this.autoPlayFlag){
+                clearInterval(this.autoPlayFlag);
+            }
+            this.goOn();
+            /*this.autoPlayFlag = setInterval(() => {
+                this.goOn();
+            },delay * 1000)*/
+        }else if(index === 3){//上一张
+            if(this.autoPlayFlag){
+                clearInterval(this.autoPlayFlag);
+            }
+            this.goOn();
+            /*this.autoPlayFlag = setInterval(() => {
+                this.goOn();
+            },delay * 1000);*/
+            this.setState({
+                direction: false
+            });
+        }
+        this.setState({
+            frequency
+        });
     }
 
     render() {
-        let { speed } = this.props;
-        let { items } = this.state;
+        let { items,nowLocal,direction,speed } = this.state;
         let list = items.map((item,index) => {
             if(index === 0){
-                console.log(`width ${speed}s ease`);
                 return (
                     <SliderItem
-                        styles={`width ${speed}s ease`}
+                        speed={speed}
+                        direction={direction}
+                        nowLocal={nowLocal}
                         item={item}
                         count={items.length}
-                        key={index}
+                        key={`sliderLi${index}`}
                     />
                 )
             }else{
@@ -88,7 +196,7 @@ export default class Slider extends Component {
                     <SliderItem
                         item={item}
                         count={items.length}
-                        key={index}
+                        key={`sliderLi${index}`}
                     />
                 )
             }
@@ -99,7 +207,8 @@ export default class Slider extends Component {
         return (
             <ul className='sliderUl'
                 style={style}
-                ref='start'
+                onMouseOver={() => this.setMouseover()}
+                onMouseOut={() => this.setMouseout()}
             >
                 {list}
             </ul>
@@ -112,7 +221,7 @@ Slider.defaultProps = {
     delay: 2,
     pause: true,
     autoplay: true,
-    dots: true,
+    dots: 1,
     arrows: true,
     items: [],
 };

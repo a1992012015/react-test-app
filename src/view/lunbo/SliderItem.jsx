@@ -8,16 +8,15 @@ export default class SliderItem extends Component {
     }
 
     render() {
-        let { count,item,styles } = this.props;
+        let { count,item,speed,nowLocal,direction } = this.props;
         let width = 100 / count + '%';
         let style = {
             width: width,
             backgroundImage: `url(${item.src})`,
-            transition:styles?styles:null
+            animation: nowLocal?direction?`sliderAnimationLeft ${speed}s linear`:`sliderAnimationRight ${speed}s linear`:null,
         };
-        console.log(style);
         return (
-            <li className="slider-item" style={style}>
+            <li className='slider-item' style={style}>
             </li>
         );
     }
