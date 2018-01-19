@@ -63,6 +63,7 @@ class ReactSwipeTow extends React.Component {
     componentDidUpdate(){
         console.log('组件完成更新');
     }
+    /*组件被销毁*/
     componentWillUnmount() {
         let { autoPlayFlag } = this.state;
         clearInterval(autoPlayFlag);

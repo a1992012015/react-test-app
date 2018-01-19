@@ -3,10 +3,31 @@ import React, { Component } from 'react';
 export default class SweipeItem extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            widthUl: null
+        }
+    }
+    /*第一次渲染之后*/
+    componentDidMount(){
+        this.onWindowResize();
+        window.addEventListener('resize',this.onWindowResize.bind(this),false);
+    }
+    /*组件被销毁*/
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.onWindowResize.bind(this))
+    }
+    /*监听浏览器宽度变化*/
+    onWindowResize(){
+        console.log('宽度');
+        let { threeUl } = this.refs;
+        this.setState({
+            widthUl: threeUl.clientWidth
+        })
     }
 
     render() {
-        let { list,speed,widthUl,dots,deviation } = this.props;
+        let { list,speed,dots,deviation } = this.props;
+        let { widthUl } = this.state;
         let items = list.map((item,index) => {
             let style = {
                 backgroundImage: `url(${item.src})`,
@@ -21,17 +42,23 @@ export default class SweipeItem extends Component {
                 right: '0',
             };
             return (
-                <li style={style} key={`sweipe${index}`}/>
+                <li style={style} key={`threeLi${index}`}/>
             )
         });
         let styleUl = {
             width: '100%',
-            height:'100%',
             overflow:'hidden',
-            position: 'relative',
+            position: 'absolute',
+            top: '0',
+            bottom: '0',
+            left: '0',
+            right: '0',
         };
         return (
-            <ul style={styleUl}>
+            <ul
+                style={styleUl}
+                ref='threeUl'
+            >
                 {items}
             </ul>
         );

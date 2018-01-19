@@ -30,8 +30,8 @@ export default class Slider extends Component {
         let speeds = null;
         let delays = null;
         if(flag){
-            speeds = speed/num;
-            delays = delay/num;
+            speeds = speed;
+            delays = delay;
         }else{
             speeds = speed;
             delays = delay;
@@ -76,6 +76,16 @@ export default class Slider extends Component {
     componentDidUpdate(){
         console.log("刷新了页面");
     }
+    /*销毁*/
+    componentWillUnmount(){
+        clearInterval(this.autoPlayFlag);
+        let self = this;
+        document.removeEventListener("webkitAnimationEnd", () => self.overAni(), false);
+        document.removeEventListener("mozAnimationEnd", () => self.overAni(), false);
+        document.removeEventListener("MSAnimationEnd", () => self.overAni(), false);
+        document.removeEventListener("oanimationend", () => self.overAni(), false);
+        document.removeEventListener("animationend", () => self.overAni(), false);
+    }
     /*设置鼠标移入事件*/
     setMouseover(){
         console.log(this);
@@ -83,10 +93,10 @@ export default class Slider extends Component {
     }
     /*设置鼠标移出事件*/
     setMouseout(){
-        /*let { delay } = this.state;
+        let { delay } = this.state;
         this.autoPlayFlag = setInterval(() => {
             this.goOn();
-        },delay * 1000)*/
+        },delay * 1000)
     }
     /*开始执行动画*/
     goOn(){

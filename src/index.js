@@ -11,8 +11,6 @@ import LunBo from './view/lunbo';
 import ReactSwipeTow from "./view/react-swipe";
 import SwipeTree from "./view/reactSwipeThree/swiperThree";
 
-console.log(SwipeTree);
-
 const Topics = ({match}) => (
     <div>
         <h2>Topics</h2>
