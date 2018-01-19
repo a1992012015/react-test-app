@@ -1,12 +1,12 @@
-import React from 'react'
-import SweipeItem from './react-swipe/sweipeItem'
-import swiper1 from './../src/swiper1.jpg'
-import swiper2 from './../src/swiper2.jpg'
-import swiper3 from './../src/swiper3.jpg'
-import swiper4 from './../src/swiper4.jpg'
-import swiper5 from './../src/swiper5.jpg'
-import swiper6 from './../src/swiper6.jpg'
-import swiper7 from './../src/swiper7.jpg'
+import React, { Component } from 'react';
+import SweipeItem from './sweiperItem'
+import swiper1 from './../../src/swiper1.jpg'
+import swiper2 from './../../src/swiper2.jpg'
+import swiper3 from './../../src/swiper3.jpg'
+import swiper4 from './../../src/swiper4.jpg'
+import swiper5 from './../../src/swiper5.jpg'
+import swiper6 from './../../src/swiper6.jpg'
+import swiper7 from './../../src/swiper7.jpg'
 
 const IMAGE_DATA = [
     {
@@ -39,88 +39,38 @@ const IMAGE_DATA = [
     },
 ];
 
-class ReactSwipeTow extends React.Component {
-    constructor(props) {
-        super(props);
+const listImg = [
+    {
+        src: swiper1,
+        alt: 1,
+    },
+    {
+        src: swiper2,
+        alt: 2,
+    },
+    {
+        src: swiper3,
+        alt: 3,
+    },
+    {
+        src: swiper4,
+        alt: 4,
+    }
+];
+
+class SwipeTree extends Component {
+    constructor() {
+        super();
         this.state = {
             dots: 0, //从那一张图开始||也是当前显示的那张图
-            list: IMAGE_DATA, //需要显示的列表
+            list: listImg, //需要显示的列表
             speed: 0.5, //过度的速度
             delay: 2, //停留的时间
             deviation: true, //滑动的方向
             autoPlayFlag: null, //接收轮播图的计时器
         }
     }
-    /*第一次渲染之后*/
-    componentDidMount(){
-        let { autoPlayFlag,delay } = this.state;
-        autoPlayFlag = this.setUpInterval(delay);
-        this.setState({
-            autoPlayFlag: autoPlayFlag
-        })
-    }
-    /*组件完成更新*/
-    componentDidUpdate(){
-        console.log('组件完成更新');
-    }
-    componentWillUnmount() {
-        let { autoPlayFlag } = this.state;
-        clearInterval(autoPlayFlag);
-    }
-    /*创建一个计时器并且返回*/
-    setUpInterval(delay){
-        return setInterval(() =>{
-            this.goToLeft(1);
-        },delay * 1000);
-    }
-    /*下一张*/
-    goToLeft(index){
-        let { dots,list } = this.state;
-        dots = dots + index >= list.length?0:dots + index;
-        this.setState({
-            dots: dots,
-            deviation: true
-        });
-    }
-    /*上一张*/
-    goToRight(index){
-        let { dots,list } = this.state;
-        dots = dots - index < 0?list.length - 1:dots - index;
-        this.setState({
-            dots: dots,
-            deviation: false
-        });
-    }
-    /*小圆点事件，前往第N个元素*/
-    setIndex(index){
-        console.log('触发跳转');
-        console.log(index);
-        let { dots } = this.state;
-        let num = dots - index > 0?dots - index:index - dots;
-        console.log(num);
-        if(index > dots){
-            console.log('向右');
-            this.goToLeft(num);
-        }else{
-            console.log('向左');
-            this.goToRight(num);
-        }
-    }
-    /*鼠标移入事件*/
-    setMouseOver(){
-        console.log('移入');
-        let { autoPlayFlag } = this.state;
-        clearInterval(autoPlayFlag);
-    }
-    /*鼠标移出事件*/
-    setMouseOut(){
-        console.log('移出');
-        let { delay } = this.state;
-        let autoPlayFlag = this.setUpInterval(delay);
-        this.setState({
-            autoPlayFlag:autoPlayFlag
-        })
-    }
+
     render() {
         /*外层容器的样式*/
         let style = {
@@ -183,8 +133,7 @@ class ReactSwipeTow extends React.Component {
             return (
                 <li
                     style={styleLi}
-                    key={`listLi${index}`}
-                    onClick={() => this.setIndex(index)}
+                    key={`threeLi${index}`}
                 />
             )
         });
@@ -192,9 +141,6 @@ class ReactSwipeTow extends React.Component {
             <div>
                 <div
                     style={style}
-                    onClick={this.demo}
-                    onMouseEnter={() => this.setMouseOver()}
-                    onMouseLeave={() => this.setMouseOut()}
                 >
                     <SweipeItem
                         list={list} //需要显示的列表
@@ -206,22 +152,20 @@ class ReactSwipeTow extends React.Component {
                     />
                     <span
                         style={Left}
-                        onClick={() => this.goToLeft(1)}
                     >&#8249;</span>
                     <span
                         style={Right}
-                        onClick={() => this.goToRight(1)}
                     >&#8250;</span>
                     <ul style={styleUl}>
                         {listLi}
                     </ul>
                 </div>
-                <button onClick={() => this.goToLeft(1)}>下一张</button>
-                <button onClick={() => this.goToRight(1)}>上一张</button>
+                <button>下一张</button>
+                <button>上一张</button>
             </div>
 
         );
     }
 }
 
-export default ReactSwipeTow;
+export default SwipeTree;

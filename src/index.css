@@ -143,6 +143,8 @@ ol, ul {
 
 .item a {
     text-decoration: none;
+    display: block;
+    text-align: center;
 }
 
 .item a.active {

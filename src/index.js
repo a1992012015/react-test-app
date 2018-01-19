@@ -8,9 +8,10 @@ import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
 import LunBo from './view/lunbo';
-import ReactSwipeD from "./view/react-swipe";
+import ReactSwipeTow from "./view/react-swipe";
+import SwipeTree from "./view/reactSwipeThree/swiperThree";
 
-
+console.log(SwipeTree);
 
 const Topics = ({match}) => (
     <div>
@@ -122,8 +123,9 @@ const BasicExample = () => (
                 <li><Link to="/MyComponent">归递组件</Link></li>
                 <li><Link to="/Topics">二级菜单</Link></li>
                 <li><Link to="/Storage">储存</Link></li>
-                <li><Link to="/LunBo">轮播图</Link></li>
-                <li><Link to="/ReactSwipeD">ReactSwipeD</Link></li>
+                <li><Link to="/LunBo">轮播图初版</Link></li>
+                <li><Link to="/ReactSwipeTow">轮播图二版</Link></li>
+                <li><Link to="/SwipeTree">轮播图三版</Link></li>
             </ul>
 
             <hr/>
@@ -134,7 +136,8 @@ const BasicExample = () => (
             <Route path="/Topics" component={Topics}/>
             <Route path="/Storage" component={Storage}/>
             <Route path="/LunBo" component={LunBo}/>
-            <Route path="/ReactSwipeD" component={ReactSwipeD}/>
+            <Route path="/ReactSwipeTow" component={ReactSwipeTow}/>
+            <Route path="/SwipeTree" component={SwipeTree}/>
         </div>
     </Router>
 );
