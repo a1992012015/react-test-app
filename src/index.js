@@ -8,6 +8,7 @@ import MyComponent from './view/toPass';
 import Storage from './view/storage';
 import Console from './view/console';
 import LunBo from './view/lunbo';
+import ReactSwipeD from "./view/react-swipe";
 
 
 
@@ -122,6 +123,7 @@ const BasicExample = () => (
                 <li><Link to="/Topics">二级菜单</Link></li>
                 <li><Link to="/Storage">储存</Link></li>
                 <li><Link to="/LunBo">轮播图</Link></li>
+                <li><Link to="/ReactSwipeD">ReactSwipeD</Link></li>
             </ul>
 
             <hr/>
@@ -132,6 +134,7 @@ const BasicExample = () => (
             <Route path="/Topics" component={Topics}/>
             <Route path="/Storage" component={Storage}/>
             <Route path="/LunBo" component={LunBo}/>
+            <Route path="/ReactSwipeD" component={ReactSwipeD}/>
         </div>
     </Router>
 );
