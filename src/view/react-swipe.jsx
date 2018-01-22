@@ -45,19 +45,22 @@ class ReactSwipeTow extends React.Component {
         this.state = {
             dots: 0, //从那一张图开始||也是当前显示的那张图
             list: IMAGE_DATA, //需要显示的列表
-            speed: 0.5, //过度的速度
-            delay: 2, //停留的时间
+            speed: 1, //过度的速度
+            delay: 1.5, //停留的时间
             deviation: true, //滑动的方向
             autoPlayFlag: null, //接收轮播图的计时器
+            auto: false, //是否自动开始播放
         }
     }
     /*第一次渲染之后*/
     componentDidMount(){
-        let { autoPlayFlag,delay } = this.state;
-        autoPlayFlag = this.setUpInterval(delay);
-        this.setState({
-            autoPlayFlag: autoPlayFlag
-        })
+        let { autoPlayFlag,delay,auto } = this.state;
+        if(auto){
+            autoPlayFlag = this.setUpInterval(delay);
+            this.setState({
+                autoPlayFlag: autoPlayFlag
+            })
+        }
     }
     /*组件完成更新*/
     componentDidUpdate(){
@@ -116,11 +119,13 @@ class ReactSwipeTow extends React.Component {
     /*鼠标移出事件*/
     setMouseOut(){
         console.log('移出');
-        let { delay } = this.state;
-        let autoPlayFlag = this.setUpInterval(delay);
-        this.setState({
-            autoPlayFlag:autoPlayFlag
-        })
+        let { delay,auto } = this.state;
+        if(auto){
+            let autoPlayFlag = this.setUpInterval(delay);
+            this.setState({
+                autoPlayFlag: autoPlayFlag
+            })
+        }
     }
     render() {
         /*外层容器的样式*/

@@ -15,7 +15,6 @@ export default class SweipeItem extends Component {
 
     render() {
         let { list,speed,widthUl,dots,deviation } = this.props;
-        console.log(this.getNum(dots,deviation));
         let items = list.map((item,index) => {
             /*获取需要显示的视图前一个编号*/
             let numStr = dots - 1 < 0?list.length -1:dots -1;
