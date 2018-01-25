@@ -62,13 +62,15 @@ class SwipeTree extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dots: props.dots, //从那一张图开始||也是当前显示的那张图
+            dots: props.dots, //当前显示的的总页数之中的下标
+            listDots: 0, //视图列表需要显示的下标
             list: null, //需要显示的列表
             speed: props.speed, //过度的速度
             delay: props.delay, //停留的时间
             deviation: true, //滑动的方向
             autoPlayFlag: null, //接收轮播图的计时器
             isFlag: false,//决定是初始化还是正常运作
+            auto: true, //是否自动开始播放
         }
     }
     /*第一次渲染之前*/
@@ -76,41 +78,110 @@ class SwipeTree extends Component {
         let { dots } = this.state;
         let { listP } = this.props;
         this.setState({
-            list:this.countList(listP.length - 1,dots)
+            list:this.countList(dots + 1 >= listP.length?0:dots + 1,dots)
         })
     }
-    /*计算需要显示的列表并且设置*/
-    countList(index,dots){
+    /*第一次渲染之后*/
+    componentDidMount(){
+        let { autoPlayFlag,delay,auto } = this.state;
+        if(auto){
+            autoPlayFlag = this.setUpInterval(delay);
+            this.setState({
+                autoPlayFlag: autoPlayFlag
+            })
+        }
+    }
+    /*创建一个计时器并且返回*/
+    setUpInterval(delay){
         let { listP } = this.props;
-        let lists = listP.slice(index,this.counts(index));
+        return setInterval(() =>{
+            let {dots} = this.state;
+            this.goOn(dots + 1 >= listP.length?0:dots + 1,true);
+        },delay * 1000);
+    }
+    /*计算需要显示的列表并且设置*/
+    countList(index,dots,deviation){
+        let { listP } = this.props;
+        let { listDots } = this.state;
         let arr = new Array(3);
-        arr[0] = listP[dots];
-        arr[1] = listP[index];
-        arr[2] = listP[index + 1 >= listP.length?0:index + 1];
-        console.log(arr);
+        arr[listDots] = listP[dots];
+        if(deviation){
+            arr[listDots + 1 > 2?0:listDots + 1] = listP[index];
+            arr[listDots - 1 < 0?2:listDots - 1] = listP[dots - 1 < 0?listP.length -1:dots - 1];
+        }else{
+            let num = listDots - 1 < 0?2:listDots - 1;
+            arr[num] = listP[index];
+            arr[num - 1 < 0?2:num - 1] = listP[index - 1 < 0?listP.length -1:index - 1];
+        }
         return arr;
     }
-    /*计算需要显示的列表的下标*/
-    counts(dots,flag = 3){
-        if(flag < 1) return dots;
-        let { listP } = this.props;
-        dots = dots + 1 >= listP.length?0:dots + 1;
-        return this.counts(dots,flag - 1);
-    }
     /*执行动画*/
+    /*
+    * index: Number 需要前往的页数
+    * deviation：Boole 决定前进的方向*/
     goOn(index,deviation){
-        console.log('子级来了消息');
-        console.log(index,deviation);
-        let { dots } = this.state;
-        this.countList(index,dots);
+        let { dots,listDots } = this.state;//当前的页数
+        let list = this.countList(index,dots,deviation);
+        listDots = deviation?
+            listDots + 1 > 2?0:listDots + 1:
+            listDots - 1 < 0?2:listDots - 1;
         this.setState({
             dots: index,
+            listDots: listDots,
             isFlag: true,
-            list: this.countList(index,dots),
+            list: list,
             deviation
         })
     }
-
+    /*跳转需要的下标的视图*/
+    jump(index){
+        let { dots } = this.state;//当前的页数
+        let num = index - dots;
+        if(num > 0){
+            this.goOn(index,true)
+        }else if(num < 0){
+            this.goOn(index,false)
+        }
+    }
+    /*鼠标移入视图*/
+    setMouseEnter(){
+        console.log('移入');
+        let { autoPlayFlag } = this.state;
+        clearInterval(autoPlayFlag);
+    }
+    /*鼠标移出视图*/
+    setMouseLeave(){
+        console.log('移出');
+        let { delay,auto } = this.state;
+        if(auto){
+            let autoPlayFlag = this.setUpInterval(delay);
+            this.setState({
+                autoPlayFlag: autoPlayFlag
+            })
+        }
+    }
+    /*视图的鼠标按下事件*/
+    setOnMouseDown(event){
+        console.log('按下');
+        let e = event || window.event;
+        let a = {'x':e.clientX,'y':e.clientY};
+        console.log(a);
+        document.addEventListener('mousemove',this.setOnMouseMove.bind(this,a),false);
+    }
+    /*视图鼠标松开事件*/
+    setOnMouseUp(){
+        console.log('松开');
+        document.removeEventListener('mousemove',this.setOnMouseMove,false);
+    }
+    /*鼠标按下事件*/
+    setOnMouseMove(event,ops){
+        console.log('拖动');
+        console.log(ops);
+        console.log(event);
+        let e = ops || window.event;
+        let a = {'x':e.clientX,'y':e.clientY};
+        console.log(a);
+    }
     render() {
         /*外层容器的样式*/
         let style = {
@@ -157,10 +228,10 @@ class SwipeTree extends Component {
             bottom: '0',
             marginBottom: '10px'
         };
-        let { dots, list, speed, isFlag, deviation } = this.state;
+        let { dots, list, speed, isFlag, deviation,listDots } = this.state;
         let { listP } = this.props;
         /*显示圆点按钮*/
-        let listLi = list.map((item, index) => {
+        let listLi = listP.map((item, index) => {
             /*下面的小圆点的样式*/
             let styleLi = {
                 width: '20px',
@@ -174,17 +245,22 @@ class SwipeTree extends Component {
                 <li
                     style={styleLi}
                     key={`threeLi${index}`}
+                    onClick={()=>this.jump(index)}
                 />
             )
         });
         return (
             <div
                 style={style}
+                onMouseEnter={() => this.setMouseEnter()}
+                onMouseLeave={() => this.setMouseLeave()}
+                onMouseDown={(i)=>this.setOnMouseDown(i)}
+                onMouseUp={()=>this.setOnMouseUp()}
             >
                 <SweipeItem
                     list={list} //需要显示的列表
                     speed={speed} //动画过度的速度
-                    dots={dots} //需要显示的那一个列表||默认从1开始
+                    listDots={listDots} //需要显示的那一个列表||默认从1开始
                     deviation={deviation} //滑动的方向true向左||false向右
                     isFlag={isFlag}//决定是初始化还是正常运作
                 />
@@ -209,12 +285,6 @@ class SwipeTree extends Component {
 
 /*正常实例化之后使用*/
 export default class Example extends Component {
-    /*触发子级函数*/
-    goTo(index,deviation){
-        let { SwipeTree } = this.refs;
-        SwipeTree.goOn(index,deviation);
-    }
-
     render() {
         let styleExample = {
             width: '600px',
@@ -226,15 +296,11 @@ export default class Example extends Component {
             >
                 <SwipeTree
                     dots={0} //从那一张图开始||也是当前显示的那张图
-                    listP={listImg} //需要显示的列表
+                    listP={IMAGE_DATA} //需要显示的列表//IMAGE_DATA//listImg
                     speed={0.5}  //过度的速度
                     delay={2} //停留的时间
                     ref='SwipeTree' //id
                 />
-                <button
-                    onClick={() => this.goTo(1,true)}
-                >下一张</button>
-                <button>上一张</button>
             </div>
         );
     }
