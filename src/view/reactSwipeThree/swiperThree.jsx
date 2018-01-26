@@ -69,16 +69,15 @@ class SwipeTree extends Component {
 
     /*第一次渲染之后*/
     componentDidMount() {
-        let {autoPlayFlag, delay, auto} = this.state;
+        let {delay, auto} = this.state;
         this.onWindowResize();
         this.onWindowResize = this.onWindowResize.bind(this);
         this.setOnMouseMove = this.setOnMouseMove.bind(this);
         this.setOnMouseUp = this.setOnMouseUp.bind(this);
         window.addEventListener('resize', this.onWindowResize, false);
         if (auto) {
-            autoPlayFlag = this.setUpInterval(delay);
             this.setState({
-                autoPlayFlag: autoPlayFlag,
+                autoPlayFlag: this.setUpInterval(delay),
             })
         }
     }
@@ -134,7 +133,6 @@ class SwipeTree extends Component {
     * deviation：Boole 决定前进的方向*/
     goOn(index, deviation) {
         let {dots, listDots} = this.state;//当前的页数
-        let list = this.countList(index, dots, deviation);
         listDots = deviation ?
             listDots + 1 > 2 ? 0 : listDots + 1 :
             listDots - 1 < 0 ? 2 : listDots - 1;
@@ -142,7 +140,7 @@ class SwipeTree extends Component {
             dots: index,
             listDots: listDots,
             isFlag: 1,
-            list: list,
+            list: this.countList(index, dots, deviation),
             deviation
         })
     }
@@ -168,9 +166,8 @@ class SwipeTree extends Component {
     setMouseLeave() {
         let {delay, auto} = this.state;
         if (auto) {
-            let autoPlayFlag = this.setUpInterval(delay);
             this.setState({
-                autoPlayFlag: autoPlayFlag
+                autoPlayFlag: this.setUpInterval(delay)
             })
         }
     }
@@ -178,9 +175,8 @@ class SwipeTree extends Component {
     /*视图的鼠标按下事件*/
     setOnMouseDown(event) {
         let e = event || window.event;
-        let clientStar = {'x': e.clientX, 'y': e.clientY};
         this.setState({
-            clientStar: clientStar,
+            clientStar: {'x': e.clientX, 'y': e.clientY},
         });
         window.addEventListener('mousemove', this.setOnMouseMove, false);
         window.addEventListener('mouseup', this.setOnMouseUp, false);
@@ -266,7 +262,6 @@ class SwipeTree extends Component {
             bottom: '0',
             marginBottom: '10px'
         };
-        let {dots, list, speed, isFlag, deviation, listDots, contrast, widthUl} = this.state;
         let {listP} = this.props;
         /*显示圆点按钮*/
         let listLi = listP.map((item, index) => {
@@ -287,6 +282,7 @@ class SwipeTree extends Component {
                 />
             )
         });
+        let {dots, list, speed, isFlag, deviation, listDots, contrast, widthUl} = this.state;
         return (
             <div
                 style={style}

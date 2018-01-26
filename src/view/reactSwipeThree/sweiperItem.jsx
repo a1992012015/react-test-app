@@ -1,10 +1,6 @@
 import React, {Component} from 'react';
 
 export default class SweipeItem extends Component {
-    constructor(props) {
-        super(props);
-    }
-
     /*计算需要前往的列表时=>需要清除过度属性的元素*/
     getNum(listDots) {
         let {list, deviation} = this.props;
