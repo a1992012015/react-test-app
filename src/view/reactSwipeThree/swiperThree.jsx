@@ -52,7 +52,7 @@ class SwipeTree extends Component {
             autoPlayFlag: null, //接收轮播图的计时器
             isFlag: 0, //决定是初始化还是正常运作
             widthUl: null, //保存浏览器宽度数据
-            auto: false, //是否自动开始播放
+            auto: props.auto, //是否自动开始播放
             clientStar: null, //鼠标按下时的坐标
             contrast: 0, //保存拖动距离
 
@@ -325,6 +325,14 @@ class SwipeTree extends Component {
         );
     }
 }
+
+SwipeTree.defaultProps = {
+    listP: [], //需要显示的列表
+    dots: 0, //从那一张图开始||也是当前显示的那张图
+    speed: 0.5, //过度的速度
+    delay: 1, //停留的时间
+    auto: true //是否自动开始播放
+};
 
 /*正常实例化之后使用*/
 export default class Example extends Component {

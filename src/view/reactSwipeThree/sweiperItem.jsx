@@ -73,7 +73,9 @@ export default class SweipeItem extends Component {
 SweipeItem.defaultProps = {
     list: [], //需要显示的列表
     speed: 1, //动画过度的速度
-    delay: 2, //画面的停顿时间
     listDots: 0, //需要显示的那一个列表||默认从1开始
+    deviation: true, //滑动的方向true向左||false向右
     widthUl: null, //每个列表偏移的距离
+    isFlag: 0, //决定是初始化还是正常运作
+    contrast: 0, //保存鼠标拖动的距离
 };
