@@ -54,8 +54,6 @@ class SwipeTree extends Component {
             widthUl: null, //保存浏览器宽度数据
             auto: false, //是否自动开始播放
             clientStar: null, //鼠标按下时的坐标
-            func: null, //保存鼠标拖动的临时函数
-            resizeFun: null, //保存浏览器监听的临时函数
             contrast: 0, //保存拖动距离
 
         }
@@ -74,26 +72,23 @@ class SwipeTree extends Component {
     componentDidMount() {
         let {autoPlayFlag, delay, auto} = this.state;
         this.onWindowResize();
-        let resizeFun = () => this.onWindowResize();
-        window.addEventListener('resize', resizeFun, false);
+        this.onWindowResize = this.onWindowResize.bind(this);
+        this.setOnMouseMove = this.setOnMouseMove.bind(this);
+        this.setOnMouseUp = this.setOnMouseUp.bind(this);
+        window.addEventListener('resize', this.onWindowResize, false);
         if (auto) {
             autoPlayFlag = this.setUpInterval(delay);
             this.setState({
                 autoPlayFlag: autoPlayFlag,
-                resizeFun
-            })
-        } else {
-            this.setState({
-                resizeFun
             })
         }
     }
 
     /*组件被销毁*/
     componentWillUnmount() {
-        let {resizeFun, func} = this.state;
-        document.removeEventListener('mousemove', func, false);
-        window.removeEventListener('resize', resizeFun, false)
+        window.removeEventListener('mousemove', this.setOnMouseMove, false);
+        window.removeEventListener('resize', this.onWindowResize, false);
+        window.removeEventListener('mouseup', this.setOnMouseUp, false);
     }
 
     /*监听浏览器宽度变化*/
@@ -187,19 +182,19 @@ class SwipeTree extends Component {
     setOnMouseDown(event) {
         let e = event || window.event;
         let clientStar = {'x': e.clientX, 'y': e.clientY};
-        let func = () => this.setOnMouseMove();
         this.setState({
             clientStar: clientStar,
-            func: func,
         });
-        document.addEventListener('mousemove', func, false);
+        window.addEventListener('mousemove', this.setOnMouseMove, false);
+        window.addEventListener('mouseup', this.setOnMouseUp, false);
     }
 
     /*视图鼠标松开事件*/
     setOnMouseUp() {
-        let {func, contrast, widthUl, dots} = this.state;
+        let {contrast, widthUl, dots} = this.state;
         let {listP} = this.props;
-        document.removeEventListener('mousemove', func, false);
+        window.removeEventListener('mousemove', this.setOnMouseMove, false);
+        window.removeEventListener('mouseup', this.setOnMouseUp, false);
         let cacheContrast = contrast > 0 ? contrast : -contrast;
         if (cacheContrast > widthUl / 5 * 2) {
             this.setState({
@@ -233,7 +228,6 @@ class SwipeTree extends Component {
         /*外层容器的样式*/
         let style = {
             width: '100%',
-            paddingBottom: '61.8%',
             position: 'relative',
         };
         /*下一张按钮的样式*/
@@ -303,7 +297,6 @@ class SwipeTree extends Component {
                 onMouseEnter={() => this.setMouseEnter()}
                 onMouseLeave={() => this.setMouseLeave()}
                 onMouseDown={(i) => this.setOnMouseDown(i)}
-                onMouseUp={() => this.setOnMouseUp()}
             >
                 <SweipeItem
                     list={list} //需要显示的列表
@@ -339,6 +332,7 @@ export default class Example extends Component {
         let styleExample = {
             width: '600px',
             margin: '0 auto',
+            overflow: 'hidden',
         };
         return (
             <div

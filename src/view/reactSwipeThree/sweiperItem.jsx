@@ -58,11 +58,7 @@ export default class SweipeItem extends Component {
         let styleUl = {
             width: '100%',
             overflow: 'hidden',
-            position: 'absolute',
-            top: '0',
-            bottom: '0',
-            left: '0',
-            right: '0',
+            paddingBottom: '61.8%',
         };
         return (
             <ul
