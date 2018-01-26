@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
-import SweipeItem from './sweiperItem'
-import swiper1 from './../../src/swiper1.jpg'
-import swiper2 from './../../src/swiper2.jpg'
-import swiper3 from './../../src/swiper3.jpg'
-import swiper4 from './../../src/swiper4.jpg'
-import swiper5 from './../../src/swiper5.jpg'
-import swiper6 from './../../src/swiper6.jpg'
-import swiper7 from './../../src/swiper7.jpg'
+import SweipeItem from './sweiperItem';
+import swiper1 from './../../src/swiper1.jpg';
+import swiper2 from './../../src/swiper2.jpg';
+import swiper3 from './../../src/swiper3.jpg';
+import swiper4 from './../../src/swiper4.jpg';
+import swiper5 from './../../src/swiper5.jpg';
+import swiper6 from './../../src/swiper6.jpg';
+import swiper7 from './../../src/swiper7.jpg';
 
 const listImg = [
     {
