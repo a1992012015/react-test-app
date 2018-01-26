@@ -265,6 +265,7 @@ class SwipeTree extends Component {
             marginBottom: '10px'
         };
         let {listP} = this.props;
+        let {dots, list, speed, isFlag, deviation, listDots, contrast, widthUl} = this.state;
         /*显示圆点按钮*/
         let listLi = listP.map((item, index) => {
             /*下面的小圆点的样式*/
@@ -284,7 +285,6 @@ class SwipeTree extends Component {
                 />
             )
         });
-        let {dots, list, speed, isFlag, deviation, listDots, contrast, widthUl} = this.state;
         return (
             <div
                 style={style}
