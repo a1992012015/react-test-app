@@ -8,7 +8,7 @@ import swiper5 from './../../src/swiper5.jpg'
 import swiper6 from './../../src/swiper6.jpg'
 import swiper7 from './../../src/swiper7.jpg'
 
-const IMAGE_DATA = [
+const listImg = [
     {
         src: swiper1,
         alt: 1,
@@ -37,25 +37,6 @@ const IMAGE_DATA = [
         src: swiper7,
         alt: 7,
     },
-];
-
-const listImg = [
-    {
-        src: swiper1,
-        alt: 1,
-    },
-    {
-        src: swiper2,
-        alt: 2,
-    },
-    {
-        src: swiper3,
-        alt: 3,
-    },
-    {
-        src: swiper4,
-        alt: 4,
-    }
 ];
 
 class SwipeTree extends Component {
@@ -220,7 +201,7 @@ class SwipeTree extends Component {
         let {listP} = this.props;
         document.removeEventListener('mousemove', func, false);
         let cacheContrast = contrast > 0 ? contrast : -contrast;
-        if (cacheContrast > widthUl / 3) {
+        if (cacheContrast > widthUl / 5 * 2) {
             this.setState({
                 contrast: 0,
                 isFlag: 2,
@@ -228,7 +209,7 @@ class SwipeTree extends Component {
             contrast > 0 ?
                 this.goOn(dots - 1 < 0 ? listP.length - 1 : dots - 1, false) :
                 this.goOn(dots + 1 >= listP.length ? 0 : dots + 1, true);
-        } else if (cacheContrast < widthUl / 3) {
+        } else if (cacheContrast < widthUl / 5 * 2) {
             this.setState({
                 isFlag: 3,
                 contrast: 0,
@@ -365,10 +346,9 @@ export default class Example extends Component {
             >
                 <SwipeTree
                     dots={0} //从那一张图开始||也是当前显示的那张图
-                    listP={IMAGE_DATA} //需要显示的列表//IMAGE_DATA//listImg
+                    listP={listImg} //需要显示的列表//IMAGE_DATA//listImg
                     speed={0.5}  //过度的速度
                     delay={2} //停留的时间
-                    ref='SwipeTree' //id
                 />
             </div>
         );
