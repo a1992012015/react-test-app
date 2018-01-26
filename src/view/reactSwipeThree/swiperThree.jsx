@@ -44,18 +44,17 @@ class SwipeTree extends Component {
         super(props);
         this.state = {
             dots: props.dots, //当前显示的的总页数之中的下标
-            listDots: 0, //视图列表需要显示的下标
-            list: null, //需要显示的列表
+            auto: props.auto, //是否自动开始播放
             speed: props.speed, //过度的速度
             delay: props.delay, //停留的时间
+            listDots: 0, //视图列表需要显示的下标
+            list: null, //需要显示的列表
             deviation: true, //滑动的方向
             autoPlayFlag: null, //接收轮播图的计时器
             isFlag: 0, //决定是初始化还是正常运作
             widthUl: null, //保存浏览器宽度数据
-            auto: props.auto, //是否自动开始播放
             clientStar: null, //鼠标按下时的坐标
             contrast: 0, //保存拖动距离
-
         }
     }
 
