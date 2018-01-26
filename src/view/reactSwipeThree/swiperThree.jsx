@@ -316,7 +316,6 @@ class SwipeTree extends Component {
                     {listLi}
                 </ul>
             </div>
-
         );
     }
 }

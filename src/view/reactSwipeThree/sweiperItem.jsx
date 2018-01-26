@@ -48,7 +48,10 @@ export default class SweipeItem extends Component {
                     `translateZ(0px) translateX(${widthUl * numEnd + contrast}px)`,
             };
             return (
-                <li style={style} key={`threeLi${index}`}/>
+                <li
+                    style={style}
+                    key={`threeLi${index}`}
+                />
             )
         });
         let styleUl = {
