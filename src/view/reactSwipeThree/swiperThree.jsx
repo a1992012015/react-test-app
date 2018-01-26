@@ -87,6 +87,8 @@ class SwipeTree extends Component {
         window.removeEventListener('mousemove', this.setOnMouseMove, false);
         window.removeEventListener('resize', this.onWindowResize, false);
         window.removeEventListener('mouseup', this.setOnMouseUp, false);
+        let {autoPlayFlag} = this.state;
+        clearInterval(autoPlayFlag);
     }
 
     /*监听浏览器宽度变化*/
