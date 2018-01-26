@@ -130,9 +130,7 @@ class SwipeTree extends Component {
         return arr;
     }
 
-    /*执行动画*/
-
-    /*
+    /*执行动画
     * index: Number 需要前往的页数
     * deviation：Boole 决定前进的方向*/
     goOn(index, deviation) {
