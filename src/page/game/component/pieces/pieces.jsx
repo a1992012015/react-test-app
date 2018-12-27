@@ -5,25 +5,6 @@ import styles from './pieces.module.scss';
 
 class Pieces extends Component {
 
-  goOn(index, item) {
-    const { chess, dispatch } = this.props;
-    console.log(chess.flag);
-    if (chess.flag) {
-      console.log('游戏结束');
-      return;
-    }
-    const history = chess.chessMap[chess.chessMap.length -1];
-    if (history[index][item].stepNumber !== null && history[index][item].xIsNext !== null) {
-      console.log('重复落子无效');
-      return;
-    }
-    console.log('继续');
-    dispatch({
-      type: 'MOVE_LATER',
-      payload: [index, item]
-    });
-  }
-
   row(index, row) {
     return row.map((v, i) => {
       const name = v.stepNumber !== null && v.xIsNext !== null ?
@@ -31,7 +12,7 @@ class Pieces extends Component {
         :
         styles['disappear'];
       return (
-        <div key={i} onClick={this.goOn.bind(this, index, i)} className={styles['pieces-box']}>
+        <div key={i} onClick={this.props.goOn.bind(this, index, i)} className={styles['pieces-box']}>
           <button className={name}/>
         </div>
       );

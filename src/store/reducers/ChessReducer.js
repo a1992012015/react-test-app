@@ -1,4 +1,4 @@
-import { CHANGE_CHESS } from '../actionType/ChessActionType';
+import { CHANGE_CHESS, CHANGE_INIT } from '../actionType/ChessActionType';
 
 const chessInit = {
   chessMap: [
@@ -263,7 +263,7 @@ const chessInit = {
   stepNumber: 0, //步数
   xIsNext: true, //执棋手true为白棋false为黑棋
   earlyOrLate: false, //先攻||后攻
-  flag: false, //true为完成对局||还未开始||暂停false为游戏进行中
+  flag: true, //true为完成对局||还未开始||暂停false为游戏进行中
   king: null //最后的赢家是
 };
 
@@ -271,6 +271,8 @@ export default function ChessReducer(state = chessInit, action) {
   switch (action.type) {
     case CHANGE_CHESS:
       return { ...state, ...action.payload };
+    case CHANGE_INIT:
+      return { ...state };
     default:
       return state;
   }

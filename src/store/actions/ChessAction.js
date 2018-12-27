@@ -2,6 +2,8 @@ import { put, call, take, select } from 'redux-saga/effects';
 
 import { CHANGE_CHESS } from '../actionType/ChessActionType';
 
+import AI from '../../utils/chessAi/server';
+
 function getChess(state) {
   return {
     chess: state.chess
@@ -14,8 +16,6 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
 
   const { chess } = yield select(getChess);
   const chessMap = chess.chessMap[chess.chessMap.length - 1];
-  console.log(chessMap);
-  console.log(chess.xIsNext);
   for (let i = 0; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
@@ -96,36 +96,68 @@ function checkDirection(numStr, numEnd, num, accelerator, direction) {
   return str;
 }
 
+function* next(payload) {
+  const { chess } = yield select(getChess);
+  console.log(payload);
+  const [index, item] = payload;
+  console.log('=========获取输赢=========');
+
+  const now = JSON.parse(JSON.stringify(chess.chessMap[chess.chessMap.length - 1]));
+  const chessMap = JSON.parse(JSON.stringify(chess.chessMap));
+
+  now[index][item].stepNumber = chess.stepNumber + 1;
+  now[index][item].xIsNext = chess.xIsNext;
+  chessMap.push(now);
+
+  const flag = yield call(referee, index, item);
+  console.log(flag);
+
+  yield put({
+    type: CHANGE_CHESS,
+    payload: {
+      chessMap: chessMap,
+      stepNumber: chess.stepNumber + 1,
+      xIsNext: !chess.xIsNext,
+      flag: flag,
+      king: flag ? chess.xIsNext : null
+    }
+  });
+}
+
 function* moveLater() {
   while (true) {
     const { payload } = yield take('MOVE_LATER');
+    yield call(next, payload);
+
     const { chess } = yield select(getChess);
-    const [index, item] = payload;
-    console.log('=========获取输赢=========');
+    if (chess.xIsNext) {
+      console.log('选手');
+      console.log(chess.xIsNext);
+      const next = AI({
+        type: 'GO',
+        x: payload[0],
+        y: payload[1]
+      });
+      console.log(next);
+      yield call(next, [next[0], next[1]]);
+    }
+  }
+}
 
-    const now = JSON.parse(JSON.stringify(chess.chessMap[chess.chessMap.length - 1]));
-    const chessMap = JSON.parse(JSON.stringify(chess.chessMap));
+function* gameStart() {
+  while (true) {
+    yield take('GAME_START');
 
-    now[index][item].stepNumber = chess.stepNumber + 1;
-    now[index][item].xIsNext = chess.xIsNext;
-    chessMap.push(now);
-
-    const flag = yield call(referee, index, item);
-    console.log(flag);
+    AI({ type: 'START' });
 
     yield put({
-      type: CHANGE_CHESS,
-      payload: {
-        chessMap: chessMap,
-        stepNumber: chess.stepNumber + 1,
-        xIsNext: !chess.xIsNext,
-        flag: flag,
-        king: flag ? chess.xIsNext : null
-      }
+      type: 'MOVE_LATER',
+      payload: [7, 7]
     });
   }
 }
 
 export default [
-  moveLater()
+  moveLater(),
+  gameStart()
 ];
