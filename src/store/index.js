@@ -55,7 +55,8 @@ export const history = createBrowserHistory();
 
 const persistRootConfig = {
   key: 'chess',
-  storage
+  storage,
+  blacklist: ['flag']
 };
 
 export const createReducer = createReducerCreator(history, {

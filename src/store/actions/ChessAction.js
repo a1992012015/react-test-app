@@ -12,14 +12,14 @@ function getChess(state) {
 
 function* referee(numStr, numEnd, flag = 1, direction = 0) {
   if (flag > 4) return false;
-  let count = 1; //count&&计算有几个连着的
+  let count = 0; //count&&计算有几个连着的
 
   const { chess } = yield select(getChess);
   const chessMap = chess.chessMap[chess.chessMap.length - 1];
   for (let i = 0; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
-      if (chessMap[y][x].xIsNext === chess.xIsNext) {
+      if (chessMap[y][x].xIsNext === !chess.xIsNext) {
         count += 1;
       } else {
         break;
@@ -32,7 +32,7 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   for (let i = 1; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);//获取周围的坐标
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {//判断坐标是否合法
-      if (chessMap[y][x].xIsNext === chess.xIsNext) {//判断当前坐标是否是自己的落子
+      if (chessMap[y][x].xIsNext === !chess.xIsNext) {//判断当前坐标是否是自己的落子
         count += 1;
       } else {
         break;
@@ -96,7 +96,7 @@ function checkDirection(numStr, numEnd, num, accelerator, direction) {
   return str;
 }
 
-function* next(payload) {
+function* nextStep(payload) {
   const { chess } = yield select(getChess);
   console.log(payload);
   const [index, item] = payload;
@@ -109,37 +109,41 @@ function* next(payload) {
   now[index][item].xIsNext = chess.xIsNext;
   chessMap.push(now);
 
-  const flag = yield call(referee, index, item);
-  console.log(flag);
-
   yield put({
     type: CHANGE_CHESS,
     payload: {
       chessMap: chessMap,
       stepNumber: chess.stepNumber + 1,
       xIsNext: !chess.xIsNext,
-      flag: flag,
-      king: flag ? chess.xIsNext : null
+      flag: false
     }
   });
+
+  const flag = yield call(referee, index, item);
+  if (flag) {
+    yield put({
+      type: CHANGE_CHESS,
+      payload: {
+        flag: flag,
+        king: flag ? chess.xIsNext : null
+      }
+    });
+  }
 }
 
 function* moveLater() {
   while (true) {
     const { payload } = yield take('MOVE_LATER');
-    yield call(next, payload);
+    yield call(nextStep, payload);
 
     const { chess } = yield select(getChess);
     if (chess.xIsNext) {
-      console.log('选手');
-      console.log(chess.xIsNext);
       const next = AI({
         type: 'GO',
         x: payload[0],
         y: payload[1]
       });
-      console.log(next);
-      yield call(next, [next[0], next[1]]);
+      yield call(nextStep, [next[0], next[1]]);
     }
   }
 }
@@ -149,6 +153,10 @@ function* gameStart() {
     yield take('GAME_START');
 
     AI({ type: 'START' });
+
+    yield put({
+      type: 'CHANGE_INIT'
+    });
 
     yield put({
       type: 'MOVE_LATER',

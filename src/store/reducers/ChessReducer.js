@@ -272,7 +272,7 @@ export default function ChessReducer(state = chessInit, action) {
     case CHANGE_CHESS:
       return { ...state, ...action.payload };
     case CHANGE_INIT:
-      return { ...state };
+      return { ...chessInit };
     default:
       return state;
   }
