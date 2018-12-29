@@ -210,11 +210,11 @@ let deeping = function(role, deep) {
     if (result) break; //找到一个就行
   }
   let time = Math.round(new Date() - start);
-  if (result) {
-    console.log('算杀成功(' + time + '毫秒, ' + debugNodeCount + '个节点):' + JSON.stringify(result));
-  } else {
-    console.log('算杀失败(' + time + '毫秒)');
-  }
+  // if (result) {
+  //   console.log('算杀成功(' + time + '毫秒, ' + debugNodeCount + '个节点):' + JSON.stringify(result));
+  // } else {
+  //   console.log('算杀失败(' + time + '毫秒)');
+  // }
   return result;
 };
 

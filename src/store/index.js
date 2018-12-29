@@ -10,6 +10,7 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 import createReducerCreator from './reducers';
 
 import chess from './reducers/ChessReducer';
+import game from './reducers/GameReducer';
 
 import rootSaga from './actions';
 
@@ -61,6 +62,7 @@ const persistRootConfig = {
 
 export const createReducer = createReducerCreator(history, {
   chess: persistReducer(persistRootConfig, chess),
+  game: game
 });
 
 const sagaMiddleware = createSagaMiddleware();

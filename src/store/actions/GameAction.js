@@ -1,25 +1,21 @@
 import { put, call, take, select } from 'redux-saga/effects';
 
-import { CHANGE_CHESS } from '../actionType/ChessActionType';
+import { GAME_INIT, GAME_CHANGES } from '../actionType/GameActionType';
 
-// import AI from '../../utils/ai/server';
-
-function getChess(state) {
-  return {
-    chess: state.chess
-  };
+function getChess({ game }) {
+  return { game };
 }
 
 function* referee(numStr, numEnd, flag = 1, direction = 0) {
   if (flag > 4) return false;
   let count = 0; //count&&计算有几个连着的
 
-  const { chess } = yield select(getChess);
-  const chessMap = chess.chessMap[chess.chessMap.length - 1];
+  const { game } = yield select(getChess);
+  const chessMap = game.chessMap[game.chessMap.length - 1];
   for (let i = 0; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
-      if (chessMap[y][x].xIsNext === !chess.xIsNext) {
+      if (chessMap[y][x].xIsNext === !game.xIsNext) {
         count += 1;
       } else {
         break;
@@ -32,7 +28,7 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   for (let i = 1; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);//获取周围的坐标
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {//判断坐标是否合法
-      if (chessMap[y][x].xIsNext === !chess.xIsNext) {//判断当前坐标是否是自己的落子
+      if (chessMap[y][x].xIsNext === !game.xIsNext) {//判断当前坐标是否是自己的落子
         count += 1;
       } else {
         break;
@@ -92,29 +88,37 @@ function checkDirection(numStr, numEnd, num, accelerator, direction) {
         str = [numStr + num, numEnd + num];
       }
       break;
+    default:
+      return str;
   }
   return str;
 }
 
+function* postWork() {
+  while (true) {
+    const { payload } = yield take('NEXT_STEP');
+    yield call(nextStep, payload);
+  }
+}
+
 function* nextStep(payload) {
-  const { chess } = yield select(getChess);
-  console.log(payload);
+  const { game } = yield select(getChess);
   const [index, item] = payload;
   console.log('=========获取输赢=========');
 
-  const now = JSON.parse(JSON.stringify(chess.chessMap[chess.chessMap.length - 1]));
-  const chessMap = JSON.parse(JSON.stringify(chess.chessMap));
+  const now = JSON.parse(JSON.stringify(game.chessMap[game.chessMap.length - 1]));
+  const chessMap = JSON.parse(JSON.stringify(game.chessMap));
 
-  now[index][item].stepNumber = chess.stepNumber + 1;
-  now[index][item].xIsNext = chess.xIsNext;
+  now[index][item].stepNumber = game.stepNumber + 1;
+  now[index][item].xIsNext = game.xIsNext;
   chessMap.push(now);
 
   yield put({
-    type: CHANGE_CHESS,
+    type: GAME_CHANGES,
     payload: {
       chessMap: chessMap,
-      stepNumber: chess.stepNumber + 1,
-      xIsNext: !chess.xIsNext,
+      stepNumber: game.stepNumber + 1,
+      xIsNext: game.xIsNext === 'me' ? 'ai' : 'me',
       flag: false
     }
   });
@@ -122,10 +126,10 @@ function* nextStep(payload) {
   const flag = yield call(referee, index, item);
   if (flag) {
     yield put({
-      type: CHANGE_CHESS,
+      type: GAME_CHANGES,
       payload: {
         flag: flag,
-        king: flag ? chess.xIsNext : null
+        king: flag ? game.xIsNext : ''
       }
     });
   }
@@ -133,33 +137,32 @@ function* nextStep(payload) {
 
 function* moveLater() {
   while (true) {
-    const { payload } = yield take('CHESS_MOVE_LATER');
+    const { payload } = yield take('GAME_NEXT');
     yield call(nextStep, payload);
 
-    const { chess } = yield select(getChess);
-    if (chess.xIsNext) {
-      // const next = AI({
+    const { game } = yield select(getChess);
+    if (game.xIsNext === 'ai') {
+
+      // yield call(nextStep, [next[0], next[1]]);
+      // gameWorker.postMessage({
       //   type: 'GO',
       //   x: payload[0],
       //   y: payload[1]
       // });
-      // yield call(nextStep, [next[0], next[1]]);
     }
   }
 }
 
 function* gameStart() {
   while (true) {
-    yield take('CHESS_START');
+    yield take('GAME_START');
 
-    // AI({ type: 'START' });
+    // gameWorker.postMessage({ type: 'START' });
 
-    yield put({
-      type: 'CHESS_INIT'
-    });
+    yield put({ type: GAME_INIT });
 
     yield put({
-      type: 'CHESS_MOVE_LATER',
+      type: 'GAME_NEXT',
       payload: [7, 7]
     });
   }
@@ -167,5 +170,6 @@ function* gameStart() {
 
 export default [
   moveLater(),
-  gameStart()
+  gameStart(),
+  postWork()
 ];

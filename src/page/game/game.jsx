@@ -5,6 +5,7 @@ import Checkerboard from './component/checkerboard/checkerboard';
 import Pieces from './component/pieces/pieces';
 import Tips from './component/tips/tips';
 
+import logo from '../../assets/images/logo.svg';
 import styles from './game.module.scss';
 
 class Game extends Component {
@@ -25,7 +26,7 @@ class Game extends Component {
       return;
     }
     dispatch({
-      type: 'MOVE_LATER',
+      type: 'CHESS_MOVE_LATER',
       payload: [index, item]
     });
   };
@@ -33,7 +34,7 @@ class Game extends Component {
   gameStart = () => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'GAME_START'
+      type: 'CHESS_START'
     });
   };
 
@@ -41,9 +42,13 @@ class Game extends Component {
     const { chess } = this.props;
     return (
       <div className={styles['game']}>
-        {chess.flag && <Tips king={chess.king} gameStart={this.gameStart}/>}
-        <Checkerboard/>
-        <Pieces chess={chess} goOn={this.goOn}/>
+        <img src={logo} className={styles['game-logo']} alt="logo" />
+
+        <div className={styles['game-box']}>
+          {chess.flag && <Tips king={chess.king} gameStart={this.gameStart}/>}
+          <Checkerboard/>
+          <Pieces chess={chess} goOn={this.goOn}/>
+        </div>
       </div>
     );
   }

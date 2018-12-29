@@ -1,4 +1,4 @@
-import R from './role';
+import R from './role.js';
 
 let isFive = function(board, p, role) {
   let len = board.length;
@@ -15,6 +15,7 @@ let isFive = function(board, p, role) {
     count++;
   }
 
+
   for (let i = p[1] - 1; true; i--) {
     if (i < 0) break;
     let t = board[p[0]][i];
@@ -22,7 +23,7 @@ let isFive = function(board, p, role) {
     count++;
   }
 
-  if (count >= 5) return true;
+  if (count >= 5) return 1;
 
   //纵向
   reset();
@@ -45,13 +46,13 @@ let isFive = function(board, p, role) {
     count++;
   }
 
-  if (count >= 5) return true;
+
+  if (count >= 5) return 2;
   // \\
   reset();
 
   for (let i = 1; true; i++) {
-    let x = p[0] + i,
-      y = p[1] + i;
+    let x = p[0] + i, y = p[1] + i;
     if (x >= len || y >= len) {
       break;
     }
@@ -62,8 +63,7 @@ let isFive = function(board, p, role) {
   }
 
   for (let i = 1; true; i++) {
-    let x = p[0] - i,
-      y = p[1] - i;
+    let x = p[0] - i, y = p[1] - i;
     if (x < 0 || y < 0) {
       break;
     }
@@ -72,14 +72,13 @@ let isFive = function(board, p, role) {
     count++;
   }
 
-  if (count >= 5) return true;
+  if (count >= 5) return 3;
 
   // \/
   reset();
 
   for (let i = 1; true; i++) {
-    let x = p[0] + i,
-      y = p[1] - i;
+    let x = p[0] + i, y = p[1] - i;
     if (x < 0 || y < 0 || x >= len || y >= len) {
       break;
     }
@@ -89,8 +88,7 @@ let isFive = function(board, p, role) {
   }
 
   for (let i = 1; true; i++) {
-    let x = p[0] - i,
-      y = p[1] + i;
+    let x = p[0] - i, y = p[1] + i;
     if (x < 0 || y < 0 || x >= len || y >= len) {
       break;
     }
@@ -99,20 +97,55 @@ let isFive = function(board, p, role) {
     count++;
   }
 
-  return count >= 5;
+  if (count >= 5) return 4;
+
+  return 0;
+
 };
 
+
 let w = function(board) {
-  for (let i = 0; i < board.length; i++) {
-    for (let j = 0; j < board[i].length; j++) {
+  let p, d = 0;
+  for (let i = 0; i < board.length && !d; i++) {
+    for (let j = 0; j < board[i].length && !d; j++) {
       let t = board[i][j];
+      p = [i, j];
       if (t !== R.empty) {
-        let r = isFive(board, [i, j], t);
-        if (r) return t;
+        d = isFive(board, [i, j], t);
+        if (d) break;
       }
     }
   }
-  return false;
+
+  if (!d) return false;
+  if (d === 1) return [
+    p,
+    [p[0], p[1] + 1],
+    [p[0], p[1] + 2],
+    [p[0], p[1] + 3],
+    [p[0], p[1] + 4]
+  ];
+  if (d === 2) return [
+    p,
+    [p[0] + 1, p[1]],
+    [p[0] + 2, p[1]],
+    [p[0] + 3, p[1]],
+    [p[0] + 4, p[1]]
+  ];
+  if (d === 3) return [
+    p,
+    [p[0] + 1, p[1] + 1],
+    [p[0] + 2, p[1] + 2],
+    [p[0] + 3, p[1] + 3],
+    [p[0] + 4, p[1] + 4]
+  ];
+  if (d === 4) return [
+    p,
+    [p[0] + 1, p[1] - 1],
+    [p[0] + 2, p[1] - 2],
+    [p[0] + 3, p[1] - 3],
+    [p[0] + 4, p[1] - 4]
+  ];
 };
 
 export default w;

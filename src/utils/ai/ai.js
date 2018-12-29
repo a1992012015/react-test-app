@@ -9,7 +9,6 @@ const AI = function() {
 };
 
 AI.prototype.start = function(size) {//第一步
-  console.log('我们开始吧！');
   board.init(size);
 };
 

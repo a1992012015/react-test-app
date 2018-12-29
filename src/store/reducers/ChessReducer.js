@@ -1,4 +1,4 @@
-import { CHANGE_CHESS, CHANGE_INIT } from '../actionType/ChessActionType';
+import { CHANGE_CHESS, CHESS_INIT } from '../actionType/ChessActionType';
 
 const chessInit = {
   chessMap: [
@@ -271,7 +271,7 @@ export default function ChessReducer(state = chessInit, action) {
   switch (action.type) {
     case CHANGE_CHESS:
       return { ...state, ...action.payload };
-    case CHANGE_INIT:
+    case CHESS_INIT:
       return { ...chessInit };
     default:
       return state;
