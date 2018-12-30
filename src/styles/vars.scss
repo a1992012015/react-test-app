@@ -1,0 +1,15 @@
+$white: #fff;
+$min-view-width: 1000px;
+$max-view-width: 1200px;
+
+$border-color-base: 1; // base border outline a component
+$primary-color: #40a9ff;
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

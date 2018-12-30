@@ -1,0 +1,15 @@
+
+.error {
+  flex-grow: 1;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 100px;
+  background-color: #282c34;
+
+  p{
+    margin: 0;
+  }
+}

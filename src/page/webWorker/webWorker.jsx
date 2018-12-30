@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import ReactCountdownClock from 'react-countdown-clock';
-// import worker from './component/worker';
-// import WebWorker from '../../utils/webWorker';
+
 import Worker from './component/fibonacci.worker.js';
 import fibonacci from './component/Fibonacci';
+import DownClock from './component/downClock';
 
-import styles from './webWork.module.scss';
+import styles from './webWorker.module.scss';
 
 class WebWorks extends Component {
   constructor(props) {
@@ -32,8 +31,6 @@ class WebWorks extends Component {
     const num = fibonacci(43);
     const end = new Date().getTime();
 
-    console.log(start);
-    console.log(end);
     const expenditure = (end - start) / 1000;
     this.setState({
       count1: num,
@@ -61,7 +58,7 @@ class WebWorks extends Component {
     return (
       <div className={styles['web-work-bottom']}>
         <section className={styles['web-work-left']}>
-          <ReactCountdownClock seconds={100} color="#000" alpha={0.9} size={300}/>
+          <DownClock/>
           <p className={styles['web-work-center']}>Total User Count: {count1}</p>
           <p className={styles['web-work-center']}>time: {time1}</p>
           <button className={styles['web-work-direct']} onClick={this.fetchUsers}>
@@ -70,7 +67,7 @@ class WebWorks extends Component {
         </section>
 
         <section className={styles['web-work-right']}>
-          <ReactCountdownClock seconds={100} color="#e56" alpha={0.9} size={300}/>
+          <DownClock/>
           <p className={styles['web-work-center']}>Total User Count: {count2}</p>
           <p className={styles['web-work-center']}>time: {time2}</p>
           <button className={styles['web-work-worker']} onClick={this.fetchWebWorker}>

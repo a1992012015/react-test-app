@@ -15,7 +15,7 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   for (let i = 0; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
-      if (chessMap[y][x].xIsNext === !game.xIsNext) {
+      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext !== game.xIsNext) {
         count += 1;
       } else {
         break;
@@ -28,7 +28,7 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   for (let i = 1; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);//获取周围的坐标
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {//判断坐标是否合法
-      if (chessMap[y][x].xIsNext === !game.xIsNext) {//判断当前坐标是否是自己的落子
+      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext !== game.xIsNext) {//判断当前坐标是否是自己的落子
         count += 1;
       } else {
         break;
@@ -37,19 +37,19 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
       break;
     }
   }
-  console.log('========计数========');
-  let position = null;
-  if (flag === 1) {
-    position = '垂直';
-  } else if (flag === 2) {
-    position = '水平';
-  } else if (flag === 3) {
-    position = '右斜45度';
-  } else if (flag === 4) {
-    position = '左斜135度';
-  }
-  console.log('========' + position + '========');
-  console.log(count);
+  // console.log('========计数========');
+  // let position = null;
+  // if (flag === 1) {
+  //   position = '垂直';
+  // } else if (flag === 2) {
+  //   position = '水平';
+  // } else if (flag === 3) {
+  //   position = '右斜45度';
+  // } else if (flag === 4) {
+  //   position = '左斜135度';
+  // }
+  // console.log('========' + position + '========');
+  // console.log(count);
   if (count >= 5) {
     return true;
   } else {
@@ -104,7 +104,7 @@ function* postWork() {
 function* nextStep(payload) {
   const { game } = yield select(getChess);
   const [index, item] = payload;
-  console.log('=========获取输赢=========');
+  // console.log('=========获取输赢=========');
 
   const now = JSON.parse(JSON.stringify(game.chessMap[game.chessMap.length - 1]));
   const chessMap = JSON.parse(JSON.stringify(game.chessMap));
@@ -161,10 +161,10 @@ function* gameStart() {
 
     yield put({ type: GAME_INIT });
 
-    yield put({
-      type: 'GAME_NEXT',
-      payload: [7, 7]
-    });
+    // yield put({
+    //   type: 'GAME_NEXT',
+    //   payload: [7, 7]
+    // });
   }
 }
 

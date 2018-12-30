@@ -5,11 +5,16 @@ import styles from './pieces.module.scss';
 class Pieces extends Component {
 
   row(index, row) {
+    const { chess } = this.props;
     return row.map((v, i) => {
-      const name = v.stepNumber !== null && v.xIsNext !== null ?
+      let name = v.stepNumber !== null && v.xIsNext !== null ?
         `${styles['chess']} ${v.xIsNext === 'me' ? styles['chess-white'] : styles['chess-black']}`
         :
         styles['disappear'];
+
+      if (chess.stepNumber === v.stepNumber) {
+        name = `${name} ${styles['chess-anim']}`
+      }
       return (
         <div key={i} onClick={this.props.goOn.bind(this, index, i)} className={styles['pieces-box']}>
           <button className={name}/>

@@ -9,6 +9,5 @@ module.exports = config => {
     }
   ];
 
-  console.log(config.module.rules);
   return config;
 };

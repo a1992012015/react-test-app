@@ -1,0 +1,19 @@
+@import '../../../styles/vars';
+
+.before-landing {
+  display: flex;
+
+  .or {
+    margin: 0 10px;
+    display: flex;
+    font-size: 20px;
+  }
+
+  .nav-link {
+    color: #ffffff;
+  }
+
+  .nav-link-active {
+    color: #ffffff;
+  }
+}

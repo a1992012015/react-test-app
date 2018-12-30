@@ -9,8 +9,9 @@ import storage from 'redux-persist/lib/storage'; // defaults to localStorage for
 
 import createReducerCreator from './reducers';
 
-import chess from './reducers/ChessReducer';
+import notification from './reducers/NotificationReducer';
 import game from './reducers/GameReducer';
+import auth from './reducers/AuthReducer';
 
 import rootSaga from './actions';
 
@@ -54,14 +55,20 @@ function configureStore({ enhancers: baseEnhancers = [], reducer, initialState, 
 
 export const history = createBrowserHistory();
 
-const persistRootConfig = {
+const persistNotificationConfig = {
   key: 'chess',
+  storage
+};
+
+const persistAuthConfig = {
+  key: 'auth',
   storage,
-  blacklist: ['flag']
+  blacklist: ['userInfo']
 };
 
 export const createReducer = createReducerCreator(history, {
-  chess: persistReducer(persistRootConfig, chess),
+  notification: persistReducer(persistNotificationConfig, notification),
+  auth: persistReducer(persistAuthConfig, auth),
   game: game
 });
 

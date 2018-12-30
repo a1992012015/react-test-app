@@ -1,11 +1,13 @@
 import { all } from 'redux-saga/effects';
 
-import chessAction from './ChessAction';
 import gameAction from './GameAction';
+import notificationAction from './NotificationAction';
+import authAction from './AuthAction';
 
 export default function* rootSaga() {
   yield all([
-    ...chessAction,
-    ...gameAction
+    ...notificationAction,
+    ...gameAction,
+    ...authAction
   ]);
 }

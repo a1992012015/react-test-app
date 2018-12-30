@@ -1,15 +1,7 @@
 
 .App {
+  text-align: center;
   min-height: 100vh;
-
-  .App-nav {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-  }
-
-  .App-nav-list {
-    margin: 0 20px;
-  }
+  display: flex;
+  flex-direction: column;
 }

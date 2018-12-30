@@ -26,7 +26,7 @@ export default function GameReducer(state = chessInit, action) {
     case GAME_CHANGES:
       return { ...state, ...action.payload };
     case GAME_INIT:
-      return { ...chessInit };
+      return { ...chessInit, flag: false };
     default:
       return state;
   }
