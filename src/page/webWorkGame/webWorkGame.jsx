@@ -107,7 +107,18 @@ class WebWorkGame extends Component {
 
   // 后退方法
   gameBackward = () => {
-    const { dispatch } = this.props;
+    const { game, dispatch } = this.props;
+
+    if (game.chessMap.length < 2) {
+      dispatch({
+        type: 'START_NOTIFICATION',
+        payload: {
+          message: '已经不能再后退了！！',
+          time: 2000
+        }
+      });
+      return;
+    }
 
     dispatch({ type: 'GAME_RETREAT' });
     this.gameWorker.postMessage({

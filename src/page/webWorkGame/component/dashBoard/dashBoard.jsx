@@ -36,7 +36,7 @@ export default class extends Component {
               <Button variant="contained"
                       color="primary"
                       onClick={gameBackward}
-                      disabled={game.worldMap.length === 0}
+                      disabled={game.chessMap.length < 2 || game.chessMap.length % 2 === 0}
                       className={styles['btn-green']}>后退一步</Button>
               <Button variant="contained" color="secondary" onClick={reStart}>重新开始</Button>
               <Button variant="contained"
