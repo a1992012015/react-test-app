@@ -41,14 +41,14 @@ class UserState extends Component {
     return (
       <div className={styles['before-landing']}>
         <Button onClick={this.signIn} color="inherit">
-          Sign in
+          Login
         </Button>
 
         <p className={styles['or']}>or</p>
 
         <NavLink to="/auth" className={styles['nav-link']} activeClassName={styles['nav-link-active']}>
           <Button color="inherit">
-            Sign up
+            Logout
           </Button>
         </NavLink>
       </div>

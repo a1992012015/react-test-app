@@ -59,7 +59,10 @@ class NavigationList extends Component {
   render() {
     const { value, navigation } = this.state;
     return (
-      <BottomNavigation value={value} onChange={this.handleChange} showLabels className={styles['navigation-list']}>
+      <BottomNavigation value={value}
+                        onChange={this.handleChange}
+                        showLabels
+                        className={styles['navigation-list']}>
         {navigation.map(item => {
           return (
             <BottomNavigationAction

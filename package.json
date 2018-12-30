@@ -6,6 +6,7 @@
     "@material-ui/core": "^3.7.1",
     "@material-ui/icons": "^3.0.1",
     "axios": "^0.18.0",
+    "bignumber.js": "^8.0.1",
     "connected-react-router": "^6.0.0",
     "history": "^4.7.2",
     "hoist-non-react-statics": "^3.2.1",

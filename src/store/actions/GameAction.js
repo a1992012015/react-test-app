@@ -1,21 +1,24 @@
 import { put, call, take, select } from 'redux-saga/effects';
 
-import { GAME_INIT, GAME_CHANGES } from '../actionType/GameActionType';
+import { GAME_INIT, GAME_CHANGES, GAME_END } from '../actionType/GameActionType';
 
 function getChess({ game }) {
   return { game };
 }
 
+// 检查是否胜利
 function* referee(numStr, numEnd, flag = 1, direction = 0) {
   if (flag > 4) return false;
   let count = 0; //count&&计算有几个连着的
+  const winMap = [];
 
   const { game } = yield select(getChess);
   const chessMap = game.chessMap[game.chessMap.length - 1];
   for (let i = 0; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {
-      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext !== game.xIsNext) {
+      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext === game.xIsNext) {
+        winMap.push({ x, y });
         count += 1;
       } else {
         break;
@@ -28,7 +31,8 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   for (let i = 1; i < 5; i++) {
     let [y, x] = checkDirection(numStr, numEnd, i, flag, direction);//获取周围的坐标
     if (x >= 0 && x <= 14 && y >= 0 && y <= 14) {//判断坐标是否合法
-      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext !== game.xIsNext) {//判断当前坐标是否是自己的落子
+      if (chessMap[y][x].xIsNext && chessMap[y][x].xIsNext === game.xIsNext) {//判断当前坐标是否是自己的落子
+        winMap.push({ x, y });
         count += 1;
       } else {
         break;
@@ -51,7 +55,7 @@ function* referee(numStr, numEnd, flag = 1, direction = 0) {
   // console.log('========' + position + '========');
   // console.log(count);
   if (count >= 5) {
-    return true;
+    return winMap;
   } else {
     return yield call(referee, numStr, numEnd, flag + 1);
   }
@@ -94,13 +98,7 @@ function checkDirection(numStr, numEnd, num, accelerator, direction) {
   return str;
 }
 
-function* postWork() {
-  while (true) {
-    const { payload } = yield take('NEXT_STEP');
-    yield call(nextStep, payload);
-  }
-}
-
+// 走下一步
 function* nextStep(payload) {
   const { game } = yield select(getChess);
   const [index, item] = payload;
@@ -110,66 +108,104 @@ function* nextStep(payload) {
   const chessMap = JSON.parse(JSON.stringify(game.chessMap));
 
   now[index][item].stepNumber = game.stepNumber + 1;
-  now[index][item].xIsNext = game.xIsNext;
+  now[index][item].xIsNext = game.xIsNext === 'me' ? 'ai' : 'me';
   chessMap.push(now);
 
   yield put({
     type: GAME_CHANGES,
     payload: {
       chessMap: chessMap,
+      worldMap: chessMap,
       stepNumber: game.stepNumber + 1,
       xIsNext: game.xIsNext === 'me' ? 'ai' : 'me',
       flag: false
     }
   });
 
-  const flag = yield call(referee, index, item);
-  if (flag) {
+  const winMap = yield call(referee, index, item);
+  if (winMap) {
     yield put({
       type: GAME_CHANGES,
       payload: {
-        flag: flag,
-        king: flag ? game.xIsNext : ''
+        flag: true,
+        king: game.xIsNext === 'me' ? 'ai' : 'me',
+        winMap: winMap
+      }
+    });
+
+    yield put({
+      type: 'START_NOTIFICATION',
+      payload: {
+        message: `${game.xIsNext === 'me' ? '您输了！圆环之理' : '您居然'}赢得了胜利！！！`,
+        time: 2000
       }
     });
   }
 }
 
+// 监听下一步的action
 function* moveLater() {
   while (true) {
     const { payload } = yield take('GAME_NEXT');
     yield call(nextStep, payload);
-
-    const { game } = yield select(getChess);
-    if (game.xIsNext === 'ai') {
-
-      // yield call(nextStep, [next[0], next[1]]);
-      // gameWorker.postMessage({
-      //   type: 'GO',
-      //   x: payload[0],
-      //   y: payload[1]
-      // });
-    }
   }
 }
 
+// 开启游戏
 function* gameStart() {
   while (true) {
     yield take('GAME_START');
 
-    // gameWorker.postMessage({ type: 'START' });
-
     yield put({ type: GAME_INIT });
+  }
+}
 
-    // yield put({
-    //   type: 'GAME_NEXT',
-    //   payload: [7, 7]
-    // });
+// 关闭游戏
+function* gameEnd() {
+  while (true) {
+    yield take('GAME_FINISH');
+
+    yield put({ type: GAME_END });
+  }
+}
+
+// 后退一步
+function* retreat() {
+  while (true) {
+    yield take('GAME_RETREAT');
+    const { game } = yield select(getChess);
+    yield put({
+      type: GAME_CHANGES,
+      payload: {
+        chessMap: game.chessMap.slice(0, game.chessMap.length - 2),
+        stepNumber: game.stepNumber - 2
+      }
+    });
+    console.log('后退一步');
+
+  }
+}
+
+// 前进一步
+function* advance() {
+  while (true) {
+    yield take('GAME_ADVANCE');
+    const { game } = yield select(getChess);
+    yield put({
+      type: GAME_CHANGES,
+      payload: {
+        chessMap: game.worldMap.slice(0, game.stepNumber + 3),
+        stepNumber: game.stepNumber + 2
+      }
+    });
+    console.log('前进一步');
   }
 }
 
 export default [
   moveLater(),
   gameStart(),
-  postWork()
+  gameEnd(),
+  retreat(),
+  advance()
 ];

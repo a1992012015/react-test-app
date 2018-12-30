@@ -1,77 +1,54 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { BigNumber } from 'bignumber.js';
 
 import Checkerboard from './component/checkerboard/checkerboard';
 import Pieces from './component/pieces/pieces';
-import Tips from './component/tips/tips';
-import Worker from './component/game.worker';
-import SCORE from '../../gameAi/score';
-import win from '../../gameAi/win';
+import DashBoard from './component/dashBoard/dashBoard';
 
-import logo from '../../assets/images/logo.svg';
+import Worker from './component/game.worker';
+
 import styles from './webWorkGame.module.scss';
 
 class WebWorkGame extends Component {
   gameWorker = null;
+  pieces = null;
 
   constructor(props) {
     super(props);
     this.state = {
-      bigText: '',
-      score: 0,
-      step: -1,
-      lastScore: 0,
-      startTime: +new Date()
+      width: 0,
+      aiInfo: [],
+      startTime: 0
     };
   }
 
-
   componentDidMount() {
+    this.getWidth();
+
+    window.addEventListener('resize', this.onresize);
     this.gameWorker = new Worker();
 
     this.gameWorker.onmessage = e => {
-      const { lastScore, score } = this.state;
+      const { startTime } = this.state;
       const { dispatch } = this.props;
-
       const data = e.data;
       const d = data.data;
+      console.log('get response', d);
+
       if (data.type === 'put') {
-        console.log(d);
+        const endTime = new Date().getTime();
+        d['time'] = (endTime - startTime) / 1000;
         // const score = this.score = d.score;
+        this.setState({
+          aiInfo: d
+        });
         const position = [d[0], d[1]];
         dispatch({
           type: 'GAME_NEXT',
           payload: position
         });
-        // const step = this.state.step = d.step;
-        // this._set(position, 1);
-        //
-        // if (score >= SCORE.FIVE / 2) {
-        //   if (lastScore < SCORE.FIVE / 2) this.shouldPop = true;
-        //   if (step <= 1) {
-        //     // this.$store.dispatch(SET_FIVES, win(this.board));
-        //     // this.$store.dispatch(SET_STATUS, STATUS.LOCKED);
-        //     // this.showBigText(this.$t('you lose'), this.end);
-        //   } else if (step <= 6 && this.shouldPop) {
-        //     // this.$refs.winPop.open();
-        //     this.shouldPop = false;
-        //   }
-        // } else if (score <= -SCORE.FIVE / 2) {
-        //   if (lastScore > -SCORE.FIVE / 2) this.shouldPop = true;
-        //   if (step <= 1) {
-        //     this.$store.dispatch(SET_FIVES, win(this.board));
-        //     this.$store.dispatch(SET_STATUS, STATUS.LOCKED);
-        //     this.showBigText(this.$t('you win'), this.end);
-        //   } else if (step <= 6 && this.shouldPop) {
-        //     this.$refs.losePop.open();
-        //     this.shouldPop = false;
-        //   }
-        // } else {
-        //   this.$store.dispatch(SET_FIVES, []); // reset
-        // }
-        // lastScore = score;
       } else if (data.type === 'board') { // 返回的开局
-        console.log(d);
         const b = d.board;
         // 说明使用了开局
         if (b) {
@@ -79,19 +56,6 @@ class WebWorkGame extends Component {
           dispatch({
             type: 'GAME_START'
           });
-          // let second, third;
-          // for (var i = 0; i < b.length; i++) {
-          //   for (var j = 0; j < b.length; j++) {
-          //     if (i == 7 && j == 7) continue;
-          //     const r = b[i][j];
-          //     if (r === 1) third = { position: [i, j], role: 1 };
-          //     if (r === 2) second = { position: [i, j], role: 2 };
-          //   }
-          // }
-          // steps.push(second);
-          // steps.push(third);
-          // this.$store.dispatch(SET_STEPS, steps);
-          // this.showBigText(b.name);
         } else {
           dispatch({
             type: 'GAME_START'
@@ -105,6 +69,20 @@ class WebWorkGame extends Component {
     };
   }
 
+  onresize = () => {
+    this.getWidth();
+  };
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onresize);
+  }
+
+  getWidth = () => {
+    const { clientWidth } = this.pieces;
+    const width = new BigNumber(clientWidth).dividedBy(16).toNumber();
+    this.setState({ width });
+  };
+
   startGame = (first = 1) => {
     this.gameWorker.postMessage({
       type: 'START',
@@ -117,13 +95,21 @@ class WebWorkGame extends Component {
     //}
   };
 
+  // 前进方法
   gameForward = () => {
+    const { dispatch } = this.props;
+
+    dispatch({ type: 'GAME_ADVANCE' });
     this.gameWorker.postMessage({
       type: 'FORWARD'
     });
   };
 
-  gaemBackward = () => {
+  // 后退方法
+  gameBackward = () => {
+    const { dispatch } = this.props;
+
+    dispatch({ type: 'GAME_RETREAT' });
     this.gameWorker.postMessage({
       type: 'BACKWARD'
     });
@@ -149,8 +135,14 @@ class WebWorkGame extends Component {
 
   goOn = (index, item) => {
     const { game, dispatch } = this.props;
-    if (game.flag) {
-      console.log('游戏结束');
+    if (game.flag || game.xIsNext === 'me') {
+      dispatch({
+        type: 'START_NOTIFICATION',
+        payload: {
+          message: game.flag ? '点击开始按钮开始游戏' : '还没到您的回合!',
+          time: 2000
+        }
+      });
       return;
     }
     const history = game.chessMap[game.chessMap.length - 1];
@@ -164,19 +156,33 @@ class WebWorkGame extends Component {
     });
 
     this.gameGo({ x: index, y: item });
+
+    this.setState({
+      startTime: new Date().getTime()
+    });
+  };
+
+  reStart = () => {
+    const { dispatch } = this.props;
+
+    dispatch({ type: 'GAME_FINISH' });
   };
 
   render() {
     const { game } = this.props;
-    console.log(game);
+    const { width, aiInfo } = this.state;
     return (
       <div className={styles['game']}>
-        <img src={logo} className={styles['game-logo']} alt="logo"/>
-        <div className={styles['game-box']}>
-          {game.flag && <Tips king={game.king} gameStart={this.startGame.bind(this, 2)}/>}
-          <Checkerboard/>
-          <Pieces chess={game} goOn={this.goOn}/>
+        <div ref={v => this.pieces = v} className={styles['game-box']}>
+          {width && <Checkerboard width={width}/>}
+          {width && <Pieces chess={game} goOn={this.goOn} width={width}/>}
         </div>
+        <DashBoard startGame={this.startGame}
+                   reStart={this.reStart}
+                   gameForward={this.gameForward}
+                   gameBackward={this.gameBackward}
+                   aiInfo={aiInfo}
+                   game={game}/>
       </div>
     );
   }

@@ -1,0 +1,44 @@
+
+.dash-board {
+  color: black;
+  width: 300px;
+  padding: 10px;
+}
+
+.dash-board-loading {
+  display: flex;
+  justify-content: space-around;
+  max-width: 602px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.dash-board-tips {
+  width: 100%;
+  margin: 10px auto;
+  padding: .5rem 0;
+  background-color: #aaa;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.dash-board-chess {
+  display: inline-block;
+  height: 14px;
+  width: 14px;
+  background-color: black;
+  border-radius: 50%;
+  vertical-align: -.20rem;
+  margin-right: .5rem;
+}
+
+.btn-green {
+  background: #4caf50 !important;
+}
+
+@media screen and (max-width: 922px) {
+  .dash-board {
+    max-width: 602px;
+    width: 100%;
+  }
+}

@@ -1,4 +1,4 @@
-import { GAME_CHANGES, GAME_INIT } from '../actionType/GameActionType';
+import { GAME_CHANGES, GAME_INIT, GAME_END } from '../actionType/GameActionType';
 
 const chessMap = [];
 for (let i = 0; i < 15; i++) {
@@ -14,11 +14,12 @@ for (let i = 0; i < 15; i++) {
 
 const chessInit = {
   chessMap: [chessMap],
-  stepNumber: 0, //步数
-  xIsNext: 'ai', //me | ai
-  earlyOrLate: false, //先攻||后攻
-  flag: true, //true为完成对局||还未开始 false为游戏进行中
-  king: '' //最后的赢家是
+  winMap: [], // 赢家的胜利坐标
+  worldMap: [],// 存放悔棋设置的地图
+  stepNumber: 0, // 步数
+  xIsNext: 'ai', // me | ai
+  flag: true, // true为完成对局||还未开始 false为游戏进行中
+  king: '' // 最后的赢家是
 };
 
 export default function GameReducer(state = chessInit, action) {
@@ -27,6 +28,8 @@ export default function GameReducer(state = chessInit, action) {
       return { ...state, ...action.payload };
     case GAME_INIT:
       return { ...chessInit, flag: false };
+    case GAME_END:
+      return { ...chessInit };
     default:
       return state;
   }
