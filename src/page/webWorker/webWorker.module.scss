@@ -1,15 +1,29 @@
+@import '../../styles/vars';
 
-.web-work-bottom {
-  margin-top: 20px;
+.web-work {
+  max-width: $max-view-width;
+  width: 100%;
+  margin: 0 auto;
+  flex-grow: 1;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 
-.web-work-right, .web-work-left {
+.web-work-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.web-work-right,
+.web-work-left {
   width: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 20px 0 0;
 }
 
 .web-work-direct {
@@ -34,14 +48,16 @@
 
 .web-work-center {
   text-align: center;
+  margin-top: 0;
 }
 
 @media screen and (max-width: 600px) {
-  .web-work-bottom {
+  .web-work-option {
     flex-direction: column;
   }
 
-  .web-work-right, .web-work-left {
+  .web-work-right,
+  .web-work-left {
     width: 100%;
   }
 }

@@ -1,4 +1,9 @@
+@import '../../styles/vars';
+
 .game {
+  max-width: $max-view-width;
+  width: 100%;
+  margin: 0 auto;
   flex-grow: 1;
   text-align: center;
   display: flex;

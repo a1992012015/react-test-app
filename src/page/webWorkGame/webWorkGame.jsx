@@ -5,6 +5,7 @@ import { BigNumber } from 'bignumber.js';
 import Checkerboard from './component/checkerboard/checkerboard';
 import Pieces from './component/pieces/pieces';
 import DashBoard from './component/dashBoard/dashBoard';
+import { testMocker } from '../../services/authService';
 
 import Worker from './component/game.worker';
 
@@ -24,6 +25,13 @@ class WebWorkGame extends Component {
   }
 
   componentDidMount() {
+    testMocker()
+      .then(res => {
+        console.log(res);
+      })
+      .catch(res => {
+        console.log(res);
+      });
     this.getWidth();
 
     window.addEventListener('resize', this.onresize);
@@ -48,7 +56,8 @@ class WebWorkGame extends Component {
           type: 'GAME_NEXT',
           payload: position
         });
-      } else if (data.type === 'board') { // 返回的开局
+      } else if (data.type === 'board') {
+        // 返回的开局
         const b = d.board;
         // 说明使用了开局
         if (b) {
@@ -184,16 +193,11 @@ class WebWorkGame extends Component {
     const { width, aiInfo } = this.state;
     return (
       <div className={styles['game']}>
-        <div ref={v => this.pieces = v} className={styles['game-box']}>
-          {width && <Checkerboard width={width}/>}
-          {width && <Pieces chess={game} goOn={this.goOn} width={width}/>}
+        <div ref={v => (this.pieces = v)} className={styles['game-box']}>
+          {width && <Checkerboard width={width} />}
+          {width && <Pieces chess={game} goOn={this.goOn} width={width} />}
         </div>
-        <DashBoard startGame={this.startGame}
-                   reStart={this.reStart}
-                   gameForward={this.gameForward}
-                   gameBackward={this.gameBackward}
-                   aiInfo={aiInfo}
-                   game={game}/>
+        <DashBoard startGame={this.startGame} reStart={this.reStart} gameForward={this.gameForward} gameBackward={this.gameBackward} aiInfo={aiInfo} game={game} />
       </div>
     );
   }

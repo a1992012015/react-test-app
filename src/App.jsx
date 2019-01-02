@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Loadable from 'react-loadable';
 import { Route } from 'react-router-dom';
+import { hot } from 'react-hot-loader';
 
 import Header from './components/header/header';
 import Notification from './components/notification';
@@ -28,18 +29,18 @@ class App extends Component {
   render() {
     return (
       <section className={styles['App']}>
-        <Header/>
+        <Header />
 
         <SwitchDefault>
-          <Route exact={true} path='/' component={WebWorkGame}/>
-          <Route exact={true} path='/worker' component={WebWorker}/>
-          <Route exact={true} path='/error' component={Error}/>
+          <Route exact={true} path='/' component={WebWorkGame} />
+          <Route exact={true} path='/worker' component={WebWorker} />
+          <Route exact={true} path='/error' component={Error} />
         </SwitchDefault>
 
-        <Notification/>
+        <Notification />
       </section>
     );
   }
 }
 
-export default App;
+export default hot(module)(App);
