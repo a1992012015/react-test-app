@@ -12,7 +12,10 @@ module.exports = {
     },
     plugins: [
       new WorkerPlugin()
-    ]
+    ],
+    output: {
+      filename: '[name].[contenthash].bundle.js'
+    }
   },
   plugins: [
     {
@@ -24,13 +27,13 @@ module.exports = {
             javascriptEnabled: true
           }
         },
-        modifyLessRule(lessRule, context) {
+        modifyLessRule(lessRule) {
           // You have to exclude these file suffixes first,
           // if you want to modify the less module's suffix
           lessRule.exclude = /\.m\.less$/;
           return lessRule;
         },
-        modifyLessModuleRule(lessModuleRule, context) {
+        modifyLessModuleRule(lessModuleRule) {
           // Configure the file suffix
           lessModuleRule.test = /\.m\.less$/;
 

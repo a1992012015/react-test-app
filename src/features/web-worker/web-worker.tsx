@@ -1,4 +1,5 @@
 import React from 'react';
+import Countdown from 'react-countdown';
 
 import styles from './web-worker.module.less';
 import { BaseComponent } from '../../components/should-component-update';
@@ -10,6 +11,8 @@ interface State {
   time1: number;
   time2: number;
 }
+
+const Completionist = () => <span>You are good to go!</span>;
 
 export class WebWorker extends BaseComponent<object, State> {
   worker?: Worker;
@@ -28,8 +31,12 @@ export class WebWorker extends BaseComponent<object, State> {
   componentDidMount() {
     this.worker = new Worker('./component/fibonacci.worker.ts', { type: 'module' });
     this.worker.onerror = function (event) {
-      console.log(event);
+      console.warn(event);
     };
+  }
+
+  componentWillUnmount() {
+    this.worker?.terminate()
   }
 
   fetchUsers = () => {
@@ -61,6 +68,10 @@ export class WebWorker extends BaseComponent<object, State> {
     const { count1, count2, time1, time2 } = this.state;
     return (
       <div className={styles.container}>
+        <Countdown date={Date.now() + 1000000} >
+          <Completionist/>
+        </Countdown>
+
         <section className={styles['web-work-option']}>
           <section className={styles['web-work-left']}>
             <p className={styles['web-work-center']}>Total User Count: {count1}</p>

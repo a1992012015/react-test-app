@@ -1,5 +1,7 @@
+@import "styles/variables";
+
 .container {
-  height: 100vh;
+  height: 100%;
   flex-direction: row;
 }
 
@@ -10,6 +12,7 @@
 }
 
 .siteLayout {
+  min-width: @app-container-min-width;
 
   .siteLayoutContent {
     margin: 24px 16px;

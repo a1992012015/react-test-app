@@ -1,11 +1,15 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import createSagaMiddleware from 'redux-saga';
-import logger from 'redux-logger';
+import { createLogger } from 'redux-logger';
 
 import { pokemonApi } from '../services/pokemon.service';
 import createReducer from './reducers';
 import sagas from './root-sage';
+
+const logger = createLogger({
+  // ...options
+});
 
 const configureAdminStore = (initialState = {}) => {
   const sagaMiddleware = createSagaMiddleware();

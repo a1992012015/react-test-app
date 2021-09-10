@@ -5,7 +5,7 @@ import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 
 import styles from './App.module.less';
 import { MenuInfo } from 'rc-menu/lib/interface';
-import { GoBang } from './features/go-bang/go-bang';
+import { GoBangRedux } from './features/go-bang/go-bang';
 import { Dashboard } from './features/dashboard/dashboard';
 import { SwitchDefault } from './components/switch-default';
 import { BaseComponent } from './components/should-component-update';
@@ -78,7 +78,7 @@ export default class App extends BaseComponent<Props, State> {
           <Layout.Content className={styles.siteLayoutContent}>
             <SwitchDefault history={history}>
               <Route exact={true} path="/dashboard" component={Dashboard}/>
-              <Route exact={true} path="/go-bang" component={GoBang}/>
+              <Route exact={true} path="/go-bang" component={GoBangRedux}/>
               <Route exact={true} path="/counter" component={Counter}/>
               <Route exact={true} path="/pokemon" component={Pokemon}/>
               <Route exact={true} path="/web-worker" component={WebWorker}/>
