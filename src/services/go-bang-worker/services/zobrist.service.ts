@@ -18,25 +18,25 @@ export class Zobrist implements IZobrist {
     this.size = size || 15;
   }
 
-  init = () => {
+  init = (): void => {
     this.com = [];
     this.hum = [];
     for (let i = 0; i < this.size * this.size; i++) {
-      this.com.push(this._rand());
-      this.hum.push(this._rand());
+      this.com.push(this.rand());
+      this.hum.push(this.rand());
     }
 
-    this.code = this._rand();
+    this.code = this.rand();
   };
 
-  go = (piece: IPiece) => {
+  go = (piece: IPiece): number => {
     const index = this.size * piece.x + piece.y;
-    this.code ^= (piece.role === ERole.com ? this.com[index] : this.hum[index]);
+    this.code ^= piece.role === ERole.com ? this.com[index] : this.hum[index];
     return this.code;
   };
 
-  _rand = () => {
-    return this.random.integer(1, 1000000000);  //再多一位就溢出了。。
+  rand = (): number => {
+    return this.random.integer(1, 1000000000); // 再多一位就溢出了。。
   };
 }
 

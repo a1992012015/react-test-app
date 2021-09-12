@@ -12,7 +12,7 @@ export class Commons {
    * @param h 数组深度
    */
   createScores = (w: number, h: number): number[][] => {
-    let board: number[][] = [];
+    const board: number[][] = [];
     for (let x = 0; x < w; x++) {
       const row: number[] = [];
       for (let y = 0; y < h; y++) {
@@ -55,7 +55,7 @@ export class Commons {
    * 获取另外一个玩家
    * @param r 现在的玩家
    */
-  reverseRole = (r: ERole) => {
+  reverseRole = (r: ERole): ERole => {
     return r === ERole.com ? ERole.hum : ERole.com;
   };
 
@@ -64,7 +64,7 @@ export class Commons {
    * @param a 当前棋子的分数
    * @param b 对比的目标分数
    */
-  greatOrEqualThan = (a: number, b: number) => {
+  greatOrEqualThan = (a: number, b: number): boolean => {
     return this.equal(a, b) || this.greaterThan(a, b);
   };
 
@@ -73,7 +73,7 @@ export class Commons {
    * @param a 当前棋子的分数
    * @param b 对比的目标分数
    */
-  equalOrLessThan = (a: number, b: number) => {
+  equalOrLessThan = (a: number, b: number): boolean => {
     return this.equal(a, b) || this.lessThan(a, b);
   };
 
@@ -82,12 +82,11 @@ export class Commons {
    * @param a 当前棋子的分数
    * @param b 对比的目标分数
    */
-  lessThan = (a: number, b: number) => {
+  lessThan = (a: number, b: number): boolean => {
     if (b >= 0) {
-      return (a <= (b - 0.1) / this.THRESHOLD);
-    } else {
-      return (a <= (b - 0.1) * this.THRESHOLD);
+      return a <= (b - 0.1) / this.THRESHOLD;
     }
+    return a <= (b - 0.1) * this.THRESHOLD;
   };
 
   /**
@@ -95,12 +94,11 @@ export class Commons {
    * @param a 当前棋子的分数
    * @param b 对比的目标分数
    */
-  equal = (a: number, b: number = 0.01) => {
+  equal = (a: number, b = 0.01): boolean => {
     if (b >= 0) {
-      return ((a >= b / this.THRESHOLD) && (a <= b * this.THRESHOLD));
-    } else {
-      return ((a >= b * this.THRESHOLD) && (a <= b / this.THRESHOLD));
+      return a >= b / this.THRESHOLD && a <= b * this.THRESHOLD;
     }
+    return a >= b * this.THRESHOLD && a <= b / this.THRESHOLD;
   };
 
   /**
@@ -108,12 +106,12 @@ export class Commons {
    * @param a 当前棋子的分数
    * @param b 对比的目标分数
    */
-  greaterThan = (a: number, b: number) => {
+  greaterThan = (a: number, b: number): boolean => {
     if (b >= 0) {
-      return (a >= (b + 0.1) * this.THRESHOLD);
-    } else {
-      return (a >= (b + 0.1) / this.THRESHOLD);
-    }// 注意处理b为0的情况，通过加一个0.1 做简单的处理
+      return a >= (b + 0.1) * this.THRESHOLD;
+    }
+    return a >= (b + 0.1) / this.THRESHOLD;
+    // 注意处理b为0的情况，通过加一个0.1 做简单的处理
   };
 
   containPoint = (arrays: number[][], p: Piece): boolean => {
@@ -122,28 +120,32 @@ export class Commons {
     });
   };
 
-  pointEqual = (a: Piece, [x, y]: number[]) => {
+  pointEqual = (a: Piece, [x, y]: number[]): boolean => {
     return a.x === x && a.y === y;
   };
 
-  round = (score: number) => {
+  round = (score: number): number => {
     const neg = score < 0 ? -1 : 1;
     const abs = Math.abs(score);
     if (abs <= SCORE.ONE / 2) {
       return 0;
-    } else if (abs <= SCORE.TWO / 2 && abs > SCORE.ONE / 2) {
-      return neg * SCORE.ONE;
-    } else if (abs <= SCORE.THREE / 2 && abs > SCORE.TWO / 2) {
-      return neg * SCORE.TWO;
-    } else if (abs <= SCORE.THREE * 1.5 && abs > SCORE.THREE / 2) {
-      return neg * SCORE.THREE;
-    } else if (abs <= SCORE.FOUR / 2 && abs > SCORE.THREE * 1.5) {
-      return neg * SCORE.THREE * 2;
-    } else if (abs <= SCORE.FIVE / 2 && abs > SCORE.FOUR / 2) {
-      return neg * SCORE.FOUR;
-    } else {
-      return neg * SCORE.FIVE;
     }
+    if (abs <= SCORE.TWO / 2 && abs > SCORE.ONE / 2) {
+      return neg * SCORE.ONE;
+    }
+    if (abs <= SCORE.THREE / 2 && abs > SCORE.TWO / 2) {
+      return neg * SCORE.TWO;
+    }
+    if (abs <= SCORE.THREE * 1.5 && abs > SCORE.THREE / 2) {
+      return neg * SCORE.THREE;
+    }
+    if (abs <= SCORE.FOUR / 2 && abs > SCORE.THREE * 1.5) {
+      return neg * SCORE.THREE * 2;
+    }
+    if (abs <= SCORE.FIVE / 2 && abs > SCORE.FOUR / 2) {
+      return neg * SCORE.FOUR;
+    }
+    return neg * SCORE.FIVE;
   };
 }
 

@@ -5,26 +5,25 @@ import styles from './go-bang.module.less';
 import { GoBangController } from './go-bang-controller/go-bang-controller';
 import { GoBangWorkerRedux } from './go-bang-worker/go-bang-worker';
 import { GoBangCheckerboard } from './go-bang-checkerboard/go-bang-checkerboard';
-import { AppDispatch, RootState } from '../../stores/main';
-import { GameStatus } from '../../stores/interfaces/go-bang.reducer';
+import { IGameStatus } from '../../stores/interfaces/go-bang.interface';
 import { BaseComponent } from '../../components/should-component-update';
-import { Piece } from '../../services/go-bang-ai/interfaces/open-pants.interface';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
 import { WorkerStatus } from '../../stores/interfaces/worker.interface';
-import { WorkerType } from '../../services/go-bang-ai/interfaces/go-bang.interface';
+import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
+import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
+import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
 
-interface State {
+interface IState {
   time: number;
   score: number;
 }
 
-interface Props extends GameStatus {
-  changeWorkerPost(p: WorkerStatus): void;
+interface IProps extends IGameStatus {
+  dispatch: AppDispatch;
 }
 
-class GoBang extends BaseComponent<Props, State> {
-
-  constructor(props: Props) {
+class GoBang extends BaseComponent<IProps, IState> {
+  constructor(props: IProps) {
     super(props);
 
     this.state = {
@@ -33,46 +32,46 @@ class GoBang extends BaseComponent<Props, State> {
     };
   }
 
-  gameStart = (first: boolean, opening: boolean) => {
+  gameStart = (first: boolean, opening: boolean): void => {
     const post: WorkerStatus = {
       type: WorkerType.START,
-      first: first,
+      first,
       randomOpening: opening
     };
-    this.props.changeWorkerPost(post);
+    this.props.dispatch(changeWorkerPost(post));
   };
 
-  gameConfig = () => {
+  gameConfig = (): void => {
     console.log('gameConfig');
   };
 
-  gameGo = (piece: Piece) => {
+  gameGo = (piece: IPiece): void => {
     console.log('gameGo piece:', piece);
     const post: WorkerStatus = {
       type: WorkerType.GO,
-      piece: piece
+      piece
     };
-    this.props.changeWorkerPost(post);
+    this.props.dispatch(changeWorkerPost(post));
   };
 
   // 前进方法
-  gameForward = () => {
+  gameForward = (): void => {
     console.log('gameForward');
   };
 
   // 后退方法
-  gameBackward = () => {
+  gameBackward = (): void => {
     console.log('gameBackward');
   };
 
   /**
    * 重置游戏
    */
-  gameReset = () => {
+  gameReset = (): void => {
     console.log('gameReset');
   };
 
-  render() {
+  render(): React.ReactNode {
     const boardProps = {
       steps: this.props.steps,
       board: this.props.board,
@@ -95,28 +94,26 @@ class GoBang extends BaseComponent<Props, State> {
     };
     return (
       <div className={styles.container}>
-        <GoBangWorkerRedux/>
+        <GoBangWorkerRedux />
 
         <div className={styles.controller}>
-          <GoBangController {...controllerProps}/>
+          <GoBangController {...controllerProps} />
         </div>
 
         <div className={styles.checkerboard}>
-          <GoBangCheckerboard {...boardProps}/>
+          <GoBangCheckerboard {...boardProps} />
         </div>
       </div>
     );
   }
 }
 
-const mapStateToProps = (state: RootState) => {
+const mapStateToProps = (state: RootState): Omit<IProps, 'dispatch'> => {
   return { ...state.goBang };
 };
 
-const mapDispatchToProps = (dispatch: AppDispatch) => {
-  return {
-    changeWorkerPost: (p: WorkerStatus) => dispatch(changeWorkerPost(p))
-  };
-};
+const mapDispatchToProps = (dispatch: AppDispatch): Omit<IProps, keyof IGameStatus> => ({
+  dispatch
+});
 
 export const GoBangRedux = connect(mapStateToProps, mapDispatchToProps)(GoBang);

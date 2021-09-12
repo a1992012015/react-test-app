@@ -5,8 +5,12 @@ import React from 'react';
  * @param WrappedComponent React.ComponentClass
  * @returns {function(): React.ComponentClass}
  */
-export const wrap = (WrappedComponent: React.ComponentClass) => () => (
-  <div className="wrap-container">
-    <WrappedComponent/>
-  </div>
-);
+export const wrap = (WrappedComponent: React.ComponentClass) => {
+  return function w(): React.ReactNode {
+    return (
+      <div className="wrap-container">
+        <WrappedComponent />
+      </div>
+    );
+  };
+};

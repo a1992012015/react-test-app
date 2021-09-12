@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AppThunk, RootState } from '../main';
 import { fetchCount } from '../../features/counter/counterAPI';
+// eslint-disable-next-line import/no-cycle
+import { AppThunk, RootState } from '../interfaces/store.interface';
 
 export interface CounterState {
   value: number;
@@ -17,14 +18,11 @@ const initialState: CounterState = {
 // will call the thunk with the `dispatch` function as the first argument. Async
 // code can then be executed and other actions can be dispatched. Thunks are
 // typically used to make async requests.
-export const incrementAsync = createAsyncThunk(
-  'counter/fetchCount',
-  async (amount: number) => {
-    const response = await fetchCount(amount);
-    // The value we return becomes the `fulfilled` action payload
-    return response.data;
-  }
-);
+export const incrementAsync = createAsyncThunk('counter/fetchCount', async (amount: number) => {
+  const response = await fetchCount(amount);
+  // The value we return becomes the `fulfilled` action payload
+  return response.data;
+});
 
 export const counterReducer = createSlice({
   name: 'counter',
@@ -65,19 +63,16 @@ export const { increment, decrement, incrementByAmount } = counterReducer.action
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state: RootState) => state.counter.value)`
-export const selectCount = (state: RootState) => state.counter.value;
+export const selectCount = (state: RootState): number => state.counter.value;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
-export const incrementIfOdd = (amount: number): AppThunk => (
-  dispatch,
-  getState
-) => {
-  const currentValue = selectCount(getState());
-  console.log(currentValue);
-  if (currentValue % 2 === 1) {
-    dispatch(incrementByAmount(amount));
-  }
+export const incrementIfOdd = (amount: number): AppThunk => {
+  return (dispatch, getState) => {
+    const currentValue = selectCount(getState());
+    console.log(currentValue);
+    if (currentValue % 2 === 1) {
+      dispatch(incrementByAmount(amount));
+    }
+  };
 };
-
-export default counterReducer.reducer;

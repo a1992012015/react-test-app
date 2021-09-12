@@ -13,5 +13,5 @@ export interface IZobrist {
 
   go(piece: IPiece): number;
 
-  _rand(): number;
+  rand(): number;
 }

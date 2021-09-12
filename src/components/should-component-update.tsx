@@ -1,15 +1,17 @@
 import { Component } from 'react';
 import { is } from 'immutable';
 
-export class BaseComponent<P = {}, S = {}> extends Component<P, S> {
-  shouldComponentUpdate(props: P, state: S) {
+export class BaseComponent<P = unknown, S = unknown> extends Component<P, S> {
+  shouldComponentUpdate(props: P, state: S): boolean {
     const thisProps = this.props || {};
     const thisState = this.state || {};
-    const nextProps = props || {} as P;
-    const nextState = state || {} as S;
+    const nextProps = props || ({} as P);
+    const nextState = state || ({} as S);
 
-    if (Object.keys(thisProps).length !== Object.keys(nextProps).length ||
-      Object.keys(thisState).length !== Object.keys(nextState).length) {
+    if (
+      Object.keys(thisProps).length !== Object.keys(nextProps).length ||
+      Object.keys(thisState).length !== Object.keys(nextState).length
+    ) {
       return true;
     }
 

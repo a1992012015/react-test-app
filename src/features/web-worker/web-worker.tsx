@@ -12,12 +12,12 @@ interface State {
   time2: number;
 }
 
-const Completionist = () => <span>You are good to go!</span>;
+const Completionist = (): JSX.Element => <span>You are good to go!</span>;
 
-export class WebWorker extends BaseComponent<object, State> {
+export class WebWorker extends BaseComponent<unknown, State> {
   worker?: Worker;
 
-  constructor(props: object) {
+  constructor(props: unknown) {
     super(props);
 
     this.state = {
@@ -28,18 +28,18 @@ export class WebWorker extends BaseComponent<object, State> {
     };
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     this.worker = new Worker('./component/fibonacci.worker.ts', { type: 'module' });
-    this.worker.onerror = function (event) {
+    this.worker.onerror = (event) => {
       console.warn(event);
     };
   }
 
-  componentWillUnmount() {
-    this.worker?.terminate()
+  componentWillUnmount(): void {
+    this.worker?.terminate();
   }
 
-  fetchUsers = () => {
+  fetchUsers = (): void => {
     const start = new Date().getTime();
     const num = fibonacci(43);
     const end = new Date().getTime();
@@ -50,7 +50,7 @@ export class WebWorker extends BaseComponent<object, State> {
     });
   };
 
-  fetchWebWorker = () => {
+  fetchWebWorker = (): void => {
     this.worker?.postMessage(43);
     const start = new Date().getTime();
     this.worker?.addEventListener('message', ({ data }) => {
@@ -64,19 +64,19 @@ export class WebWorker extends BaseComponent<object, State> {
     });
   };
 
-  render() {
+  render(): React.ReactNode {
     const { count1, count2, time1, time2 } = this.state;
     return (
       <div className={styles.container}>
-        <Countdown date={Date.now() + 1000000} >
-          <Completionist/>
+        <Countdown date={Date.now() + 1000000}>
+          <Completionist />
         </Countdown>
 
         <section className={styles['web-work-option']}>
           <section className={styles['web-work-left']}>
             <p className={styles['web-work-center']}>Total User Count: {count1}</p>
             <p className={styles['web-work-center']}>time: {time1}</p>
-            <button className={styles['web-work-direct']} onClick={this.fetchUsers}>
+            <button type="button" onClick={this.fetchUsers}>
               Fetch Users Directly
             </button>
           </section>
@@ -84,7 +84,7 @@ export class WebWorker extends BaseComponent<object, State> {
           <section className={styles['web-work-right']}>
             <p className={styles['web-work-center']}>Total User Count: {count2}</p>
             <p className={styles['web-work-center']}>time: {time2}</p>
-            <button className={styles['web-work-worker']} onClick={this.fetchWebWorker}>
+            <button type="button" onClick={this.fetchWebWorker}>
               Fetch Users with Web Worker
             </button>
           </section>

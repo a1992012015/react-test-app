@@ -10,43 +10,42 @@ interface Props {
   name: string;
 }
 
-export function PokemonItem({ name }: Props) {
+const PokemonItem = ({ name }: Props): JSX.Element | null => {
   const pollingInterval = 0;
-  const { data, error, isLoading, isFetching } = useGetPokemonByNameQuery(
-    name, { pollingInterval }
-  );
-
-  return (
-    <div>
-      {error ? (
-        <>Oh no, there was an error</>
-      ) : isLoading ? (
-        <>Loading...</>
-      ) : data ? (
-        <>
-          <h3>
-            {data.species.name} {isFetching ? '...' : ''}
-          </h3>
-          <img src={data.sprites.front_shiny} alt={data.species.name}/>
-        </>
-      ) : null}
-    </div>
-  );
-}
-
-export class Pokemon extends BaseComponent {
-
-  render() {
+  const { data, error, isLoading, isFetching } = useGetPokemonByNameQuery(name, {
+    pollingInterval
+  });
+  if (error) {
+    return <React.Fragment>Oh no, there was an error</React.Fragment>;
+  }
+  if (isLoading) {
+    return <React.Fragment>Loading...</React.Fragment>;
+  }
+  if (data) {
     return (
-      <div className={styles.container}>
-        {this.renderPokemon()}
-      </div>
+      <React.Fragment>
+        <h3>
+          {data.species.name} {isFetching ? '...' : ''}
+        </h3>
+        <img src={data.sprites.front_shiny} alt={data.species.name} />
+      </React.Fragment>
     );
   }
+  return null;
+};
 
-  renderPokemon() {
-    return pokemon.map((poke, index) => (
-      <PokemonItem key={index} name={poke}/>
-    ));
+export class Pokemon extends BaseComponent {
+  render(): React.ReactNode {
+    return <div className={styles.container}>{this.renderPokemon()}</div>;
   }
+
+  renderPokemon = (): React.ReactNode => {
+    return pokemon.map((poke, index) => {
+      return (
+        <div key={index}>
+          <PokemonItem name={poke} />
+        </div>
+      );
+    });
+  };
 }

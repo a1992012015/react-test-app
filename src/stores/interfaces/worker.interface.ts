@@ -1,5 +1,3 @@
-import { WorkerRequest } from '../../services/go-bang-ai/interfaces/go-bang.interface';
+import { WorkerRequest } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 
-export interface WorkerStatus extends WorkerRequest {
-
-}
+export type WorkerStatus = WorkerRequest;

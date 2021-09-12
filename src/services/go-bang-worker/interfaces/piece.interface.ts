@@ -1,4 +1,3 @@
-import { Piece } from '../services/piece.service';
 import { ERole } from './role.interface';
 
 export interface IPiece {
@@ -6,7 +5,7 @@ export interface IPiece {
   y: number;
   role: ERole;
   score: number;
-  steps: Piece[];
+  steps: IPiece[];
   vct: number;
   vcf: number;
   min: number;
@@ -19,7 +18,7 @@ export interface IPiece {
 export interface IScore {
   score: number;
   step: number;
-  steps: Piece[];
+  steps: IPiece[];
   abcut?: number;
   vct?: number;
   vcf?: number;

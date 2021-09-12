@@ -12,7 +12,7 @@ addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
     const open = goBangAI.start(!!d?.first, d.randomOpening);
     postMessage({
       type: WorkerType.BOARD,
-      data: { ...open, first: !!d?.first ? ERole.hum : ERole.com }
+      data: { ...open, first: d?.first ? ERole.hum : ERole.com }
     });
   } else if (d.type === WorkerType.BEGIN) {
     const p = goBangAI.begin();
@@ -37,7 +37,7 @@ addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
       type: WorkerType.FORWARD
     });
   } else if (d.type === WorkerType.CONFIG) {
-    const config = d.config;
+    const { config } = d;
     if (config?.searchDeep !== undefined) {
       AI.searchDeep = config.searchDeep;
     }

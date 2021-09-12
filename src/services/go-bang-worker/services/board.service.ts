@@ -11,9 +11,6 @@ import { AI } from '../configs/ai.config';
 import { SCORE } from '../configs/score.config';
 import { IScorePoint } from '../interfaces/evaluate-point.interface';
 
-let count = 0;
-let total = 0;
-
 /**
  * 棋盘
  */
@@ -28,14 +25,16 @@ export class Board {
   scoreCache: number[][][][] = [];
   comMaxScore = 0;
   humMaxScore = 0;
+  starCount = 0;
+  total = 0;
 
   steps = [];
 
-  init = (board: IBoard) => {
+  init = (board: IBoard): void => {
     this.currentSteps = []; // 当前一次思考的步骤
     this.allSteps = [];
     this.stepsTail = [];
-    this.count = 0;// chessman count
+    this.count = 0; // chessman count
 
     if (board.pieces.length === 15 && board.pieces.every((b) => b.length === 15)) {
       this.board = board;
@@ -45,7 +44,7 @@ export class Board {
 
     // 初始化走了的步数
     for (let i = 0; i < this.board.pieces.length; i++) {
-      this.count += this.board.pieces[i].filter(d => d.role > ERole.empty).length;
+      this.count += this.board.pieces[i].filter((d) => d.role > ERole.empty).length;
     }
 
     const size = this.board.pieces.length;
@@ -60,13 +59,15 @@ export class Board {
     // scoreCache[role][dir][row][column]
     this.scoreCache = [
       [], // placeholder
-      [ // for role 1
+      [
+        // for role 1
         commons.createScores(size, size),
         commons.createScores(size, size),
         commons.createScores(size, size),
         commons.createScores(size, size)
       ],
-      [ // for role 2
+      [
+        // for role 2
         commons.createScores(size, size),
         commons.createScores(size, size),
         commons.createScores(size, size),
@@ -77,7 +78,7 @@ export class Board {
     this.initScore();
   };
 
-  put = (piece: IPiece) => {
+  put = (piece: IPiece): void => {
     AI.debug && console.log(`put [${piece.role}] piece:`, piece);
     this.board.pieces[piece.x][piece.y] = piece;
     zobrist.go(piece);
@@ -91,7 +92,7 @@ export class Board {
   /**
    * 悔棋
    */
-  backward = () => {
+  backward = (): void => {
     if (this.allSteps.length < 2) {
       return;
     }
@@ -107,7 +108,7 @@ export class Board {
   /**
    * 返回悔棋的哪一步
    */
-  forward = () => {
+  forward = (): void => {
     if (this.stepsTail.length < 2) {
       return;
     }
@@ -190,85 +191,93 @@ export class Board {
     for (let x = 0; x < board.length; x++) {
       for (let y = 0; y < board.length; y++) {
         if (board[x][y].role === ERole.empty) {
-          if (this.allSteps.length < 6 && !this.hasNeighbor(x, y, 1, 1)) {
-            // 一共下了六步之前，周围一格没有落子，则不计算
-            continue;
-          } else if (!this.hasNeighbor(x, y, 2, 2)) {
-            // 周围两格一共不足两个棋子，则不计算
-            continue;
-          }
-
           const scoreHum = this.humScore[x][y];
           const scoreCom = this.comScore[x][y];
           const maxScore = Math.max(scoreCom, scoreHum);
+          if (
+            this.allSteps.length >= 6 ||
+            this.hasNeighbor(x, y, 1, 1) ||
+            !onlyThrees ||
+            maxScore >= SCORE.THREE
+          ) {
+            // 生成当前位置的棋子对象
+            const p = new Piece(x, y, role);
+            p.score = maxScore;
+            p.scoreHum = scoreHum;
+            p.scoreCom = scoreCom;
 
-          if (onlyThrees && maxScore < SCORE.THREE) {
-            // 开启只有活三检测，分数小于活三不计算
-            continue;
-          }
+            this.total++;
+            // TODO 性能优化点，留待以后继续优化
+            /* 双星延伸，以提升性能
+             * 思路：每次下的子，只可能是自己进攻，或者防守对面（也就是对面进攻点）
+             * 我们假定任何时候，绝大多数情况下进攻的路线都可以按次序连城一条折线，那么每次每一个子，一定都是在上一个己方棋子的八个方向之一。
+             * 因为既可能自己进攻，也可能防守对面，所以是最后两个子的米子方向上
+             * 那么极少数情况，进攻路线无法连成一条折线呢?
+             * 很简单，我们对前双方两步不作star限制就好，这样可以 兼容一条折线中间伸出一段的情况
+             */
+            // if (starSpread && AI.star) {
+            //   // const roleScore = role === ERole.com ? p.scoreCom : p.scoreHum;
+            //   // const deRoleScore = role === ERole.com ? p.scoreHum : p.scoreCom;
+            //   const lastStep = this.currentSteps[this.currentSteps.length - 1];
+            //
+            //   if (maxScore >= SCORE.FOUR) {
+            //     //
+            //   } else if (maxScore >= SCORE.BLOCKED_FOUR && this.starTo(lastStep)) {
+            //     // star 路径不是很准，所以考虑冲四防守对手最后一步的棋
+            //   } else if (this.starTo(p, attackPoints) || this.starTo(p, defendPoints)) {
+            //     //
+            //   } else {
+            //     this.starCount++;
+            //     continue;
+            //   }
+            // }
 
-          // 生成当前位置的棋子对象
-          const p = new Piece(x, y, role);
-          p.score = maxScore;
-          p.scoreHum = scoreHum;
-          p.scoreCom = scoreCom;
-
-          total++;
-          // TODO 性能优化点，留待以后继续优化
-          /* 双星延伸，以提升性能
-           * 思路：每次下的子，只可能是自己进攻，或者防守对面（也就是对面进攻点）
-           * 我们假定任何时候，绝大多数情况下进攻的路线都可以按次序连城一条折线，那么每次每一个子，一定都是在上一个己方棋子的八个方向之一。
-           * 因为既可能自己进攻，也可能防守对面，所以是最后两个子的米子方向上
-           * 那么极少数情况，进攻路线无法连成一条折线呢?
-           * 很简单，我们对前双方两步不作star限制就好，这样可以 兼容一条折线中间伸出一段的情况
-           */
-          if (starSpread && AI.star) {
-            // const roleScore = role === ERole.com ? p.scoreCom : p.scoreHum;
-            // const deRoleScore = role === ERole.com ? p.scoreHum : p.scoreCom;
-            const lastStep = this.currentSteps[this.currentSteps.length - 1];
-
-            if (maxScore >= SCORE.FOUR) {
-
-            } else if (maxScore >= SCORE.BLOCKED_FOUR && this.starTo(lastStep)) {
-              //star 路径不是很准，所以考虑冲四防守对手最后一步的棋
-            } else if (this.starTo(p, attackPoints) || this.starTo(p, defendPoints)) {
-
+            // 分数检测
+            if (scoreCom >= SCORE.FIVE) {
+              // 先看电脑能不能连连五
+              fives.push(p);
+            } else if (scoreHum >= SCORE.FIVE) {
+              // 再看玩家能不能连成5
+              // 别急着返回，因为遍历还没完成，说不定电脑自己能成五。
+              fives.push(p);
+            } else if (scoreCom >= SCORE.FOUR) {
+              comfours.push(p);
+            } else if (scoreHum >= SCORE.FOUR) {
+              humfours.push(p);
+            } else if (scoreCom >= SCORE.BLOCKED_FOUR) {
+              comblockedfours.push(p);
+            } else if (scoreHum >= SCORE.BLOCKED_FOUR) {
+              humblockedfours.push(p);
+            } else if (scoreCom >= 2 * SCORE.THREE) {
+              // 能成双三也行
+              comtwothrees.push(p);
+            } else if (scoreHum >= 2 * SCORE.THREE) {
+              humtwothrees.push(p);
+            } else if (scoreCom >= SCORE.THREE) {
+              comthrees.push(p);
+            } else if (scoreHum >= SCORE.THREE) {
+              humthrees.push(p);
+            } else if (scoreCom >= SCORE.TWO) {
+              comtwos.unshift(p);
+            } else if (scoreHum >= SCORE.TWO) {
+              humtwos.unshift(p);
             } else {
-              count++;
-              continue;
+              neighbors.push(p);
             }
           }
-
-          // 分数检测
-          if (scoreCom >= SCORE.FIVE) {
-            // 先看电脑能不能连连五
-            fives.push(p);
-          } else if (scoreHum >= SCORE.FIVE) {
-            // 再看玩家能不能连成5
-            // 别急着返回，因为遍历还没完成，说不定电脑自己能成五。
-            fives.push(p);
-          } else if (scoreCom >= SCORE.FOUR) {
-            comfours.push(p);
-          } else if (scoreHum >= SCORE.FOUR) {
-            humfours.push(p);
-          } else if (scoreCom >= SCORE.BLOCKED_FOUR) {
-            comblockedfours.push(p);
-          } else if (scoreHum >= SCORE.BLOCKED_FOUR) {
-            humblockedfours.push(p);
-          } else if (scoreCom >= 2 * SCORE.THREE) {
-            //能成双三也行
-            comtwothrees.push(p);
-          } else if (scoreHum >= 2 * SCORE.THREE) {
-            humtwothrees.push(p);
-          } else if (scoreCom >= SCORE.THREE) {
-            comthrees.push(p);
-          } else if (scoreHum >= SCORE.THREE) {
-            humthrees.push(p);
-          } else if (scoreCom >= SCORE.TWO) {
-            comtwos.unshift(p);
-          } else if (scoreHum >= SCORE.TWO) {
-            humtwos.unshift(p);
-          } else neighbors.push(p);
+          //
+          // if (this.allSteps.length < 6 && !this.hasNeighbor(x, y, 1, 1)) {
+          //   // 一共下了六步之前，周围一格没有落子，则不计算
+          //   continue;
+          // } else if (!this.hasNeighbor(x, y, 2, 2)) {
+          //   // 周围两格一共不足两个棋子，则不计算
+          //   continue;
+          // }
+          //
+          // if (onlyThrees && maxScore < SCORE.THREE) {
+          //   // 开启只有活三检测，分数小于活三不计算
+          //   continue;
+          // }
         }
       }
     }
@@ -300,9 +309,10 @@ export class Board {
 
     // 对面有活四自己有冲四，则都考虑下
     const fours = role === ERole.com ? comfours.concat(humfours) : humfours.concat(comfours);
-    const blockedfours = role === ERole.com ?
-      comblockedfours.concat(humblockedfours) :
-      humblockedfours.concat(comblockedfours);
+    const blockedfours =
+      role === ERole.com
+        ? comblockedfours.concat(humblockedfours)
+        : humblockedfours.concat(comblockedfours);
 
     if (fours.length) {
       return fours.concat(blockedfours);
@@ -328,7 +338,7 @@ export class Board {
 
     // result.sort(function(a, b) { return b.score - a.score })
 
-    //双三很特殊，因为能形成双三的不一定比一个活三强
+    // 双三很特殊，因为能形成双三的不一定比一个活三强
     if (comtwothrees.length || humtwothrees.length) {
       return result;
     }
@@ -348,7 +358,7 @@ export class Board {
     twos.sort((a, b) => b.score - a.score);
     result = result.concat(twos.length ? twos : neighbors);
 
-    //这种分数低的，就不用全部计算了
+    // 这种分数低的，就不用全部计算了
     if (result.length > AI.countLimit) {
       return result.slice(0, AI.countLimit);
     }
@@ -356,29 +366,32 @@ export class Board {
     return result;
   };
 
-  initScore = () => {
-    const pieces = this.board.pieces;
+  initScore = (): void => {
+    const { pieces } = this.board;
 
     for (let x = 0; x < pieces.length; x++) {
       for (let y = 0; y < pieces[x].length; y++) {
         const data = {
-          x: x,
-          y: y,
+          x,
+          y,
           pieces: this.board.pieces,
           scoreCache: this.scoreCache
         };
         // 空位，对双方都打分
         if (pieces[x][y].role === ERole.empty) {
-          if (this.hasNeighbor(x, y, 2, 2)) { // 必须是有邻居的才行
+          if (this.hasNeighbor(x, y, 2, 2)) {
+            // 必须是有邻居的才行
             const cs = evaluatePoint.scorePoint({ ...data, role: ERole.com });
             const hs = evaluatePoint.scorePoint({ ...data, role: ERole.hum });
             this.comScore[x][y] = cs;
             this.humScore[x][y] = hs;
           }
-        } else if (pieces[x][y].role === ERole.com) { // 对电脑打分，玩家此位置分数为0
+        } else if (pieces[x][y].role === ERole.com) {
+          // 对电脑打分，玩家此位置分数为0
           this.comScore[x][y] = evaluatePoint.scorePoint({ ...data, role: ERole.com });
           this.humScore[x][y] = 0;
-        } else if (pieces[x][y].role === ERole.hum) { // 对玩家打分，电脑位置分数为0
+        } else if (pieces[x][y].role === ERole.hum) {
+          // 对玩家打分，电脑位置分数为0
           this.humScore[x][y] = evaluatePoint.scorePoint({ ...data, role: ERole.hum });
           this.comScore[x][y] = 0;
         }
@@ -394,34 +407,30 @@ export class Board {
    * @param count 有几个邻居
    */
   hasNeighbor(x: number, y: number, distance: number, count: number): boolean {
-    const pieces = this.board.pieces;
+    const { pieces } = this.board;
     const len = pieces.length;
     const startX = x - distance;
     const endX = x + distance;
     const startY = y - distance;
     const endY = y + distance;
-
+    let nowCount = count;
     for (let i = startX; i <= endX; i++) {
-      // x 坐标超出棋盘
-      if (i < 0 || i >= len) {
-        continue;
-      }
-
-      for (let j = startY; j <= endY; j++) {
-        // y 坐标超出棋盘
-        if (j < 0 || j >= len) {
-          continue;
-        }
-        // 需要计算的点，所以不需要检测
-        if (i === x && j === y) {
-          continue;
-        }
-        // 有棋子的位置
-        if (pieces[i][j].role !== ERole.empty) {
-          count--;
-          // 检测到足够的邻居返回
-          if (count <= 0) {
-            return true;
+      // x 坐标必须在棋盘之内
+      if (i >= 0 && i < len) {
+        for (let j = startY; j <= endY; j++) {
+          // y 坐标必须在棋盘之内
+          if (j >= 0 && j < len) {
+            // 需要计算的点，所以不需要检测
+            if (i !== x && j !== y) {
+              // 有棋子的位置
+              if (pieces[i][j].role !== ERole.empty) {
+                nowCount--;
+                // 检测到足够的邻居返回
+                if (nowCount <= 0) {
+                  return true;
+                }
+              }
+            }
           }
         }
       }
@@ -436,9 +445,10 @@ export class Board {
    * @param role 当前的选手
    */
   evaluate = (role: ERole): number => {
-    //这里加了缓存，但是并没有提升速度
-    // if(aiConfig.cache && this.evaluateCache[this.zobrist.code]) return this.evaluateCache[this.zobrist.code]
-
+    // 这里加了缓存，但是并没有提升速度
+    // if (AI.cache && evaluateCache[zobrist.code]) {
+    //   return evaluateCache[zobrist.code];
+    // }
     // 这里都是用正整数初始化的，所以初始值是0
     this.comMaxScore = 0;
     this.humMaxScore = 0;
@@ -457,22 +467,22 @@ export class Board {
     }
     // 有冲四延伸了，不需要专门处理冲四活三
     // 不过这里做了这一步，可以减少电脑胡乱冲四的毛病
-    //this.comMaxScore = fixScore(this.comMaxScore)
-    //this.humMaxScore = fixScore(this.humMaxScore)
+    // this.comMaxScore = fixScore(this.comMaxScore)
+    // this.humMaxScore = fixScore(this.humMaxScore)
     // if (aiConfig.cache) this.evaluateCache[this.zobrist.code] = result
 
     return (role === ERole.com ? 1 : -1) * (this.comMaxScore - this.humMaxScore);
   };
 
-  checkRoleScore = (piece: IPiece, role: ERole) => {
+  checkRoleScore = (piece: IPiece, role: ERole): boolean => {
     const scoreCom = piece?.scoreCom || 0;
     const scoreHum = piece?.scoreHum || 0;
-    const THREE = SCORE.THREE;
+    const { THREE } = SCORE;
     return (role === ERole.com && scoreCom >= THREE) || (role === ERole.hum && scoreHum >= THREE);
   };
 
-  //移除棋子
-  remove(p: IPiece) {
+  // 移除棋子
+  remove = (p: IPiece): void => {
     const r = this.board.pieces[p.x][p.y];
     AI.debug && console.log(`put [${r}] piece:`, p);
     zobrist.go(p);
@@ -481,17 +491,22 @@ export class Board {
     this.allSteps.pop();
     this.currentSteps.pop();
     this.count--;
-  }
+  };
 
-  log() {
-    AI.log && console.log(`star: ${(count / total * 100).toFixed(2)}%, ${count}/${total}`);
-  }
+  log = (): void => {
+    AI.log &&
+      console.log(
+        `star: ${((this.starCount / this.total) * 100).toFixed(2)}%, ${this.starCount}/${
+          this.total
+        }`
+      );
+  };
 
-  logSteps = () => {
+  logSteps = (): void => {
     console.log(`steps: ${this.allSteps.map((d) => `[${d.x}, ${d.y}]`).join(';')}`);
   };
 
-  starTo = (point: Piece, points?: Piece[]) => {
+  starTo = (point: Piece, points?: Piece[]): boolean => {
     if (!points || !points.length) {
       return false;
     }
@@ -499,12 +514,12 @@ export class Board {
     for (let i = 0; i < points.length; i++) {
       // 距离必须在5步以内
       const b = points[i];
-      if ((Math.abs(a.x - b.x) > 4 || Math.abs(a.y - b.y) > 4)) {
+      if (Math.abs(a.x - b.x) > 4 || Math.abs(a.y - b.y) > 4) {
         return false;
       }
 
       // 必须在米子方向上
-      if (!(a.x === b.x || a.y === b.y || (Math.abs(a.x - b.x) === Math.abs(a.y - b.y)))) {
+      if (!(a.x === b.x || a.y === b.y || Math.abs(a.x - b.x) === Math.abs(a.y - b.y))) {
         return false;
       }
     }
@@ -517,60 +532,44 @@ export class Board {
    * @param p 棋子
    */
   updateScore = (p: Piece): void => {
-    let radius = 4;
-    let len = this.board.pieces.length;
+    const radius = 4;
+    const len = this.board.pieces.length;
 
     // 无论是不是空位 都需要更新
     // 更新横向
     for (let i = -radius; i <= radius; i++) {
-      const x = p.x;
+      const { x } = p;
       const y = p.y + i;
-      if (y < 0) {
-        continue;
+      if (y >= 0 && y < len) {
+        this.update(x, y, 1);
       }
-      if (y >= len) {
-        break;
-      }
-      this.update(x, y, 0);
     }
 
     // 更新竖向
     for (let i = -radius; i <= radius; i++) {
       const x = p.x + i;
-      const y = p.y;
-      if (x < 0) {
-        continue;
+      const { y } = p;
+      if (x >= 0 && x < len) {
+        this.update(x, y, 1);
       }
-      if (x >= len) {
-        break;
-      }
-      this.update(x, y, 1);
     }
 
     // 更新右斜下方 左斜上方
     for (let i = -radius; i <= radius; i++) {
       const x = p.x + i;
       const y = p.y + i;
-      if (x < 0 || y < 0) {
-        continue;
+      if (x >= 0 && x < len && y >= 0 && y < len) {
+        this.update(x, y, 2);
       }
-      if (x >= len || y >= len) {
-        break;
-      }
-      this.update(x, y, 2);
     }
 
     // 更新左斜下方 右斜上方
     for (let i = -radius; i <= radius; i++) {
       const x = p.x + i;
       const y = p.y - i;
-      if (x < 0 || y < 0) {
-        continue;
+      if (x >= 0 && x < len && y >= 0 && y < len) {
+        this.update(x, y, 3);
       }
-      if (x >= len || y >= len) {
-        continue;
-      }
-      this.update(x, y, 3);
     }
   };
 
@@ -581,11 +580,11 @@ export class Board {
    * @param dir 更新的方向
    */
   update = (x: number, y: number, dir: number): void => {
-    const role = this.board.pieces[x][y].role;
+    const { role } = this.board.pieces[x][y];
     const data = {
-      x: x,
-      y: y,
-      dir: dir,
+      x,
+      y,
+      dir,
       pieces: this.board.pieces,
       scoreCache: this.scoreCache
     };
@@ -612,27 +611,27 @@ export class Board {
   /**
    * 冲四的分其实肯定比活三高，但是如果这样的话容易形成盲目冲四的问题，所以如果发现电脑有无意义的冲四，则将分数降低到和活三一样
    * 而对于冲四活三这种杀棋，则将分数提高。
-   * @param {number} score - 分数
+   * @param score - 分数
    */
-  fixScore = (score: number) => {
+  fixScore = (score: number): number => {
     if (score < SCORE.FOUR && score >= SCORE.BLOCKED_FOUR) {
-      if (score >= SCORE.BLOCKED_FOUR && score < (SCORE.BLOCKED_FOUR + SCORE.THREE)) {
+      if (score >= SCORE.BLOCKED_FOUR && score < SCORE.BLOCKED_FOUR + SCORE.THREE) {
         // 单独冲四，意义不大
         return SCORE.THREE;
-      } else if (score >= SCORE.BLOCKED_FOUR + SCORE.THREE && score < SCORE.BLOCKED_FOUR * 2) {
+      }
+      if (score >= SCORE.BLOCKED_FOUR + SCORE.THREE && score < SCORE.BLOCKED_FOUR * 2) {
         // 冲四活三，比双三分高，相当于自己形成活四
         return SCORE.FOUR;
-      } else {
-        // 双冲四 比活四分数也高
-        return SCORE.FOUR * 2;
       }
+      // 双冲四 比活四分数也高
+      return SCORE.FOUR * 2;
     }
     return score;
   };
 
-  toString() {
+  toString = (): string => {
     return this.board.pieces.map((d) => d.map((p) => `[${p.x}, ${p.y}]`).join(';')).join('\n');
-  }
+  };
 }
 
 export const board = new Board();

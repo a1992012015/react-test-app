@@ -29,5 +29,5 @@ export enum WorkerType {
   BOARD,
   CONFIG,
   FORWARD,
-  BACKWARD,
+  BACKWARD
 }

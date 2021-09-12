@@ -1,40 +1,31 @@
-import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
+import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import { createLogger } from 'redux-logger';
 
 import { pokemonApi } from '../services/pokemon.service';
-import createReducer from './reducers';
-import sagas from './root-sage';
+// eslint-disable-next-line import/no-cycle
+import { createReducer } from './reducers';
+import { rootSaga } from './root-sage';
 
 const logger = createLogger({
   // ...options
 });
 
-const configureAdminStore = (initialState = {}) => {
-  const sagaMiddleware = createSagaMiddleware();
+const sagaMiddleware = createSagaMiddleware();
 
-  // sagaMiddleware: Makes redux-sagas work
-  const middlewares = [sagaMiddleware, logger, pokemonApi.middleware];
+// sagaMiddleware: Makes redux-sagas work
+const middlewares = [sagaMiddleware, logger, pokemonApi.middleware];
 
-  const creatStore = configureStore({
-    reducer: createReducer(),
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(...middlewares),
-    preloadedState: initialState,
-    devTools: process.env.NODE_ENV !== 'production'
-  });
+const initialState = {};
 
-  sagaMiddleware.run(sagas);
+export const rootStore = configureStore({
+  reducer: createReducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(...middlewares),
+  preloadedState: initialState,
+  devTools: process.env.NODE_ENV !== 'production'
+});
 
-  return creatStore;
-};
+sagaMiddleware.run(rootSaga);
 
-const store = configureAdminStore();
-
-setupListeners(store.dispatch)
-
-export { store };
-
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, Action<string>>;
+setupListeners(rootStore.dispatch);

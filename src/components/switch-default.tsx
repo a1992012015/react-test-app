@@ -12,19 +12,19 @@ interface Props {
 /**
  * 默认路由跳转，添加路由跳转动画
  */
-export class SwitchDefault extends BaseComponent<Props, object> {
+export class SwitchDefault extends BaseComponent<Props> {
   nodeRef: Ref<HTMLDivElement> = React.createRef();
 
-  render() {
-    const { history: { location }, children } = this.props;
-    const pathname = location.pathname;
+  render(): React.ReactNode {
+    const { history, children } = this.props;
+    const { pathname } = history.location;
     return (
       <TransitionGroup className="wrap-transition">
         <CSSTransition key={pathname} classNames="alert" nodeRef={this.nodeRef} timeout={300}>
           <div className="wrap-container" ref={this.nodeRef}>
-            <Switch location={location}>
+            <Switch location={history.location}>
               {children}
-              <Route path="*" component={Error}/>
+              <Route path="*" component={Error} />
             </Switch>
           </div>
         </CSSTransition>

@@ -13,7 +13,9 @@ export const wuyue: IOpen = {
 opens.push({
   name: '疏月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [5, 5]
+    [7, 7],
+    [6, 7],
+    [5, 5]
   ])
 });
 
@@ -22,7 +24,9 @@ opens.push({
 opens.push({
   name: '溪月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [5, 6]
+    [7, 7],
+    [6, 7],
+    [5, 6]
   ])
 });
 
@@ -31,7 +35,9 @@ opens.push({
 opens.push({
   name: '寒月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [5, 7]
+    [7, 7],
+    [6, 7],
+    [5, 7]
   ])
 });
 
@@ -40,7 +46,9 @@ opens.push({
 opens.push({
   name: '残月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [6, 5]
+    [7, 7],
+    [6, 7],
+    [6, 5]
   ])
 });
 
@@ -49,7 +57,9 @@ opens.push({
 opens.push({
   name: '花月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [6, 6]
+    [7, 7],
+    [6, 7],
+    [6, 6]
   ])
 });
 
@@ -58,7 +68,9 @@ opens.push({
 opens.push({
   name: '金月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [7, 5]
+    [7, 7],
+    [6, 7],
+    [7, 5]
   ])
 });
 
@@ -67,7 +79,9 @@ opens.push({
 opens.push({
   name: '雨月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [7, 8]
+    [7, 7],
+    [6, 7],
+    [7, 8]
   ])
 });
 
@@ -76,7 +90,9 @@ opens.push({
 opens.push({
   name: '新月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [8, 5]
+    [7, 7],
+    [6, 7],
+    [8, 5]
   ])
 });
 
@@ -85,7 +101,9 @@ opens.push({
 opens.push({
   name: '丘月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [8, 6]
+    [7, 7],
+    [6, 7],
+    [8, 6]
   ])
 });
 
@@ -94,7 +112,9 @@ opens.push({
 opens.push({
   name: '松月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [8, 7]
+    [7, 7],
+    [6, 7],
+    [8, 7]
   ])
 });
 
@@ -103,7 +123,9 @@ opens.push({
 opens.push({
   name: '游月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [9, 5]
+    [7, 7],
+    [6, 7],
+    [9, 5]
   ])
 });
 
@@ -112,7 +134,9 @@ opens.push({
 opens.push({
   name: '山月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [9, 6]
+    [7, 7],
+    [6, 7],
+    [9, 6]
   ])
 });
 
@@ -121,7 +145,9 @@ opens.push({
 opens.push({
   name: '瑞月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 7], [9, 7]
+    [7, 7],
+    [6, 7],
+    [9, 7]
   ])
 });
 
@@ -150,7 +176,9 @@ opens.push({
 opens.push({
   name: '流月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [5, 5]
+    [7, 7],
+    [6, 8],
+    [5, 5]
   ])
 });
 
@@ -159,7 +187,9 @@ opens.push({
 opens.push({
   name: '水月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [5, 6]
+    [7, 7],
+    [6, 8],
+    [5, 6]
   ])
 });
 
@@ -168,7 +198,9 @@ opens.push({
 opens.push({
   name: '恒月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [5, 7]
+    [7, 7],
+    [6, 8],
+    [5, 7]
   ])
 });
 
@@ -177,7 +209,9 @@ opens.push({
 opens.push({
   name: '峡月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [5, 8]
+    [7, 7],
+    [6, 8],
+    [5, 8]
   ])
 });
 
@@ -186,7 +220,9 @@ opens.push({
 opens.push({
   name: '长月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [5, 9]
+    [7, 7],
+    [6, 8],
+    [5, 9]
   ])
 });
 
@@ -195,7 +231,9 @@ opens.push({
 opens.push({
   name: '岚月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [6, 5]
+    [7, 7],
+    [6, 8],
+    [6, 5]
   ])
 });
 
@@ -204,7 +242,9 @@ opens.push({
 opens.push({
   name: '浦月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [6, 6]
+    [7, 7],
+    [6, 8],
+    [6, 6]
   ])
 });
 
@@ -213,7 +253,9 @@ opens.push({
 opens.push({
   name: '云月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [6, 7]
+    [7, 7],
+    [6, 8],
+    [6, 7]
   ])
 });
 
@@ -222,7 +264,9 @@ opens.push({
 opens.push({
   name: '明月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [7, 5]
+    [7, 7],
+    [6, 8],
+    [7, 5]
   ])
 });
 
@@ -231,7 +275,9 @@ opens.push({
 opens.push({
   name: '银月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [7, 6]
+    [7, 7],
+    [6, 8],
+    [7, 6]
   ])
 });
 
@@ -240,7 +286,9 @@ opens.push({
 opens.push({
   name: '名月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [8, 5]
+    [7, 7],
+    [6, 8],
+    [8, 5]
   ])
 });
 
@@ -249,7 +297,9 @@ opens.push({
 opens.push({
   name: '斜月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [8, 6]
+    [7, 7],
+    [6, 8],
+    [8, 6]
   ])
 });
 
@@ -258,6 +308,8 @@ opens.push({
 opens.push({
   name: '慧月',
   pieces: commons.getOpenBoard([
-    [7, 7], [6, 8], [9, 5]
+    [7, 7],
+    [6, 8],
+    [9, 5]
   ])
 });

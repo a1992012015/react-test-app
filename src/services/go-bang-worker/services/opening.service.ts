@@ -19,8 +19,8 @@ export class Opening {
   match = (board: Board): IPiece => {
     const s = board.allSteps;
     console.log('match => s', s);
-    const x = s[0].x;
-    const y = s[0].y;
+    const { x } = s[0];
+    const { y } = s[0];
     console.log(board.board.pieces[x][y].role !== ERole.com);
     if (board.board.pieces[x][y].role !== ERole.com) {
       return negamax.deepAll(ERole.com, AI.searchDeep);
@@ -28,10 +28,41 @@ export class Opening {
     if (s.length > 2) {
       return negamax.deepAll(ERole.com, AI.searchDeep);
     }
-    console.log(commons.containPoint([[6, 7], [7, 6], [8, 7], [7, 8]], s[1]));
-    if (commons.containPoint([[6, 7], [7, 6], [8, 7], [7, 8]], s[1])) {
+    console.log(
+      commons.containPoint(
+        [
+          [6, 7],
+          [7, 6],
+          [8, 7],
+          [7, 8]
+        ],
+        s[1]
+      )
+    );
+    if (
+      commons.containPoint(
+        [
+          [6, 7],
+          [7, 6],
+          [8, 7],
+          [7, 8]
+        ],
+        s[1]
+      )
+    ) {
       return this.huayue(board);
-    } else if (commons.containPoint([[6, 6], [8, 8], [8, 6], [6, 8]], s[1])) {
+    }
+    if (
+      commons.containPoint(
+        [
+          [6, 6],
+          [8, 8],
+          [8, 6],
+          [6, 8]
+        ],
+        s[1]
+      )
+    ) {
       return this.puyue(board);
     }
     return negamax.deepAll(ERole.com, AI.searchDeep);

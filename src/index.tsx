@@ -5,14 +5,14 @@ import { Provider } from 'react-redux';
 
 import './index.less';
 import App from './App';
-import { store } from './stores/main';
+import { rootStore } from './stores/main';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Provider store={store}>
+    <Provider store={rootStore}>
       <BrowserRouter>
-        <Route component={App}/>
+        <Route component={App} />
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,

@@ -1,15 +1,15 @@
 import { createReducer } from '@reduxjs/toolkit';
 
-import { GameType, GameStatus } from '../interfaces/go-bang.reducer';
-import { Role } from '../../services/go-bang-ai/interfaces/open-pants.interface';
-import { getBoard } from '../../services/go-bang-ai/configs/open-pants-26';
+import { GameType, IGameStatus } from '../interfaces/go-bang.interface';
 import { gameInit, gamePut, gameStart } from '../actions/go-bang.action';
+import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
+import { wuyue } from '../../services/go-bang-worker/configs/opens.config';
 
-const initialState: GameStatus = {
+const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
-  board: getBoard(),
+  board: wuyue.pieces,
   steps: 0,
-  winning: Role.empty,
+  winning: ERole.empty,
   winMap: []
 };
 
@@ -25,6 +25,6 @@ export const goBangReducer = createReducer(initialState, (builder) => {
     .addCase(gamePut, (state, action) => {
       state.board = action.payload.board;
       state.gameType = action.payload.gameType;
-      state.steps = state.steps + 1;
+      state.steps += 1;
     });
 });

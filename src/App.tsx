@@ -3,8 +3,8 @@ import { Layout, Menu } from 'antd';
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 
-import styles from './App.module.less';
 import { MenuInfo } from 'rc-menu/lib/interface';
+import styles from './App.module.less';
 import { GoBangRedux } from './features/go-bang/go-bang';
 import { Dashboard } from './features/dashboard/dashboard';
 import { SwitchDefault } from './components/switch-default';
@@ -24,11 +24,11 @@ interface Props {
 
 export default class App extends BaseComponent<Props, State> {
   menuList = [
-    { name: 'Dashboard', icon: <UserOutlined/>, value: '/dashboard' },
-    { name: '五子棋', icon: <VideoCameraOutlined/>, value: '/go-bang' },
-    { name: '计数器', icon: <VideoCameraOutlined/>, value: '/counter' },
-    { name: 'WebWorker', icon: <VideoCameraOutlined/>, value: '/web-worker' },
-    { name: 'Pokemon', icon: <VideoCameraOutlined/>, value: '/pokemon' }
+    { name: 'Dashboard', icon: <UserOutlined />, value: '/dashboard' },
+    { name: '五子棋', icon: <VideoCameraOutlined />, value: '/go-bang' },
+    { name: '计数器', icon: <VideoCameraOutlined />, value: '/counter' },
+    { name: 'WebWorker', icon: <VideoCameraOutlined />, value: '/web-worker' },
+    { name: 'Pokemon', icon: <VideoCameraOutlined />, value: '/pokemon' }
   ];
 
   constructor(props: Props) {
@@ -45,22 +45,22 @@ export default class App extends BaseComponent<Props, State> {
     };
   }
 
-  toggle = () => {
+  toggle = (): void => {
     this.setState({ collapsed: !this.state.collapsed });
   };
 
-  pathTo = (info: MenuInfo) => {
+  pathTo = (info: MenuInfo): void => {
     const { history } = this.props;
     history.push({ pathname: info.key });
   };
 
-  render() {
+  render(): React.ReactNode {
     const { collapsed, defaultKeys } = this.state;
     const { history } = this.props;
     return (
       <Layout className={styles.container}>
         <Layout.Sider trigger={null} collapsible collapsed={collapsed}>
-          <div className={styles.logo}/>
+          <div className={styles.logo} />
 
           <Menu onClick={this.pathTo} theme="dark" mode="inline" defaultSelectedKeys={defaultKeys}>
             {this.renderHomeMenu()}
@@ -68,21 +68,14 @@ export default class App extends BaseComponent<Props, State> {
         </Layout.Sider>
 
         <Layout className={styles.siteLayout}>
-          {/*<Layout.Header className={styles.siteLayoutHeader}>*/}
-          {/*  {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {*/}
-          {/*    className: styles.trigger,*/}
-          {/*    onClick: this.toggle*/}
-          {/*  })}*/}
-          {/*</Layout.Header>*/}
-
           <Layout.Content className={styles.siteLayoutContent}>
             <SwitchDefault history={history}>
-              <Route exact={true} path="/dashboard" component={Dashboard}/>
-              <Route exact={true} path="/go-bang" component={GoBangRedux}/>
-              <Route exact={true} path="/counter" component={Counter}/>
-              <Route exact={true} path="/pokemon" component={Pokemon}/>
-              <Route exact={true} path="/web-worker" component={WebWorker}/>
-              <Redirect exact={true} from="/" to="/dashboard"/>
+              <Route exact path="/dashboard" component={Dashboard} />
+              <Route exact path="/go-bang" component={GoBangRedux} />
+              <Route exact path="/counter" component={Counter} />
+              <Route exact path="/pokemon" component={Pokemon} />
+              <Route exact path="/web-worker" component={WebWorker} />
+              <Redirect exact from="/" to="/dashboard" />
             </SwitchDefault>
           </Layout.Content>
         </Layout>
@@ -90,9 +83,13 @@ export default class App extends BaseComponent<Props, State> {
     );
   }
 
-  renderHomeMenu = () => {
+  renderHomeMenu = (): React.ReactNode => {
     return this.menuList.map((menu) => {
-      return <Menu.Item key={menu.value} icon={menu.icon}>{menu.name}</Menu.Item>;
+      return (
+        <Menu.Item key={menu.value} icon={menu.icon}>
+          {menu.name}
+        </Menu.Item>
+      );
     });
   };
 }
