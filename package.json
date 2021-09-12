@@ -31,7 +31,7 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "lint": "eslint ./src/ --ext .jsx,.js,.ts,.tsx",
+    "lint-code": "eslint ./src/ --ext .jsx,.js,.ts,.tsx --fix",
     "eject": "craco eject"
   },
   "browserslist": {
@@ -75,7 +75,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "pretty-quick --staged",
+      "pre-push": "npm run lint-code"
     }
   },
   "prettier": {
