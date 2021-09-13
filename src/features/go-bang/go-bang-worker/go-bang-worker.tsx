@@ -36,17 +36,19 @@ class GoBangWorker extends BaseComponent<IProps> {
         // 返回的开局
         console.log(`worker => ${WorkerType[data.type]}`);
         const first = data.data?.first;
-        if (data.data?.board) {
+        if (data.data?.pieces) {
           this.props.dispatch(
             gameStart({
               first: first ? GameType.DUEL_HUM : GameType.DUEL_COM,
-              board: data.data.board
+              board: data.data.pieces
             })
           );
         } else {
-          console.log('没有返回棋盘。。。');
+          // TODO 没有返回棋盘, 预期外的错误，此时应该重新初始化所有的服务
+          console.log('没有返回棋盘, 预期外的错误。。。');
         }
       } else {
+        // TODO 预期意外的Type返回，无法处理，检查代码，或者结束游戏
         console.log(`worker => ${WorkerType[data.type]}`);
         console.log('错误的Type。。。');
       }
@@ -57,11 +59,7 @@ class GoBangWorker extends BaseComponent<IProps> {
     };
   }
 
-  componentDidUpdate(
-    prevProps: Readonly<IProps>,
-    prevState: Readonly<unknown>,
-    snapshot?: unknown
-  ): void {
+  componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<unknown>): void {
     console.log('GoBangWorker => componentDidUpdate:', this.props);
     const { workerPost } = this.props;
     console.log('postMessage', workerPost);

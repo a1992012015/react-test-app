@@ -7,7 +7,7 @@ import { Board } from './board.service';
 import { commons } from './commons.service';
 import { AI } from '../configs/ai.config';
 import { ERole } from '../interfaces/role.interface';
-import { Piece } from './piece.service';
+import { creatPiece } from './piece.service';
 import { negamax } from './negamax.service';
 
 /**
@@ -73,25 +73,25 @@ export class Opening {
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 7])) {
       if (s.length === 2) {
-        return new Piece(6, 8, ERole.empty);
+        return creatPiece({ x: 6, y: 8, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [7, 6])) {
       if (s.length === 2) {
-        return new Piece(6, 6, ERole.empty);
+        return creatPiece({ x: 6, y: 6, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [8, 7])) {
       if (s.length === 2) {
-        return new Piece(8, 6, ERole.empty);
+        return creatPiece({ x: 8, y: 6, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [7, 8])) {
       if (s.length === 2) {
-        return new Piece(8, 8, ERole.empty);
+        return creatPiece({ x: 8, y: 8, role: ERole.empty });
       }
     }
-    return new Piece(7, 7, ERole.empty);
+    return creatPiece({ x: 7, y: 7, role: ERole.empty });
   };
 
   private puyue = (board: Board): IPiece => {
@@ -99,25 +99,25 @@ export class Opening {
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 6])) {
       if (s.length === 2) {
-        return new Piece(6, 8, ERole.empty);
+        return creatPiece({ x: 6, y: 8, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [8, 6])) {
       if (s.length === 2) {
-        return new Piece(6, 6, ERole.empty);
+        return creatPiece({ x: 6, y: 6, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [8, 8])) {
       if (s.length === 2) {
-        return new Piece(8, 6, ERole.empty);
+        return creatPiece({ x: 8, y: 6, role: ERole.empty });
       }
     }
     if (commons.pointEqual(s[1], [6, 8])) {
       if (s.length === 2) {
-        return new Piece(8, 8, ERole.empty);
+        return creatPiece({ x: 8, y: 8, role: ERole.empty });
       }
     }
-    return new Piece(7, 7, ERole.empty);
+    return creatPiece({ x: 7, y: 7, role: ERole.empty });
   };
 }
 

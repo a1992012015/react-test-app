@@ -40,6 +40,7 @@ module.exports = {
     'no-plusplus': 0,
     'no-bitwise': 'off',
     'default-case': 'error',
+    '@typescript-eslint/no-var-requires': 'off',
     'import/no-extraneous-dependencies': [0],
     'import/no-named-as-default': 0,
     'no-param-reassign': ['error', { props: false }],
@@ -58,7 +59,16 @@ module.exports = {
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
     'react/jsx-fragments': [1, 'element'],
-    'prettier/prettier': ['error', { printWidth: 100, bracketSameLine: true }],
+    'prettier/prettier': [
+      'error',
+      {
+        printWidth: 100,
+        bracketSameLine: true,
+        singleQuote: true,
+        trailingComma: 'none',
+        tabWidth: 2
+      }
+    ],
     'arrow-body-style': 'off',
     'prefer-arrow-callback': 'off'
   }

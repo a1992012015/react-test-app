@@ -9,7 +9,7 @@ import cloneDeep from 'lodash-es/cloneDeep';
 
 import { ERole } from '../interfaces/role.interface';
 import { SCORE } from '../configs/score.config';
-import { Piece } from './piece.service';
+import { creatPiece } from './piece.service';
 import { board } from './board.service';
 import { AI } from '../configs/ai.config';
 import { statistic } from './statistic.service';
@@ -33,7 +33,7 @@ export class Negamax {
   private cacheGet = 0; // zobrist缓存命中数量
   private start = 0; // 开始深入计算的开始时间
 
-  deepAll = (role: ERole = ERole.com, deep = AI.searchDeep): Piece => {
+  deepAll = (role: ERole = ERole.com, deep = AI.searchDeep): IPiece => {
     const candidates = board.gen(role);
 
     console.log('candidates', candidates);
@@ -88,7 +88,7 @@ export class Negamax {
    * @param beta 剪枝的值
    */
   negamax = (
-    candidates: Piece[],
+    candidates: IPiece[],
     role: ERole,
     deep: number,
     alpha: number,
@@ -144,7 +144,7 @@ export class Negamax {
     return nowAlpha;
   };
 
-  deepen = (candidates: Piece[], role: ERole, deep: number): IPiece => {
+  deepen = (candidates: IPiece[], role: ERole, deep: number): IPiece => {
     this.start = new Date().getTime();
 
     // 每次开始迭代的时候清空缓存。这里缓存的主要目的是在每一次的时候加快搜索，而不是长期存储。事实证明这样的清空方式对搜索速度的影响非常小（小于10%)
@@ -173,7 +173,7 @@ export class Negamax {
 
     // 美化一下
     const candidate = candidates.map((d) => {
-      const r = new Piece(d.x, d.y, d.role);
+      const r = creatPiece({ x: d.x, y: d.y, role: d.role });
       r.score = d.data?.score || 0;
       r.step = d.data?.step || 0;
       r.steps = d.data?.steps || [];

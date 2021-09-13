@@ -16,7 +16,7 @@ export interface WorkerResponse {
 }
 
 export interface ResponseData {
-  board?: IPiece[][];
+  pieces?: IPiece[][];
   first: ERole;
   name: string;
 }

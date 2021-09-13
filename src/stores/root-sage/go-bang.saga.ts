@@ -1,11 +1,16 @@
-import { put } from 'redux-saga/effects';
-import { Action } from '@reduxjs/toolkit';
-import { PutEffect } from '@redux-saga/core/effects';
+import { put, take } from 'redux-saga/effects';
+import { PutEffect, TakeEffect } from '@redux-saga/core/effects';
 
-import { gameStart } from '../actions/go-bang.action';
+import { gameInit, gameStart } from '../actions/go-bang.action';
 
-function* GoBangWorkerMessage(): Generator<PutEffect<Action>> {
-  yield put(gameStart);
+function* GoBangWorkerMessage(): Generator<TakeEffect | PutEffect> {
+  while (true) {
+    const payload = yield take([gameInit]);
+
+    console.log('payload', payload);
+
+    yield put(gameStart);
+  }
 }
 
 const goBangSaga = [GoBangWorkerMessage()];

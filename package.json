@@ -3,15 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@craco/craco": "^6.2.0",
     "@reduxjs/toolkit": "^1.5.1",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "antd": "^4.16.13",
-    "husky": "^7.0.2",
     "immutable": "^4.0.0-rc.14",
-    "lint-staged": "^11.1.2",
     "lodash-es": "^4.17.21",
     "random-js": "^2.1.0",
     "react": "^17.0.2",
@@ -31,8 +28,9 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "lint-code": "eslint ./src/ --ext .jsx,.js,.ts,.tsx --fix",
-    "eject": "craco eject"
+    "dev": "webpack --config webpack.dev.js --progress",
+    "eject": "craco eject",
+    "postinstall": "husky install"
   },
   "browserslist": {
     "production": [
@@ -47,6 +45,7 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^6.2.0",
     "@types/jest": "^26.0.15",
     "@types/lodash-es": "^4.17.4",
     "@types/node": "^12.0.0",
@@ -58,32 +57,26 @@
     "@types/redux-logger": "^3.0.9",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",
-    "craco-less": "^1.20.0",
+    "craco-antd": "^1.19.0",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.25.1",
     "eslint-plugin-react-hooks": "^4.2.0",
-    "less": "^4.1.1",
-    "prettier": "^2.4.0"
+    "husky": "^7.0.2",
+    "lint-staged": "^11.1.2",
+    "prettier": "^2.4.0",
+    "webpack-bundle-analyzer": "^4.4.2"
   },
   "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,json,css,scss,less,md}": [
-      "prettier --write"
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint ./src/ --cache --fix"
     ]
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged",
-      "pre-push": "npm run lint-code"
+      "pre-commit": "lint-staged"
     }
-  },
-  "prettier": {
-    "printWidth": 120,
-    "tabWidth": 2,
-    "singleQuote": true,
-    "trailingComma": "none",
-    "bracketSameLine": true
   }
 }

@@ -1,4 +1,3 @@
-import { Piece } from '../services/piece.service';
 import { ERole } from './role.interface';
 import { IPiece } from './piece.interface';
 
@@ -10,7 +9,7 @@ export interface IScorePoint {
   y: number;
   role: ERole;
   dir?: number;
-  pieces: Piece[][];
+  pieces: IPiece[][];
   scoreCache: number[][][][];
 }
 

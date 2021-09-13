@@ -7,10 +7,11 @@ import { BaseComponent } from '../../../components/should-component-update';
 import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
 
 export interface Props {
-  steps: number;
   time: number;
-  winning: ERole;
+  width: number;
+  steps: number;
   score: number;
+  winning: ERole;
   gameStatus: GameType;
 
   gameReset(): void;
@@ -37,8 +38,9 @@ export class GoBangController extends BaseComponent<Props> {
   };
 
   render(): React.ReactNode {
+    const { width } = this.props;
     return (
-      <div className={styles.container}>
+      <div className={styles.container} style={{ width: width * 16 + 40 }}>
         <div className={styles.tips}>
           <span className={styles.chess} />
           {this.renderMessage()}

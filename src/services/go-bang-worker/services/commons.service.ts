@@ -1,6 +1,6 @@
 import { ERole } from '../interfaces/role.interface';
 import { IPiece } from '../interfaces/piece.interface';
-import { Piece } from './piece.service';
+import { creatPiece } from './piece.service';
 import { SCORE } from '../configs/score.config';
 
 export class Commons {
@@ -33,7 +33,7 @@ export class Commons {
     for (let y = 0; y < 15; y++) {
       const row: IPiece[] = [];
       for (let x = 0; x < 15; x++) {
-        row.push(new Piece(x, y, ERole.empty));
+        row.push(creatPiece({ x, y, role: ERole.empty }));
       }
       boards.push(row);
     }
@@ -114,13 +114,13 @@ export class Commons {
     // 注意处理b为0的情况，通过加一个0.1 做简单的处理
   };
 
-  containPoint = (arrays: number[][], p: Piece): boolean => {
+  containPoint = (arrays: number[][], p: IPiece): boolean => {
     return arrays.some((a) => {
       return a[0] === p.x && a[1] === p.y;
     });
   };
 
-  pointEqual = (a: Piece, [x, y]: number[]): boolean => {
+  pointEqual = (a: IPiece, [x, y]: number[]): boolean => {
     return a.x === x && a.y === y;
   };
 

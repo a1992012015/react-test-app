@@ -6,7 +6,7 @@ import { zobrist } from './zobrist.service';
 import { commons } from './commons.service';
 import { statistic } from './statistic.service';
 import { evaluatePoint } from './evaluate-point.service';
-import { Piece } from './piece.service';
+import { creatPiece } from './piece.service';
 import { AI } from '../configs/ai.config';
 import { SCORE } from '../configs/score.config';
 import { IScorePoint } from '../interfaces/evaluate-point.interface';
@@ -132,7 +132,7 @@ export class Board {
    */
   gen = (role: ERole, onlyThrees?: boolean, starSpread?: boolean): IPiece[] => {
     if (this.count <= 0) {
-      return [new Piece(7, 7, role)];
+      return [creatPiece({ x: 7, y: 7, role })];
     }
 
     // 各种棋形的储存数组
@@ -201,7 +201,7 @@ export class Board {
             maxScore >= SCORE.THREE
           ) {
             // 生成当前位置的棋子对象
-            const p = new Piece(x, y, role);
+            const p = creatPiece({ x, y, role });
             p.score = maxScore;
             p.scoreHum = scoreHum;
             p.scoreCom = scoreCom;
@@ -318,7 +318,7 @@ export class Board {
       return fours.concat(blockedfours);
     }
 
-    let result: Piece[] = [];
+    let result: IPiece[] = [];
     if (role === ERole.com) {
       result = comtwothrees
         .concat(humtwothrees)
@@ -506,7 +506,7 @@ export class Board {
     console.log(`steps: ${this.allSteps.map((d) => `[${d.x}, ${d.y}]`).join(';')}`);
   };
 
-  starTo = (point: Piece, points?: Piece[]): boolean => {
+  starTo = (point: IPiece, points?: IPiece[]): boolean => {
     if (!points || !points.length) {
       return false;
     }
@@ -531,7 +531,7 @@ export class Board {
    * 参见 evaluate point 中的代码，为了优化性能，在更新分数的时候可以指定只更新某一个方向的分数
    * @param p 棋子
    */
-  updateScore = (p: Piece): void => {
+  updateScore = (p: IPiece): void => {
     const radius = 4;
     const len = this.board.pieces.length;
 

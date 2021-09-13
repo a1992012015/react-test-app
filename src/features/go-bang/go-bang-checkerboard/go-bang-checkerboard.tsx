@@ -5,17 +5,14 @@ import divide from 'lodash-es/divide';
 import styles from './go-bang-checkerboard.module.less';
 import logo from '../../../assets/logo.svg';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { Piece } from '../../../services/go-bang-worker/services/piece.service';
+import { creatPiece } from '../../../services/go-bang-worker/services/piece.service';
 import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
 import { IPiece } from '../../../services/go-bang-worker/interfaces/piece.interface';
 import { BaseComponent } from '../../../components/should-component-update';
 
-interface State {
-  width: number;
-}
-
 interface Props {
   steps: number;
+  width: number;
   winning: ERole;
   winMap: IPiece[];
   board: IPiece[][];
@@ -24,57 +21,28 @@ interface Props {
   gameGo(p: IPiece): void;
 }
 
-export class GoBangCheckerboard extends BaseComponent<Props, State> {
+export class GoBangCheckerboard extends BaseComponent<Props> {
   canvasRef: RefObject<HTMLCanvasElement> = React.createRef();
-  containerRef: RefObject<HTMLDivElement> = React.createRef();
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      width: 0
-    };
-  }
-
-  componentDidMount(): void {
-    this.resizeCheckerboard();
-    window.addEventListener('resize', this.resizeCheckerboard);
-  }
-
-  componentWillUnmount(): void {
-    window.removeEventListener('resize', this.resizeCheckerboard);
-  }
-
-  private resizeCheckerboard = (): void => {
-    if (this.containerRef?.current) {
-      const bounding = this.containerRef.current.getBoundingClientRect();
-      console.log('bounding', bounding);
-      const boundingWidth = bounding.width - 40;
-      const boundingHeight = bounding.height - 40;
-      const canvasWidth = boundingWidth > boundingHeight ? boundingHeight : boundingWidth;
-      console.log('boundingWidth', boundingWidth);
-      console.log('boundingHeight', boundingHeight);
-      console.log('clientWidth', canvasWidth);
-      // const canvasWidth = clientWidth < 928 ? 928 : clientWidth;
-      const width = Math.floor(divide(canvasWidth, 16));
-
-      this.setState({ width }, () => {
-        this.draftsman();
-      });
+  componentDidUpdate(prevProps: Readonly<Props>): void {
+    console.log('this', this.props.width);
+    console.log('prevProps', prevProps.width);
+    if (this.props.width !== prevProps.width) {
+      this.draftsman();
     }
-  };
+  }
 
   private gameGo = (x: number, y: number): void => {
     const { gameStatus } = this.props;
     if (gameStatus === GameType.DUEL_HUM) {
-      this.props.gameGo(new Piece(x, y, ERole.hum));
+      this.props.gameGo(creatPiece({ x, y, role: ERole.hum }));
     } else {
       console.log('还不能落子！！');
     }
   };
 
   private draftsman = (): void => {
-    const { width } = this.state;
+    const { width } = this.props;
     const x = multiply(width, 14);
     const y = multiply(width, 14);
     const cxt = this.canvasRef?.current?.getContext('2d');
@@ -100,7 +68,7 @@ export class GoBangCheckerboard extends BaseComponent<Props, State> {
     }
   };
 
-  private getPieceClassName(piece: Piece, x: number, y: number): string {
+  private getPieceClassName(piece: IPiece, x: number, y: number): string {
     const { steps, gameStatus, winning, winMap } = this.props;
 
     let className = '';
@@ -131,11 +99,11 @@ export class GoBangCheckerboard extends BaseComponent<Props, State> {
   }
 
   render(): React.ReactNode {
-    const { width } = this.state;
+    const { width } = this.props;
     const canvas = width * 14;
     const padding = divide(width, 2);
     return (
-      <div ref={this.containerRef} className={styles.container}>
+      <div className={styles.container}>
         <canvas className={styles.canvas} ref={this.canvasRef} width={canvas} height={canvas}>
           你的电脑浏览器不支持canvas，换电脑吧~
         </canvas>
@@ -168,8 +136,8 @@ export class GoBangCheckerboard extends BaseComponent<Props, State> {
     console.log(event);
   };
 
-  private row = (index: number, row: Piece[]): React.ReactNode => {
-    const { width } = this.state;
+  private row = (index: number, row: IPiece[]): React.ReactNode => {
+    const { width } = this.props;
     return row.map((v, i) => {
       const style = { width: `${width}px`, height: `${width}px` };
       return (

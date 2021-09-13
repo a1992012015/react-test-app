@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { connect } from 'react-redux';
+import divide from 'lodash-es/divide';
 
 import styles from './go-bang.module.less';
 import { GoBangController } from './go-bang-controller/go-bang-controller';
@@ -16,6 +17,7 @@ import { AppDispatch, RootState } from '../../stores/interfaces/store.interface'
 interface IState {
   time: number;
   score: number;
+  width: number;
 }
 
 interface IProps extends IGameStatus {
@@ -23,13 +25,25 @@ interface IProps extends IGameStatus {
 }
 
 class GoBang extends BaseComponent<IProps, IState> {
+  containerRef: RefObject<HTMLDivElement> = React.createRef();
+
   constructor(props: IProps) {
     super(props);
 
     this.state = {
+      width: 0,
       time: 0,
       score: 0
     };
+  }
+
+  componentDidMount(): void {
+    this.resizeCheckerboard();
+    window.addEventListener('resize', this.resizeCheckerboard);
+  }
+
+  componentWillUnmount(): void {
+    window.removeEventListener('resize', this.resizeCheckerboard);
   }
 
   gameStart = (first: boolean, opening: boolean): void => {
@@ -71,8 +85,23 @@ class GoBang extends BaseComponent<IProps, IState> {
     console.log('gameReset');
   };
 
+  private resizeCheckerboard = (): void => {
+    if (this.containerRef?.current) {
+      const maxWidth = 720;
+      const bounding = this.containerRef.current.getBoundingClientRect();
+      const boundingWidth = bounding.width - 40;
+      const boundingHeight = bounding.height - 40;
+      const clientWidth = boundingWidth > boundingHeight ? boundingHeight : boundingWidth;
+      const canvasWidth = clientWidth > maxWidth ? maxWidth : clientWidth;
+      const width = Math.floor(divide(canvasWidth, 16));
+
+      this.setState({ width });
+    }
+  };
+
   render(): React.ReactNode {
     const boardProps = {
+      width: this.state.width,
       steps: this.props.steps,
       board: this.props.board,
       winMap: this.props.winMap,
@@ -83,6 +112,7 @@ class GoBang extends BaseComponent<IProps, IState> {
 
     const controllerProps = {
       time: this.state.time,
+      width: this.state.width,
       steps: this.props.steps,
       score: this.state.score,
       winning: this.props.winning,
@@ -92,17 +122,14 @@ class GoBang extends BaseComponent<IProps, IState> {
       gameForward: this.gameForward,
       gameBackward: this.gameBackward
     };
+    console.log('styles', styles);
     return (
-      <div className={styles.container}>
+      <div ref={this.containerRef} className={styles.container}>
         <GoBangWorkerRedux />
 
-        <div className={styles.controller}>
-          <GoBangController {...controllerProps} />
-        </div>
+        <GoBangCheckerboard {...boardProps} />
 
-        <div className={styles.checkerboard}>
-          <GoBangCheckerboard {...boardProps} />
-        </div>
+        <GoBangController {...controllerProps} />
       </div>
     );
   }

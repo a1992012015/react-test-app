@@ -2,7 +2,7 @@ import { board } from './board.service';
 import { opens, wuyue } from '../configs/opens.config';
 import { commons } from './commons.service';
 import { ERole } from '../interfaces/role.interface';
-import { Piece } from './piece.service';
+import { creatPiece } from './piece.service';
 import { opening } from './opening.service';
 import { IOpen } from '../interfaces/opens.interface';
 import { IPiece } from '../interfaces/piece.interface';
@@ -58,7 +58,7 @@ export class GoBangAI {
    * @param r 落子的是谁
    */
   set = (x: number, y: number, r: ERole): void => {
-    board.put(new Piece(x, y, r));
+    board.put(creatPiece({ x, y, role: r }));
   };
 
   /**
