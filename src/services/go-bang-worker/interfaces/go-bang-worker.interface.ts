@@ -12,13 +12,17 @@ export interface WorkerRequest {
 
 export interface WorkerResponse {
   type: WorkerType;
-  data?: ResponseData;
+  data: IResponseStart | IResponsePut;
 }
 
-export interface ResponseData {
-  pieces?: IPiece[][];
+export interface IResponseStart {
+  pieces: IPiece[][];
   first: ERole;
   name: string;
+}
+
+export interface IResponsePut {
+  piece: IPiece;
 }
 
 export enum WorkerType {

@@ -9,7 +9,7 @@ addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
   console.log('get message:', d);
   console.log('get type:', WorkerType[d.type]);
   if (d.type === WorkerType.START) {
-    const open = goBangAI.start(!!d?.first, d.randomOpening);
+    const open = goBangAI.start(!!d.first, d.randomOpening);
     postMessage({
       type: WorkerType.BOARD,
       data: { ...open, first: d?.first ? ERole.hum : ERole.com }
@@ -18,13 +18,13 @@ addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
     const p = goBangAI.begin();
     postMessage({
       type: WorkerType.PUT,
-      data: p
+      data: { piece: p }
     });
   } else if (d.type === WorkerType.GO && d.piece) {
-    const p = goBangAI.turn(d.piece.x || 0, d.piece.y || 0);
+    const p = goBangAI.turn(d.piece.x, d.piece.y);
     postMessage({
       type: WorkerType.PUT,
-      data: p
+      data: { piece: p }
     });
   } else if (d.type === WorkerType.BACKWARD) {
     goBangAI.backward();

@@ -8,14 +8,18 @@ import { pokemonApi } from '../services/pokemon.service';
 import { createReducer } from './reducers';
 import { rootSaga } from './root-sage';
 
-const logger = createLogger({
-  // ...options
-});
-
 const sagaMiddleware = createSagaMiddleware();
 
 // sagaMiddleware: Makes redux-sagas work
-const middlewares = [sagaMiddleware, logger, pokemonApi.middleware];
+const middlewares = [sagaMiddleware, pokemonApi.middleware];
+
+if (process.env.NODE_ENV !== `development`) {
+  const logger = createLogger({
+    // ...options
+  });
+
+  middlewares.push(logger);
+}
 
 const initialState = {};
 

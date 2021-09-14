@@ -42,6 +42,7 @@ module.exports = {
     'default-case': 'error',
     '@typescript-eslint/no-var-requires': 'off',
     'import/no-extraneous-dependencies': [0],
+    'no-else-return': ['off', { allowElseIf: true }],
     'import/no-named-as-default': 0,
     'no-param-reassign': ['error', { props: false }],
     'react/jsx-props-no-spreading': ['error', { custom: 'ignore' }],

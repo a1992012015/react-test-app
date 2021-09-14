@@ -13,6 +13,7 @@ import { BaseComponent } from '../../../components/should-component-update';
 interface Props {
   steps: number;
   width: number;
+  first: ERole;
   winning: ERole;
   winMap: IPiece[];
   board: IPiece[][];
@@ -25,8 +26,6 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
   canvasRef: RefObject<HTMLCanvasElement> = React.createRef();
 
   componentDidUpdate(prevProps: Readonly<Props>): void {
-    console.log('this', this.props.width);
-    console.log('prevProps', prevProps.width);
     if (this.props.width !== prevProps.width) {
       this.draftsman();
     }
@@ -69,12 +68,12 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
   };
 
   private getPieceClassName(piece: IPiece, x: number, y: number): string {
-    const { steps, gameStatus, winning, winMap } = this.props;
+    const { steps, gameStatus, winning, winMap, first } = this.props;
 
     let className = '';
 
     if (piece.step !== null && piece.role !== ERole.empty) {
-      if (piece.role === ERole.hum) {
+      if (piece.role !== first) {
         className = `${styles.chessmanMain} ${styles.chessmanWhite}`;
       } else {
         className = `${styles.chessmanMain} ${styles.chessmanBlack}`;
@@ -102,23 +101,27 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
     const { width } = this.props;
     const canvas = width * 14;
     const padding = divide(width, 2);
-    return (
-      <div className={styles.container}>
-        <canvas className={styles.canvas} ref={this.canvasRef} width={canvas} height={canvas}>
-          你的电脑浏览器不支持canvas，换电脑吧~
-        </canvas>
+    if (width) {
+      return (
+        <div className={styles.container}>
+          <canvas className={styles.canvas} ref={this.canvasRef} width={canvas} height={canvas}>
+            你的电脑浏览器不支持canvas，换电脑吧~
+          </canvas>
 
-        <div className={styles.pieces}>
-          <div className={styles.piecesAnimation}>
-            <img src={logo} className={styles.piecesLogo} alt="logo" />
+          <div className={styles.pieces}>
+            <div className={styles.piecesAnimation}>
+              <img src={logo} className={styles.piecesLogo} alt="logo" />
+            </div>
+
+            <ul className={styles.piecesBox} style={{ padding: `${padding}px` }}>
+              {this.renderRowDiv()}
+            </ul>
           </div>
-
-          <ul className={styles.piecesBox} style={{ padding: `${padding}px` }}>
-            {this.renderRowDiv()}
-          </ul>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return null;
+    }
   }
 
   private renderRowDiv = (): React.ReactNode => {

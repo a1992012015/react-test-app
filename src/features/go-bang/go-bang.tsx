@@ -6,13 +6,15 @@ import styles from './go-bang.module.less';
 import { GoBangController } from './go-bang-controller/go-bang-controller';
 import { GoBangWorkerRedux } from './go-bang-worker/go-bang-worker';
 import { GoBangCheckerboard } from './go-bang-checkerboard/go-bang-checkerboard';
-import { IGameStatus } from '../../stores/interfaces/go-bang.interface';
+import { GameType, IGameStatus } from '../../stores/interfaces/go-bang.interface';
 import { BaseComponent } from '../../components/should-component-update';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
 import { WorkerStatus } from '../../stores/interfaces/worker.interface';
 import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
+import { gameSagaPut } from '../../stores/actions/go-bang.action';
+import { creatPiece } from '../../services/go-bang-worker/services/piece.service';
 
 interface IState {
   time: number;
@@ -61,11 +63,17 @@ class GoBang extends BaseComponent<IProps, IState> {
 
   gameGo = (piece: IPiece): void => {
     console.log('gameGo piece:', piece);
-    const post: WorkerStatus = {
-      type: WorkerType.GO,
-      piece
+    // const post: WorkerStatus = {
+    //   type: WorkerType.GO,
+    //   piece
+    // };
+    // this.props.dispatch(changeWorkerPost(post));
+
+    const payload = {
+      gameType: GameType.DUEL_COM,
+      piece: creatPiece(piece)
     };
-    this.props.dispatch(changeWorkerPost(post));
+    this.props.dispatch(gameSagaPut(payload));
   };
 
   // 前进方法
@@ -102,6 +110,7 @@ class GoBang extends BaseComponent<IProps, IState> {
   render(): React.ReactNode {
     const boardProps = {
       width: this.state.width,
+      first: this.props.first,
       steps: this.props.steps,
       board: this.props.board,
       winMap: this.props.winMap,
@@ -122,7 +131,6 @@ class GoBang extends BaseComponent<IProps, IState> {
       gameForward: this.gameForward,
       gameBackward: this.gameBackward
     };
-    console.log('styles', styles);
     return (
       <div ref={this.containerRef} className={styles.container}>
         <GoBangWorkerRedux />

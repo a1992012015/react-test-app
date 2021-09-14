@@ -5,6 +5,7 @@ export interface IGameStatus {
   gameType: GameType;
   board: IPiece[][];
   winMap: IPiece[];
+  first: ERole;
   steps: number;
   winning: ERole;
 }
@@ -19,6 +20,16 @@ export enum GameType {
 }
 
 export interface IGameStart {
-  first: GameType;
+  gameType: GameType;
+  first: ERole;
   board: IPiece[][];
+}
+
+export interface IGamePut {
+  gameType: GameType;
+  piece: IPiece;
+}
+
+export interface SagaAction<D> {
+  payload: D;
 }

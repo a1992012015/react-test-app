@@ -4,12 +4,15 @@ import { connect } from 'react-redux';
 import { BaseComponent } from '../../../components/should-component-update';
 import { WorkerStatus } from '../../../stores/interfaces/worker.interface';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { gameStart } from '../../../stores/actions/go-bang.action';
+import { gameSagaPut, gameStart } from '../../../stores/actions/go-bang.action';
 import {
+  IResponsePut,
+  IResponseStart,
   WorkerResponse,
   WorkerType
 } from '../../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 import { AppDispatch, RootState } from '../../../stores/interfaces/store.interface';
+import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
 
 interface IProps {
   workerPost: WorkerStatus;
@@ -32,21 +35,22 @@ class GoBangWorker extends BaseComponent<IProps> {
       if (data.type === WorkerType.PUT) {
         console.log(`worker => ${WorkerType[data.type]}`);
         // const endTime = new Date().getTime();
+        const putData = data.data as IResponsePut;
+        const payload = {
+          gameType: putData.piece.role === ERole.com ? GameType.DUEL_HUM : GameType.DUEL_COM,
+          piece: putData.piece
+        };
+        this.props.dispatch(gameSagaPut(payload));
       } else if (data.type === WorkerType.BOARD) {
         // 返回的开局
         console.log(`worker => ${WorkerType[data.type]}`);
-        const first = data.data?.first;
-        if (data.data?.pieces) {
-          this.props.dispatch(
-            gameStart({
-              first: first ? GameType.DUEL_HUM : GameType.DUEL_COM,
-              board: data.data.pieces
-            })
-          );
-        } else {
-          // TODO 没有返回棋盘, 预期外的错误，此时应该重新初始化所有的服务
-          console.log('没有返回棋盘, 预期外的错误。。。');
-        }
+        const putData = data.data as IResponseStart;
+        const payload = {
+          gameType: putData.first ? GameType.DUEL_HUM : GameType.DUEL_COM,
+          first: putData.first ? ERole.hum : ERole.com,
+          board: putData.pieces
+        };
+        this.props.dispatch(gameStart(payload));
       } else {
         // TODO 预期意外的Type返回，无法处理，检查代码，或者结束游戏
         console.log(`worker => ${WorkerType[data.type]}`);
