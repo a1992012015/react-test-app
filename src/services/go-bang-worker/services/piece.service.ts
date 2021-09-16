@@ -22,11 +22,8 @@ export const creatPiece = (data: ICreatPiece): IPiece => {
     step: data.step || 0,
     score: data.score || 0,
     steps: data.steps || [],
-    vct: data.vct || 0,
-    vcf: data.vcf || 0,
-    min: data.min || 0,
+    abCut: !!data.abCut,
     scoreHum: data.scoreHum || 0,
-    scoreCom: data.scoreCom || 0,
-    data: undefined
+    scoreCom: data.scoreCom || 0
   };
 };

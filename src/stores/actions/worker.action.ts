@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { WorkerStatus } from '../interfaces/worker.interface';
+import { IWorkerRequest } from '../interfaces/worker.interface';
 
-export const changeWorkerPost = createAction<WorkerStatus>('worker/post');
+export const changeWorkerPost = createAction<IWorkerRequest>('worker/post');

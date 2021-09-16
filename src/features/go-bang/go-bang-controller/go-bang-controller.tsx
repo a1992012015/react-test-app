@@ -5,15 +5,17 @@ import styles from './go-bang-controller.module.less';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
 import { BaseComponent } from '../../../components/should-component-update';
 import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
+import { IPiece } from '../../../services/go-bang-worker/interfaces/piece.interface';
+import { commons } from '../../../services/go-bang-worker/services/commons.service';
 
 export interface Props {
   time: number;
   width: number;
   steps: number;
-  score: number;
+  first: ERole;
+  piece: IPiece;
   winning: ERole;
   gameStatus: GameType;
-
   gameReset(): void;
   gameStart(first: boolean, opening: boolean): void;
   gameForward(): void;
@@ -34,12 +36,24 @@ export class GoBangController extends BaseComponent<Props> {
     };
   };
 
+  getChessColor = (): string => {
+    const { piece, first } = this.props;
+    const role = piece.role || commons.reverseRole(first);
+    if (role === ERole.white) {
+      return styles.black;
+    } else if (role === ERole.block) {
+      return styles.white;
+    } else {
+      return '';
+    }
+  };
+
   render(): React.ReactNode {
     const { width } = this.props;
     return (
       <div className={styles.container} style={{ width: width * 16 + 40 }}>
         <div className={styles.tips}>
-          <span className={styles.chess} />
+          <span className={`${styles.chess} ${this.getChessColor()}`} />
           {this.renderMessage()}
         </div>
 
@@ -49,7 +63,7 @@ export class GoBangController extends BaseComponent<Props> {
   }
 
   renderMessage = (): string => {
-    const { gameStatus, winning, steps, score, time } = this.props;
+    const { gameStatus, winning, steps, piece, time } = this.props;
 
     if (gameStatus === GameType.DUEL_FINISH) {
       return `${winning === ERole.white ? '圆环之理' : '您居然'}赢得了胜利！！！`;
@@ -61,7 +75,7 @@ export class GoBangController extends BaseComponent<Props> {
       return '您的先手，请落子';
     }
     if (gameStatus === GameType.DUEL_HUM) {
-      return `Score:${score} Step:${steps} Time:${time}`;
+      return `Score: ${piece.score} Step: ${steps} Time: ${time}s`;
     }
     return '电脑正在思考中。。。';
   };

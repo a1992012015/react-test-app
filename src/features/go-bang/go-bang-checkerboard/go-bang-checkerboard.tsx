@@ -18,7 +18,6 @@ interface Props {
   winMap: IPiece[];
   board: IPiece[][];
   gameStatus: GameType;
-
   gameGo(p: IPiece): void;
 }
 

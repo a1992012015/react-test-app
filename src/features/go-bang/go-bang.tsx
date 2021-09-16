@@ -9,16 +9,19 @@ import { GoBangCheckerboard } from './go-bang-checkerboard/go-bang-checkerboard'
 import { GameType, IGameStatus } from '../../stores/interfaces/go-bang.interface';
 import { BaseComponent } from '../../components/should-component-update';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
-import { WorkerStatus } from '../../stores/interfaces/worker.interface';
+import { IWorkerRequest } from '../../stores/interfaces/worker.interface';
 import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
-import { gameSagaPut } from '../../stores/actions/go-bang.action';
+import {
+  gameSagaChangeBoard,
+  gameSagaInit,
+  gameSagaPut
+} from '../../stores/actions/go-bang.action';
 import { creatPiece } from '../../services/go-bang-worker/services/piece.service';
+import { IAI } from '../../services/go-bang-worker/interfaces/ai.interface';
 
 interface IState {
-  time: number;
-  score: number;
   width: number;
 }
 
@@ -32,11 +35,7 @@ class GoBang extends BaseComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
-    this.state = {
-      width: 0,
-      time: 0,
-      score: 0
-    };
+    this.state = { width: 0 };
   }
 
   componentDidMount(): void {
@@ -49,15 +48,20 @@ class GoBang extends BaseComponent<IProps, IState> {
   }
 
   gameStart = (first: boolean, opening: boolean): void => {
-    const post: WorkerStatus = {
+    const post: IWorkerRequest = {
       type: WorkerType.START,
       payload: { first, randomOpening: opening }
     };
     this.props.dispatch(changeWorkerPost(post));
   };
 
-  gameConfig = (): void => {
+  gameConfig = (config: IAI): void => {
     console.log('gameConfig');
+    const post: IWorkerRequest = {
+      type: WorkerType.CONFIG,
+      payload: { config }
+    };
+    this.props.dispatch(gameSagaChangeBoard(post));
   };
 
   gameGo = (piece: IPiece): void => {
@@ -72,11 +76,15 @@ class GoBang extends BaseComponent<IProps, IState> {
   // 前进方法
   gameForward = (): void => {
     console.log('gameForward');
+    const post: IWorkerRequest = { type: WorkerType.FORWARD };
+    this.props.dispatch(gameSagaChangeBoard(post));
   };
 
-  // 后退方法
+  // 悔棋
   gameBackward = (): void => {
     console.log('gameBackward');
+    const post: IWorkerRequest = { type: WorkerType.BACKWARD };
+    this.props.dispatch(gameSagaChangeBoard(post));
   };
 
   /**
@@ -84,6 +92,7 @@ class GoBang extends BaseComponent<IProps, IState> {
    */
   gameReset = (): void => {
     console.log('gameReset');
+    this.props.dispatch(gameSagaInit());
   };
 
   private resizeCheckerboard = (): void => {
@@ -113,10 +122,11 @@ class GoBang extends BaseComponent<IProps, IState> {
     };
 
     const controllerProps = {
-      time: this.state.time,
+      time: this.props.spendTime,
       width: this.state.width,
       steps: this.props.steps,
-      score: this.state.score,
+      first: this.props.first,
+      piece: this.props.piece,
       winning: this.props.winning,
       gameStatus: this.props.gameType,
       gameReset: this.gameReset,

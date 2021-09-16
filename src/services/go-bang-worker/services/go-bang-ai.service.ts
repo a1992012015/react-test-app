@@ -18,15 +18,14 @@ export class GoBangAI {
       if (randomOpening) {
         const n = parseInt(String(Math.random() * 26), 10);
         const open = opens[n];
-        board.init(open);
-        return open;
+        return board.init(open);
+      } else {
+        const open = { pieces: commons.getOpenBoard([[7, 7]]), name: '血月' };
+        return board.init(open);
       }
-      const open = { pieces: commons.getOpenBoard([[7, 7]]), name: '血月' };
-      board.init(open);
-      return open;
+    } else {
+      return board.init(wuyue);
     }
-    board.init(wuyue);
-    return wuyue;
   };
 
   /**

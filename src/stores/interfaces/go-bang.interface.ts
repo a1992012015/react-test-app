@@ -8,14 +8,14 @@ export interface IGameStatus {
   first: ERole;
   steps: number;
   winning: ERole;
+  piece: IPiece; // 当前的落子
+  spendTime: number; // 两次put之间消耗的时间
 }
 
 export enum GameType {
   DUEL_READY,
   DUEL_HUM,
   DUEL_COM,
-  DUEL_COM_THINK,
-  DUEL_COM_RESULT,
   DUEL_FINISH
 }
 

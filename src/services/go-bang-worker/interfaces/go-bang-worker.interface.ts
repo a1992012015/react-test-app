@@ -1,24 +1,5 @@
 import { IPiece } from './piece.interface';
-import { IAI } from './ai.interface';
 import { ERole } from './role.interface';
-
-export interface IWorkerRequest {
-  type: WorkerType;
-  payload: IWRequestStart | IWRequestPut | IWRequestConfig;
-}
-
-export interface IWRequestStart {
-  first: boolean;
-  randomOpening: boolean;
-}
-
-export interface IWRequestPut {
-  piece: IPiece;
-}
-
-export interface IWRequestConfig {
-  config: IAI;
-}
 
 export interface IWorkerResponse {
   type: WorkerType;

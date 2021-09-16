@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash-es';
 import { IBoard } from '../interfaces/board.interface';
 import { IPiece } from '../interfaces/piece.interface';
 import { wuyue } from '../configs/opens.config';
@@ -30,16 +31,16 @@ export class Board {
 
   steps = [];
 
-  init = (board: IBoard): void => {
+  init = (board: IBoard): IBoard => {
     this.currentSteps = []; // 当前一次思考的步骤
     this.allSteps = [];
     this.stepsTail = [];
     this.count = 0; // chessman count
 
     if (board.pieces.length === 15 && board.pieces.every((b) => b.length === 15)) {
-      this.board = board;
+      this.board = cloneDeep(board);
     } else {
-      this.board = wuyue;
+      this.board = cloneDeep(wuyue);
     }
 
     // 初始化走了的步数
@@ -76,13 +77,14 @@ export class Board {
     ];
 
     this.initScore();
+    return this.board;
   };
 
   put = (piece: IPiece): void => {
     AI.debug && console.log(`put [${ERole[piece.role]}] piece:`, piece);
     this.board.pieces[piece.y][piece.x] = piece;
     const code = zobrist.go(piece);
-    AI.debug && console.log(`code:`, code);
+    console.log(`put => zobrist => code: ${code}`);
     this.updateScore(piece);
     this.allSteps.push(piece);
     this.currentSteps.push(piece);

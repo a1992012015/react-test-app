@@ -1,10 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import { changeWorkerPost } from '../actions/worker.action';
-import { WorkerStatus } from '../interfaces/worker.interface';
+import { IWorkerRequest } from '../interfaces/worker.interface';
 import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 
-const initialState: WorkerStatus = {
+const initialState: IWorkerRequest = {
   type: WorkerType.START,
   payload: { first: true, randomOpening: false }
 };

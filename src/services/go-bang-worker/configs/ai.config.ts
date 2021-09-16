@@ -13,7 +13,7 @@ export const AI: IAI = {
   log: false,
   spreadLimit: 1,
   star: true,
-  cache: true,
+  cache: false,
   window: false,
   debug: false
 };
