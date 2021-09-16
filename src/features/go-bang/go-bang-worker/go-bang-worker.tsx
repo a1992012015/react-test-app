@@ -4,9 +4,10 @@ import { connect } from 'react-redux';
 import { BaseComponent } from '../../../components/should-component-update';
 import { WorkerStatus } from '../../../stores/interfaces/worker.interface';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { gameStart } from '../../../stores/actions/go-bang.action';
+import { gameSagaPut, gameStart } from '../../../stores/actions/go-bang.action';
 import {
   IWorkerResponse,
+  IWResponsePut,
   IWResponseStart,
   WorkerType
 } from '../../../services/go-bang-worker/interfaces/go-bang-worker.interface';
@@ -34,12 +35,12 @@ class GoBangWorker extends BaseComponent<IProps> {
 
       if (data.type === WorkerType.PUT) {
         // const endTime = new Date().getTime();
-        // const putData = data.payload as IWResponsePut;
-        // const payload = {
-        //   gameType: putData.piece.role === ERole.com ? GameType.DUEL_HUM : GameType.DUEL_COM,
-        //   piece: putData.piece
-        // };
-        // this.props.dispatch(gameSagaPut(payload));
+        const putData = data.payload as IWResponsePut;
+        const payload = {
+          gameType: putData.piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM,
+          piece: putData.piece
+        };
+        this.props.dispatch(gameSagaPut(payload));
       } else if (data.type === WorkerType.BOARD) {
         // 返回的开局
         const putData = data.payload as IWResponseStart;

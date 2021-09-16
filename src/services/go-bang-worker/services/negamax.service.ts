@@ -18,6 +18,10 @@ import { ICacheBoard, IPiece, IScore } from '../interfaces/piece.interface';
 import { zobrist } from './zobrist.service';
 import { IRMinMax, ISearch, ISMinMax } from '../interfaces/evaluate-point.interface';
 
+interface ISearchs extends ISearch {
+  steps: IPiece[];
+}
+
 /**
  * 极大极小值检索
  */
@@ -44,8 +48,9 @@ export class Negamax {
 
     console.log('%c======================================================', 'color: yellow');
 
-    return {} as IPiece;
+    // return {} as IPiece;
     // return this.deepen(candidates, role, deep);
+    return this.deepenSearch(candidates, role, deep);
 
     // const attackPoints = candidates.filter((p) => {
     //  return role === ERole.com ? (p.scoreCom >= T.TWO) : (p.scoreHum >= T.TWO)
@@ -88,36 +93,33 @@ export class Negamax {
   deepen = (candidates: IPiece[], role: ERole, deep: number): IPiece => {
     this.start = new Date().getTime();
 
-    this.negamax(candidates, role, deep, this.MIN, this.MAX);
     // 每次开始迭代的时候清空缓存
     // 因为迭代是逐渐加深，也就是2 3 6 8的顺序，每次重新计算
     // 在重新计算已经计算过的节点的时候可以加快检索的速度
     // 这里缓存的主要目的是在每一次的时候加快搜索，而不是长期存储
     // 事实证明这样的清空方式对搜索速度的影响非常小（小于10%)
     this.deepCache = {};
-    // let bestScore = 0;
-    // for (let i = 2; i <= deep; i += 2) {
-    //   bestScore = this.negamax(candidates, role, i, this.MIN, this.MAX);
-    //   /// 每次迭代剔除必败点，直到没有必败点或者只剩最后一个点
-    //   /// 实际上，由于必败点几乎都会被AB剪枝剪掉，因此这段代码几乎不会生效
-    //   // var newCandidates = candidates.filter(function (d) {
-    //   //  return !d.abcut
-    //   // })
-    //   // candidates = newCandidates.length ? newCandidates : [candidates[0]] // 必败了，随便走走
-    //
-    //   if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
-    //     // 当有一步的分数大于或者等于活五，停止循环
-    //     break;
-    //   }
-    //   // 下面这样做，会导致上一层的分数，在这一层导致自己被剪枝的bug，因为我们的判断条件是 >=。
-    //   // 上次层搜到的分数，在更深一层搜索的时候，会因为满足 >= 的条件而把自己剪枝掉
-    //   // if (littleThan(bestScore, T.THREE * 2)) {
-    //   //   // 如果能找到双三以上的棋，则保留bestScore做剪枝，否则直接设置为最小值
-    //   //   bestScore = this.MIN;
-    //   // }
-    // }
+    let bestScore = 0;
+    for (let i = 2; i <= deep; i += 2) {
+      bestScore = this.negamax(candidates, role, i, this.MIN, this.MAX);
+      /// 每次迭代剔除必败点，直到没有必败点或者只剩最后一个点
+      /// 实际上，由于必败点几乎都会被AB剪枝剪掉，因此这段代码几乎不会生效
+      // var newCandidates = candidates.filter(function (d) {
+      //  return !d.abcut
+      // })
+      // candidates = newCandidates.length ? newCandidates : [candidates[0]] // 必败了，随便走走
 
-    // console.log('bestScore', bestScore);
+      if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
+        // 当有一步的分数大于或者等于活五，停止循环
+        break;
+      }
+      // 下面这样做，会导致上一层的分数，在这一层导致自己被剪枝的bug，因为我们的判断条件是 >=。
+      // 上次层搜到的分数，在更深一层搜索的时候，会因为满足 >= 的条件而把自己剪枝掉
+      // if (littleThan(bestScore, T.THREE * 2)) {
+      //   // 如果能找到双三以上的棋，则保留bestScore做剪枝，否则直接设置为最小值
+      //   bestScore = this.MIN;
+      // }
+    }
 
     // 美化一下
     const candidate = candidates.map((d) => {
@@ -270,7 +272,7 @@ export class Negamax {
    * MAX MIN 检索算法，找到这一步后续的谁有可能，并计算一个分数
    * @param data 查询需要的数据
    */
-  search = (data: ISearch): IScore => {
+  search = (data: ISearchs): IScore => {
     const { deep, alpha, beta, role, step, steps, spread } = data;
     AI.debug && board.logSteps();
 
@@ -389,7 +391,7 @@ export class Negamax {
         alpha: -beta,
         role: commons.reverseRole(role),
         step: step + 1,
-        steps: [...cloneDeep(steps), p],
+        steps: [...cloneDeep(steps), cloneDeep(p)],
         spread
       };
 
@@ -458,74 +460,86 @@ export class Negamax {
   deepenSearch = (candidates: IPiece[], role: ERole, deep: number): IPiece => {
     this.start = new Date().getTime();
 
-    this.count = 0;
-    this.abCut = 0;
-    this.pvCut = 0;
-    board.currentSteps = [];
-
-    const minMaxData: ISMinMax = {
-      candidates,
-      role,
-      deep,
-      step: 0,
-      alpha: this.MIN,
-      beta: this.MAX
-    };
-    // 生成现在可能落子的所有后续结果和分数
-    const searchPiece = this.minMaxSearch(minMaxData);
-
     // 每次开始迭代的时候清空缓存
     // 因为迭代是逐渐加深，也就是2 3 6 8的顺序，每次重新计算
     // 在重新计算已经计算过的节点的时候可以加快检索的速度
     // 这里缓存的主要目的是在每一次的时候加快搜索，而不是长期存储
     // 事实证明这样的清空方式对搜索速度的影响非常小（小于10%)
     this.deepCache = {};
-    // let bestScore = 0;
-    // let searchPiece: IPiece[] = [];
-    // for (let i = 2; i <= deep; i += 2) {
-    //   this.count = 0;
-    //   this.abCut = 0;
-    //   this.pvCut = 0;
-    //   board.currentSteps = [];
-    //
-    //   const minMaxData: ISMinMax = {
-    //     candidates,
-    //     role,
-    //     deep: i,
-    //     alpha: this.MIN,
-    //     beta: this.MAX
-    //   };
-    //   // 生成现在可能落子的所有后续结果和分数
-    //   searchPiece = this.minMaxSearch(minMaxData);
-    //
-    //   console.log('deepenSearchFun => for => searchPiece:', cloneDeep(searchPiece));
-    //   /// 每次迭代剔除必败点，直到没有必败点或者只剩最后一个点
-    //   /// 实际上，由于必败点几乎都会被AB剪枝剪掉，因此这段代码几乎不会生效
-    //   // var newCandidates = candidates.filter(function (d) {
-    //   //  return !d.abcut
-    //   // })
-    //   // candidates = newCandidates.length ? newCandidates : [candidates[0]] // 必败了，随便走走
-    //
-    //   const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
-    //
-    //   console.log('bestScore', bestScore);
-    //
-    //   if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
-    //     // 当有一步的分数大于或者等于活五，停止循环
-    //     break;
-    //   }
-    //
-    //   // 下面这样做，会导致上一层的分数，在这一层导致自己被剪枝的bug，因为我们的判断条件是 >=。
-    //   // 上次层搜到的分数，在更深一层搜索的时候，会因为满足 >= 的条件而把自己剪枝掉
-    //   // if (littleThan(bestScore, T.THREE * 2)) {
-    //   //   // 如果能找到双三以上的棋，则保留bestScore做剪枝，否则直接设置为最小值
-    //   //   bestScore = this.MIN;
-    //   // }
-    // }
+    let searchPiece: IPiece[] = [];
+    for (let i = 2; i <= deep; i += 2) {
+      this.count = 0;
+      this.abCut = 0;
+      this.pvCut = 0;
+      board.currentSteps = [];
+
+      const minMaxData: ISMinMax = {
+        candidates,
+        role,
+        deep: i,
+        step: 0,
+        alpha: this.MIN,
+        beta: this.MAX
+      };
+      // 生成现在可能落子的所有后续结果和分数
+      searchPiece = this.minMaxSearch(minMaxData);
+
+      console.log('deepenSearchFun => for => searchPiece:', cloneDeep(searchPiece));
+      /// 每次迭代剔除必败点，直到没有必败点或者只剩最后一个点
+      /// 实际上，由于必败点几乎都会被AB剪枝剪掉，因此这段代码几乎不会生效
+      // var newCandidates = candidates.filter(function (d) {
+      //  return !d.abcut
+      // })
+      // candidates = newCandidates.length ? newCandidates : [candidates[0]] // 必败了，随便走走
+
+      const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
+
+      console.log('bestScore', bestScore);
+
+      if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
+        // 当有一步的分数大于或者等于活五，停止循环
+        break;
+      }
+
+      // 下面这样做，会导致上一层的分数，在这一层导致自己被剪枝的bug，因为我们的判断条件是 >=。
+      // 上次层搜到的分数，在更深一层搜索的时候，会因为满足 >= 的条件而把自己剪枝掉
+      // if (littleThan(bestScore, T.THREE * 2)) {
+      //   // 如果能找到双三以上的棋，则保留bestScore做剪枝，否则直接设置为最小值
+      //   bestScore = this.MIN;
+      // }
+    }
 
     console.log('deepenSearchFun => searchPiece:', cloneDeep(searchPiece));
 
-    return {} as IPiece;
+    // 排序 升序
+    // 经过测试，这个如果放在上面的for循环中（就是每次迭代都排序），反而由于迭代深度太浅，排序不好反而会降低搜索速度。
+    searchPiece.sort((a, b) => {
+      if (commons.equal(a.score, b.score)) {
+        // 大于零是优势，尽快获胜，因此取步数短的
+        // 小于0是劣势，尽量拖延，因此取步数长的
+        if (a.score >= 0) {
+          if (a.step !== b.step) {
+            return a.step - b.step;
+          } else {
+            return b.score - a.score; // 否则 选取当前分最高的（直接评分)
+          }
+        } else if (a.step !== b.step) {
+          return b.step - a.step;
+        } else {
+          return b.score - a.score; // 否则 选取当前分最高的（直接评分)
+        }
+      } else {
+        return b.score - a.score;
+      }
+    });
+
+    const result = searchPiece[0];
+
+    console.log('result', cloneDeep(result));
+
+    board.log();
+
+    return result;
   };
 
   /**
@@ -544,7 +558,7 @@ export class Negamax {
 
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
-      console.log(`%c============= minMaxSearch start deep: ${deep} =============`, 'color: red;');
+      console.log(`%c======= minMaxSearch start deep: ${deep} index: ${i} =======`, 'color: red;');
       console.log(`%c======= [${p.y}, ${p.x}] =======`, 'color: red;');
       console.log('minMaxSearch role:', ERole[role]);
       console.log(`A~B: ${alpha}~${beta}`);
@@ -560,11 +574,10 @@ export class Negamax {
         alpha: -beta,
         role: commons.reverseRole(role),
         step: step + 1,
-        steps: cloneDeep([p]),
         spread: 0
       };
       // 查找这一步的后续可能走法和分数
-      const { evaluate, step: nowStep, abCut, steps } = this.deepMinMaxSearch(searchData);
+      const { evaluate, step: nowStep, steps } = this.deepMinMaxSearch(searchData);
 
       console.log('minMaxSearch reverse role:', ERole[searchData.role]);
       console.log(`minMaxSearch evaluate: ${evaluate}`);
@@ -583,61 +596,31 @@ export class Negamax {
       console.log('minMaxSearch beta', beta);
 
       board.remove(p);
-
-      AI.debug && console.log('minMaxSearch => piece: ', p);
-
       deepCandidates.push(p);
-
       alphaCut = Math.max(alphaCut, p.score);
+      console.log('minMaxSearch now alphaCut', alphaCut);
+      console.log('剪枝', commons.greatOrEqualThan(p.score, beta));
 
       // AB 剪枝
+      // 这里注意在玩家先手的情况下，电脑的第一层就是MAX层，第二层就是MIN层，以此类推
+      // 因为deep永远必须是双数，而最后一层的分数是打分得到不是通过计算自己的子级得到，所以我们从倒数第二层的MAX开始说起
+      // 在MAX层我们永远找子级里面最大的数字比如说在MAX层的第一个节点我们得到分数A=100
+      // 在MIN层我们永远找子级里面最小的，因此在MAX层的第二个节点计算第一个子节点的时候得到B=200
+      // 如果这个B是自己兄弟里面最大的，那么最终它会成为自己父级的分数，但这个节点在MIN层不会被选择，因为它比A大
+      // 因此第二个节点的后续子级几点不需要计算
+      // 如果这个B不是自己兄弟节点里面最大的，那么他就不会成为自己父级的分数，而一个更大的分数也不会在MIN层被选择，因为它更大了
+      // 因此第二个节点的后续子级节点也不需要计算了
+      // 只有在MIN层的第一个节点以后的兄弟节点的子级节点计算时每个都比A小才需要计算下去，一旦出现一个大的后续则不需要计算
+      // 一次类推相反的情况亦然
       // 一定要注意，这里必须是 greaterThan 即 明显大于
       // 而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
       // TODO 原代码就是greatOrEqualThan 具体使用那个方法以后留待测试
       if (commons.greatOrEqualThan(p.score, beta)) {
         console.log(`AB cut [${p.x}, ${p.y}], ${p.score} >= ${beta}`);
-        console.log(`%c============= minMaxSearch end deep: ${deep} =============`, 'color: aqua;');
+        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
         this.abCut++;
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
-        p.abCut = true; // 剪枝标记
         // cache(deep, v) // 别缓存被剪枝的，而且，这个返回到上层之后，也注意都不要缓存
-        return deepCandidates;
-      }
-
-      const { FIVE } = SCORE;
-      // 当前的分数有大于连五的分数
-      if (commons.greatOrEqualThan(evaluate, FIVE) || commons.equalOrLessThan(evaluate, -FIVE)) {
-        /// / 经过测试，把算杀放在对子节点的搜索之后，比放在前面速度更快一些。
-        /// / vcf
-        /// / 自己没有形成活四，对面也没有形成活四，那么先尝试VCF
-        // if(littleThan(_e, SCORE.FOUR) && greatThan(_e, SCORE.FOUR * -1)) {
-        //  mate = vcx.vcf(role, vcxDeep)
-        //  if(mate) {
-        //    AI.debug && console.log('vcf success')
-        //    v = {
-        //      score: mate.score,
-        //      step: step + mate.length,
-        //      steps: steps,
-        //      vcf: mate // 一个标记为，表示这个值是由vcx算出的
-        //    }
-        //    return v
-        //  }
-        // } // vct
-        /// / 自己没有形成活三，对面也没有高于活三的棋型，那么尝试VCT
-        // if(littleThan(_e, SCORE.THREE*2) && greatThan(_e, SCORE.THREE * -2)) {
-        //  var mate = vcx.vct(role, vcxDeep)
-        //  if(mate) {
-        //    AI.debug && console.log('vct success')
-        //    v = {
-        //      score: mate.score,
-        //      step: step + mate.length,
-        //      steps: steps,
-        //      vct: mate // 一个标记为，表示这个值是由vcx算出的
-        //    }
-        //  return v
-        //  }
-        // }
-        console.log(`%c============= minMaxSearch end deep: ${deep} =============`, 'color: aqua;');
         return deepCandidates;
       }
 
@@ -645,22 +628,10 @@ export class Negamax {
       if (new Date().getTime() - this.start > AI.timeLimit * 1000) {
         console.log('timeout...');
         // 超时，退出循环
-        console.log(`%c============= minMaxSearch end deep: ${deep} =============`, 'color: aqua;');
+        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
         return deepCandidates;
       }
-      console.log(`%c============= minMaxSearch end deep: ${deep} =============`, 'color: aqua;');
-    }
-
-    if (AI.log) {
-      console.log(`迭代完成,deep=${deep}`);
-      const candidatesScores = candidates.map((d) => {
-        const position = `[${d.x},${d.y}]`;
-        const score = `score:${d.data?.score}`;
-        const steps = `step:${d.data?.step}, steps:${d.data?.steps?.join(';')}`;
-        const c = d.data?.c ? `c:${[d.data?.c?.score.steps || []].join(';')}` : '';
-        return `${position}, ${score}, ${steps}, ${c};`;
-      });
-      console.log(candidatesScores);
+      console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
     }
 
     return deepCandidates;
@@ -671,52 +642,22 @@ export class Negamax {
    * @param data 查询需要的数据
    */
   deepMinMaxSearch = (data: ISearch): IRMinMax => {
-    const { deep, alpha, beta, role, step, steps, spread } = data;
-    this.count++;
+    const { deep, alpha, beta, role, step, spread } = data;
 
-    AI.debug && board.logSteps();
+    // 给当前的棋盘打分
+    const evaluate = board.evaluate(role);
 
-    // if (AI.cache) {
-    //   const c = this.deepCache[zobrist.code || 0];
-    //   console.log(`search deep: ${deep} =>`, c);
-    //   if (c) {
-    //     if (c.deep >= deep) {
-    //       // 如果缓存中的结果搜索深度不比当前小，则结果完全可用
-    //       this.cacheGet++;
-    //       // 记得clone，因为这个分数会在搜索过程中被修改，会使缓存中的值不正确
-    //       return {
-    //         score: c.score.score,
-    //         steps,
-    //         step: step + c.score.step,
-    //         c,
-    //         vct: 0,
-    //         vcf: 0,
-    //         abCut: 0
-    //       };
-    //     }
-    //     // 如果缓存的结果中搜索深度比当前小，那么任何一方出现双三及以上结果的情况下可用
-    //     // TODO: 只有这一个缓存策略是会导致开启缓存后会和以前的结果有一点点区别的，其他几种都是透明的缓存策略
-    //     // TODO: 存疑这个位置的写法有待验证
-    //     if (
-    //       commons.greatOrEqualThan(c.score.score, SCORE.FOUR) ||
-    //       commons.equalOrLessThan(c.score.score, -SCORE.FOUR)
-    //     ) {
-    //       this.cacheGet++;
-    //       return c.score;
-    //     }
-    //   }
-    // }
+    const { FIVE } = SCORE;
+    // 当前的分数有大于连五的分数
+    if (commons.greatOrEqualThan(evaluate, FIVE) || commons.equalOrLessThan(evaluate, -FIVE)) {
+      return { evaluate, steps: [], step };
+    }
 
     // 注意这里是小于0，而不是1，因为本次直接返回结果并没有下一步棋
     // 搜索到底 或者已经胜利
     // deep为0循环结束
     if (deep <= 0) {
-      return {
-        evaluate: board.evaluate(role),
-        abCut: false,
-        steps: [],
-        step
-      };
+      return { evaluate, steps: [], step };
     }
 
     // 双方个下两个子之后，开启star spread 模式
@@ -725,12 +666,7 @@ export class Negamax {
 
     if (!points.length) {
       // 没有可以的落子 返回
-      return {
-        evaluate: board.evaluate(role),
-        abCut: false,
-        steps: [],
-        step
-      };
+      return { evaluate, steps: [], step };
     } else {
       const values = this.minMaxSearch({
         candidates: points,
@@ -742,15 +678,13 @@ export class Negamax {
       });
 
       // 生成当前局势的分数
-      const reduceData: IRMinMax = { evaluate: this.MIN, abCut: false, steps: [], step };
+      const reduceData: IRMinMax = { evaluate: this.MIN, steps: [], step };
 
       return values.reduce((s, c) => {
         console.log(`reduceData reduce c: ${c.score} s: ${s.evaluate}`);
-        console.log('reduceData', !s.abCut ? c.abCut : s.abCut);
         return {
           evaluate: Math.max(s.evaluate, c.score),
           step: Math.min(s.step, c.step),
-          abCut: !s.abCut ? c.abCut : s.abCut,
           steps: values
         };
       }, reduceData);

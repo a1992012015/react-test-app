@@ -35,8 +35,8 @@ export class GoBangAI {
   begin = (): IPiece => {
     const piece = opening.match(board);
     console.log(piece);
-    // piece.role = ERole.com;
-    // board.put(piece);
+    piece.role = ERole.white;
+    board.put(piece);
     return piece;
   };
 

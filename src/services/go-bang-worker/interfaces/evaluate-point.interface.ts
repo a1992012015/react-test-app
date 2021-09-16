@@ -19,7 +19,6 @@ export interface ISearch {
   alpha: number;
   role: ERole;
   step: number;
-  steps: IPiece[];
   spread: number;
 }
 
@@ -34,7 +33,6 @@ export interface ISMinMax {
 
 export interface IRMinMax {
   evaluate: number; // 当前局势的分数
-  abCut: boolean; // 是否被剪枝
   steps: IPiece[]; // 下一步的所有可能
   step: number; // 这是第几步
 }

@@ -7,7 +7,6 @@ export interface IPiece {
   step: number; // 当前是第几步
   score: number; // 这颗棋子的分数
   steps: IPiece[]; // 这颗棋子的所有走法。会根据剪枝的结果和分数选取走法
-  abCut: boolean; // 是否是被剪掉的分支
   vct: number;
   vcf: number;
   min: number;
