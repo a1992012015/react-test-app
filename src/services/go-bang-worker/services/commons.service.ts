@@ -8,14 +8,14 @@ export class Commons {
 
   /**
    * 生成 number 的二维数组
-   * @param w 数组长度
    * @param h 数组深度
+   * @param w 数组长度
    */
-  createScores = (w: number, h: number): number[][] => {
+  createScores = (h: number, w: number): number[][] => {
     const board: number[][] = [];
-    for (let x = 0; x < w; x++) {
+    for (let y = 0; y < w; y++) {
       const row: number[] = [];
-      for (let y = 0; y < h; y++) {
+      for (let x = 0; x < h; x++) {
         row.push(0);
       }
       board.push(row);
@@ -42,7 +42,7 @@ export class Commons {
       boards.forEach((board) => {
         board.forEach((piece) => {
           if (piece.x === x && piece.y === y) {
-            piece.role = index % 2 === 0 ? ERole.com : ERole.hum;
+            piece.role = index % 2 === 0 ? ERole.white : ERole.block;
           }
         });
       });
@@ -56,7 +56,7 @@ export class Commons {
    * @param r 现在的玩家
    */
   reverseRole = (r: ERole): ERole => {
-    return r === ERole.com ? ERole.hum : ERole.com;
+    return r === ERole.white ? ERole.block : ERole.white;
   };
 
   /**
@@ -97,8 +97,9 @@ export class Commons {
   equal = (a: number, b = 0.01): boolean => {
     if (b >= 0) {
       return a >= b / this.THRESHOLD && a <= b * this.THRESHOLD;
+    } else {
+      return a >= b * this.THRESHOLD && a <= b / this.THRESHOLD;
     }
-    return a >= b * this.THRESHOLD && a <= b / this.THRESHOLD;
   };
 
   /**

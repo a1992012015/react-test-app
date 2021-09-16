@@ -1,43 +1,51 @@
-import { WorkerRequest, WorkerType } from './interfaces/go-bang-worker.interface';
+import {
+  IWorkerRequest,
+  IWRequestConfig,
+  IWRequestPut,
+  IWRequestStart,
+  WorkerType
+} from './interfaces/go-bang-worker.interface';
 import { ERole } from './interfaces/role.interface';
 import { AI } from './configs/ai.config';
 import { goBangAI } from './services/go-bang-ai.service';
 
 // eslint-disable-next-line no-restricted-globals
-addEventListener('message', (event: MessageEvent<WorkerRequest>) => {
-  const d = event.data;
-  console.log('get message:', d);
-  console.log('get type:', WorkerType[d.type]);
-  if (d.type === WorkerType.START) {
-    const open = goBangAI.start(!!d.first, d.randomOpening);
+addEventListener('message', (event: MessageEvent<IWorkerRequest>) => {
+  const { payload, type } = event.data;
+  console.log(`%c=============== ${WorkerType[type]} ===============`, 'color: red;');
+  console.log('get message:', payload);
+  if (type === WorkerType.START) {
+    const startD = payload as IWRequestStart;
+    const open = goBangAI.start(startD.first, startD.randomOpening);
     postMessage({
       type: WorkerType.BOARD,
-      data: { ...open, first: d?.first ? ERole.hum : ERole.com }
+      payload: { ...open, first: startD.first ? ERole.block : ERole.white }
     });
-  } else if (d.type === WorkerType.BEGIN) {
+  } else if (type === WorkerType.BEGIN) {
     const p = goBangAI.begin();
     postMessage({
       type: WorkerType.PUT,
-      data: { piece: p }
+      payload: { piece: p }
     });
-  } else if (d.type === WorkerType.GO && d.piece) {
-    const p = goBangAI.turn(d.piece.x, d.piece.y);
+  } else if (type === WorkerType.GO) {
+    const goD = payload as IWRequestPut;
+    const p = goBangAI.turn(goD.piece.x, goD.piece.y);
     postMessage({
       type: WorkerType.PUT,
-      data: { piece: p }
+      payload: { piece: p }
     });
-  } else if (d.type === WorkerType.BACKWARD) {
+  } else if (type === WorkerType.BACKWARD) {
     goBangAI.backward();
     postMessage({
       type: WorkerType.BACKWARD
     });
-  } else if (d.type === WorkerType.FORWARD) {
+  } else if (type === WorkerType.FORWARD) {
     goBangAI.forward();
     postMessage({
       type: WorkerType.FORWARD
     });
-  } else if (d.type === WorkerType.CONFIG) {
-    const { config } = d;
+  } else if (type === WorkerType.CONFIG) {
+    const { config } = payload as IWRequestConfig;
     if (config?.searchDeep !== undefined) {
       AI.searchDeep = config.searchDeep;
     }

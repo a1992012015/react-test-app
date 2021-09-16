@@ -4,11 +4,10 @@ import { connect } from 'react-redux';
 import { BaseComponent } from '../../../components/should-component-update';
 import { WorkerStatus } from '../../../stores/interfaces/worker.interface';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { gameSagaPut, gameStart } from '../../../stores/actions/go-bang.action';
+import { gameStart } from '../../../stores/actions/go-bang.action';
 import {
-  IResponsePut,
-  IResponseStart,
-  WorkerResponse,
+  IWorkerResponse,
+  IWResponseStart,
   WorkerType
 } from '../../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 import { AppDispatch, RootState } from '../../../stores/interfaces/store.interface';
@@ -28,45 +27,43 @@ class GoBangWorker extends BaseComponent<IProps> {
       type: 'module'
     });
 
-    this.gameWorker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+    this.gameWorker.onmessage = (event: MessageEvent<IWorkerResponse>) => {
       const { data } = event;
-      console.log('get response data:', data);
+      console.log(`%c=============== ${WorkerType[data.type]} ===============`, 'color: aqua;');
+      console.log('get onmessage:', data);
 
       if (data.type === WorkerType.PUT) {
-        console.log(`worker => ${WorkerType[data.type]}`);
         // const endTime = new Date().getTime();
-        const putData = data.data as IResponsePut;
-        const payload = {
-          gameType: putData.piece.role === ERole.com ? GameType.DUEL_HUM : GameType.DUEL_COM,
-          piece: putData.piece
-        };
-        this.props.dispatch(gameSagaPut(payload));
+        // const putData = data.payload as IWResponsePut;
+        // const payload = {
+        //   gameType: putData.piece.role === ERole.com ? GameType.DUEL_HUM : GameType.DUEL_COM,
+        //   piece: putData.piece
+        // };
+        // this.props.dispatch(gameSagaPut(payload));
       } else if (data.type === WorkerType.BOARD) {
         // 返回的开局
-        console.log(`worker => ${WorkerType[data.type]}`);
-        const putData = data.data as IResponseStart;
+        const putData = data.payload as IWResponseStart;
         const payload = {
           gameType: putData.first ? GameType.DUEL_HUM : GameType.DUEL_COM,
-          first: putData.first ? ERole.hum : ERole.com,
+          first: putData.first ? ERole.block : ERole.white,
           board: putData.pieces
         };
         this.props.dispatch(gameStart(payload));
       } else {
-        // TODO 预期意外的Type返回，无法处理，检查代码，或者结束游戏
+        // TODO 意外的Type返回，无法处理，检查代码，或者结束游戏
         console.log(`worker => ${WorkerType[data.type]}`);
         console.log('错误的Type。。。');
       }
     };
 
     this.gameWorker.onerror = (e) => {
-      console.log(e);
+      console.warn(e);
     };
   }
 
   componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<unknown>): void {
-    console.log('GoBangWorker => componentDidUpdate:', this.props);
     const { workerPost } = this.props;
-    console.log('postMessage', workerPost);
+
     if (workerPost && this.gameWorker) {
       this.gameWorker.postMessage(workerPost);
     }

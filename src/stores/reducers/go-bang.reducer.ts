@@ -27,7 +27,7 @@ export const goBangReducer = createReducer(initialState, (builder) => {
     .addCase(gamePut, (state, action) => {
       const { piece } = action.payload;
       state.board[piece.x][piece.y] = piece;
-      state.gameType = piece.role === ERole.com ? GameType.DUEL_HUM : GameType.DUEL_COM;
+      state.gameType = piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM;
       state.steps += 1;
     });
 });

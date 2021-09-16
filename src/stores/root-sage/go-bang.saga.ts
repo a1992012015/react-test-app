@@ -38,7 +38,7 @@ function* goBangGoOnWatch(): Generator<
       if (gameType === GameType.DUEL_HUM) {
         const post: WorkerStatus = {
           type: WorkerType.GO,
-          piece
+          payload: { piece }
         };
 
         yield put(changeWorkerPost(post));

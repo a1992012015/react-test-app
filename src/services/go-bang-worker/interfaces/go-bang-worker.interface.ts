@@ -2,26 +2,36 @@ import { IPiece } from './piece.interface';
 import { IAI } from './ai.interface';
 import { ERole } from './role.interface';
 
-export interface WorkerRequest {
+export interface IWorkerRequest {
   type: WorkerType;
-  piece?: IPiece;
-  first?: boolean;
-  config?: IAI;
-  randomOpening?: boolean;
+  payload: IWRequestStart | IWRequestPut | IWRequestConfig;
 }
 
-export interface WorkerResponse {
-  type: WorkerType;
-  data: IResponseStart | IResponsePut;
+export interface IWRequestStart {
+  first: boolean;
+  randomOpening: boolean;
 }
 
-export interface IResponseStart {
+export interface IWRequestPut {
+  piece: IPiece;
+}
+
+export interface IWRequestConfig {
+  config: IAI;
+}
+
+export interface IWorkerResponse {
+  type: WorkerType;
+  payload: IWResponseStart | IWResponsePut;
+}
+
+export interface IWResponseStart {
   pieces: IPiece[][];
   first: ERole;
   name: string;
 }
 
-export interface IResponsePut {
+export interface IWResponsePut {
   piece: IPiece;
 }
 

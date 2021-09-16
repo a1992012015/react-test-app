@@ -2,6 +2,7 @@
  * 一个简单的开局库，用花月+浦月必胜开局
  */
 
+import { cloneDeep } from 'lodash-es';
 import { IPiece } from '../interfaces/piece.interface';
 import { Board } from './board.service';
 import { commons } from './commons.service';
@@ -18,27 +19,14 @@ import { negamax } from './negamax.service';
 export class Opening {
   match = (board: Board): IPiece => {
     const s = board.allSteps;
-    console.log('match => s', s);
-    const { x } = s[0];
-    const { y } = s[0];
-    console.log(board.board.pieces[x][y].role !== ERole.com);
-    if (board.board.pieces[x][y].role !== ERole.com) {
-      return negamax.deepAll(ERole.com, AI.searchDeep);
+    console.log('match => s', cloneDeep(s));
+    const { x, y } = s[0];
+    if (board.board.pieces[y][x].role !== ERole.white) {
+      return negamax.deepAll(ERole.white, AI.searchDeep);
     }
     if (s.length > 2) {
-      return negamax.deepAll(ERole.com, AI.searchDeep);
+      return negamax.deepAll(ERole.white, AI.searchDeep);
     }
-    console.log(
-      commons.containPoint(
-        [
-          [6, 7],
-          [7, 6],
-          [8, 7],
-          [7, 8]
-        ],
-        s[1]
-      )
-    );
     if (
       commons.containPoint(
         [
@@ -65,7 +53,7 @@ export class Opening {
     ) {
       return this.puyue(board);
     }
-    return negamax.deepAll(ERole.com, AI.searchDeep);
+    return negamax.deepAll(ERole.white, AI.searchDeep);
   };
 
   private huayue = (board: Board): IPiece => {

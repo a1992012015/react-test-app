@@ -8,9 +8,9 @@ import { ERole } from '../interfaces/role.interface';
 import { IScorePoint } from '../interfaces/evaluate-point.interface';
 
 export class EvaluatePoint {
-  count = 0; // 我方棋子个数
+  count = 1; // 我方棋子个数
   block = 0; // 对方棋子个数
-  empty = 0; // 第几颗棋子的位置是空位
+  empty = -1; // 第几颗棋子的位置是空位
   secondCount = 0; // 另一个方向的我方棋子个数
 
   init = (): void => {
@@ -30,7 +30,8 @@ export class EvaluatePoint {
     const { x: px, y: py, pieces, role, scoreCache, dir } = data;
     const len = pieces.length;
     let result = 0;
-    // 计算横向
+
+    // 计算竖向的
     if (dir === undefined || dir === 0) {
       this.init();
       // 计算当前点的右边
@@ -41,10 +42,10 @@ export class EvaluatePoint {
           break;
         }
         // 右边一个棋子
-        const t = pieces[px][y];
+        const t = pieces[y][px];
         if (t.role === ERole.empty) {
           // 右边是空位
-          if (this.empty === -1 && y < len - 1 && pieces[px][y + 1].role === role) {
+          if (this.empty === -1 && y < len - 1 && pieces[y + 1][px].role === role) {
             // 当前棋子没有在最边上，同时再右边的棋子是自己的
             this.empty = this.count;
           } else {
@@ -64,16 +65,16 @@ export class EvaluatePoint {
       }
 
       // 计算当前点的左边
-      for (let i = py - 1; i >= -1; i--) {
-        if (i < 0) {
+      for (let y = py - 1; y >= -1; y--) {
+        if (y < 0) {
           // 超出棋盘
           this.block++;
           break;
         }
-        const t = pieces[px][i];
+        const t = pieces[y][px];
         if (t.role === ERole.empty) {
           // 左边是空位
-          if (this.empty === -1 && i > 0 && pieces[px][i - 1].role === role) {
+          if (this.empty === -1 && y > 0 && pieces[y - 1][px].role === role) {
             // 当前棋子没有在最边上，同时再左边的棋子是自己的
             this.empty = 0; // 注意这里是0，因为是从右往左走的
           } else {
@@ -94,11 +95,12 @@ export class EvaluatePoint {
 
       this.count += this.secondCount;
 
-      scoreCache[role][0][px][py] = this.countToScore();
+      scoreCache[role][0][py][px] = this.countToScore();
     }
 
-    result += scoreCache[role][0][px][py] || 0;
+    result += scoreCache[role][0][py][px] || 0;
 
+    // 计算横向的
     if (dir === undefined || dir === 1) {
       this.init();
 
@@ -107,9 +109,9 @@ export class EvaluatePoint {
           this.block++;
           break;
         }
-        const t = pieces[i][py];
+        const t = pieces[py][i];
         if (t.role === ERole.empty) {
-          if (this.empty === -1 && i < len - 1 && pieces[i + 1][py].role === role) {
+          if (this.empty === -1 && i < len - 1 && pieces[py][i + 1].role === role) {
             this.empty = this.count;
           } else {
             break;
@@ -127,9 +129,9 @@ export class EvaluatePoint {
           this.block++;
           break;
         }
-        const t = pieces[i][py];
+        const t = pieces[py][i];
         if (t.role === ERole.empty) {
-          if (this.empty === -1 && i > 0 && pieces[i - 1][py].role === role) {
+          if (this.empty === -1 && i > 0 && pieces[py][i - 1].role === role) {
             this.empty = 0;
           } else {
             break;
@@ -145,10 +147,12 @@ export class EvaluatePoint {
 
       this.count += this.secondCount;
 
-      scoreCache[role][1][px][py] = this.countToScore();
+      scoreCache[role][1][py][px] = this.countToScore();
     }
-    result += scoreCache[role][1][px][py] || 0;
 
+    result += scoreCache[role][1][py][px] || 0;
+
+    // 更新右斜下方 左斜上方
     if (dir === undefined || dir === 2) {
       this.init();
 
@@ -159,13 +163,13 @@ export class EvaluatePoint {
           this.block++;
           break;
         }
-        const t = pieces[x][y];
+        const t = pieces[y][x];
         if (t.role === ERole.empty) {
           if (
             this.empty === -1 &&
             x < len - 1 &&
             y < len - 1 &&
-            pieces[x + 1][y + 1].role === role
+            pieces[y + 1][x + 1].role === role
           ) {
             this.empty = this.count;
           } else {
@@ -186,9 +190,9 @@ export class EvaluatePoint {
           this.block++;
           break;
         }
-        const t = pieces[x][y];
+        const t = pieces[y][x];
         if (t.role === ERole.empty) {
-          if (this.empty === -1 && x > 0 && y > 0 && pieces[x - 1][y - 1].role === role) {
+          if (this.empty === -1 && x > 0 && y > 0 && pieces[y - 1][x - 1].role === role) {
             this.empty = 0;
           } else {
             break;
@@ -204,24 +208,25 @@ export class EvaluatePoint {
 
       this.count += this.secondCount;
 
-      scoreCache[role][2][px][py] = this.countToScore();
+      scoreCache[role][2][py][px] = this.countToScore();
     }
-    result += scoreCache[role][2][px][py] || 0;
 
-    // /
+    result += scoreCache[role][2][py][px] || 0;
+
+    // 更新左斜下方 右斜上方
     if (dir === undefined || dir === 3) {
       this.init();
 
       for (let i = 1; i <= len; i++) {
-        const x = px + i;
-        const y = py - i;
+        const x = px - i;
+        const y = py + i;
         if (x < 0 || y < 0 || x >= len || y >= len) {
           this.block++;
           break;
         }
-        const t = pieces[x][y];
+        const t = pieces[y][x];
         if (t.role === ERole.empty) {
-          if (this.empty === -1 && x < len - 1 && y > 0 && pieces[x + 1][y - 1].role === role) {
+          if (this.empty === -1 && x > 0 && y < len - 1 && pieces[y + 1][x - 1].role === role) {
             this.empty = this.count;
           } else {
             break;
@@ -235,15 +240,15 @@ export class EvaluatePoint {
       }
 
       for (let i = 1; i <= len; i++) {
-        const x = px - i;
-        const y = py + i;
+        const x = px + i;
+        const y = py - i;
         if (x < 0 || y < 0 || x >= len || y >= len) {
           this.block++;
           break;
         }
-        const t = pieces[x][y];
+        const t = pieces[y][x];
         if (t.role === ERole.empty) {
-          if (this.empty === -1 && x > 0 && y < len - 1 && pieces[x - 1][y + 1].role === role) {
+          if (this.empty === -1 && x < len - 1 && y > 0 && pieces[y - 1][x + 1].role === role) {
             this.empty = 0;
           } else {
             break;
@@ -259,9 +264,10 @@ export class EvaluatePoint {
 
       this.count += this.secondCount;
 
-      scoreCache[role][3][px][py] = this.countToScore();
+      scoreCache[role][3][py][px] = this.countToScore();
     }
-    result += scoreCache[role][3][px][py] || 0;
+
+    result += scoreCache[role][3][py][px] || 0;
 
     return result;
   };
@@ -271,6 +277,11 @@ export class EvaluatePoint {
    * 通过计算对方的棋子和自己的棋子组合来决定这条直线的棋子分数
    */
   countToScore = (): number => {
+    // console.log('%c=================== countToScore ===================', 'color: slateblue;');
+    // console.log('empty', this.empty);
+    // console.log('count', this.count);
+    // console.log('count', this.block);
+
     if (this.empty <= 0) {
       // 没有空位
       if (this.count >= 5) {

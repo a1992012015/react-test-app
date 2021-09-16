@@ -35,9 +35,8 @@ export class GoBangAI {
   begin = (): IPiece => {
     const piece = opening.match(board);
     console.log(piece);
-    piece.role = ERole.com;
-    board.put(piece);
-    console.log('board', board.board);
+    // piece.role = ERole.com;
+    // board.put(piece);
     return piece;
   };
 
@@ -47,7 +46,8 @@ export class GoBangAI {
    * @param y 落子的y坐标
    */
   turn = (x: number, y: number): IPiece => {
-    this.set(x, y, ERole.hum);
+    this.set(x, y, ERole.block);
+    // return {} as IPiece;
     return this.begin();
   };
 

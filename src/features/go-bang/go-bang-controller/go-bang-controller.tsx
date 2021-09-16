@@ -15,11 +15,8 @@ export interface Props {
   gameStatus: GameType;
 
   gameReset(): void;
-
   gameStart(first: boolean, opening: boolean): void;
-
   gameForward(): void;
-
   gameBackward(): void;
 }
 
@@ -55,7 +52,7 @@ export class GoBangController extends BaseComponent<Props> {
     const { gameStatus, winning, steps, score, time } = this.props;
 
     if (gameStatus === GameType.DUEL_FINISH) {
-      return `${winning === ERole.com ? '圆环之理' : '您居然'}赢得了胜利！！！`;
+      return `${winning === ERole.white ? '圆环之理' : '您居然'}赢得了胜利！！！`;
     }
     if (gameStatus === GameType.DUEL_READY) {
       return '点击开始按钮开始游戏';

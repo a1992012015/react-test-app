@@ -21,10 +21,10 @@ export class Statistic {
     let p: number[] = [];
     for (let i = 0; i < candidates.length; i++) {
       const c = candidates[i];
-      const score = this.table[c.x][c.y];
+      const score = this.table[c.y][c.x];
       if ((score || 0) > max) {
         max = score || 0;
-        p = [c.x, c.y];
+        p = [c.y, c.x];
       }
     }
     console.log('历史表推荐走法:', p);

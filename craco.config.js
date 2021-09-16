@@ -10,6 +10,9 @@ module.exports = {
     configure(webpackConfig) {
       // some stuff
 
+      // 开发环境console 可以查看文件名称
+      webpackConfig.devtool = environment ? 'eval-cheap-module-source-map' : 'nosources-source-map';
+
       return webpackConfig;
     },
     plugins: [

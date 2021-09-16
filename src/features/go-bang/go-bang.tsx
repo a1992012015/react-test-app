@@ -51,8 +51,7 @@ class GoBang extends BaseComponent<IProps, IState> {
   gameStart = (first: boolean, opening: boolean): void => {
     const post: WorkerStatus = {
       type: WorkerType.START,
-      first,
-      randomOpening: opening
+      payload: { first, randomOpening: opening }
     };
     this.props.dispatch(changeWorkerPost(post));
   };
@@ -63,12 +62,6 @@ class GoBang extends BaseComponent<IProps, IState> {
 
   gameGo = (piece: IPiece): void => {
     console.log('gameGo piece:', piece);
-    // const post: WorkerStatus = {
-    //   type: WorkerType.GO,
-    //   piece
-    // };
-    // this.props.dispatch(changeWorkerPost(post));
-
     const payload = {
       gameType: GameType.DUEL_COM,
       piece: creatPiece(piece)

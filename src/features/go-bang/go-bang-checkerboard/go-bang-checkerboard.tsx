@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, RefObject } from 'react';
+import React, { RefObject } from 'react';
 import multiply from 'lodash-es/multiply';
 import divide from 'lodash-es/divide';
 
@@ -34,7 +34,7 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
   private gameGo = (x: number, y: number): void => {
     const { gameStatus } = this.props;
     if (gameStatus === GameType.DUEL_HUM) {
-      this.props.gameGo(creatPiece({ x, y, role: ERole.hum }));
+      this.props.gameGo(creatPiece({ x, y, role: ERole.block }));
     } else {
       console.log('还不能落子！！');
     }
@@ -135,10 +135,6 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
     });
   };
 
-  private handleKeyDown = (event: KeyboardEvent<HTMLDivElement>): void => {
-    console.log(event);
-  };
-
   private row = (index: number, row: IPiece[]): React.ReactNode => {
     const { width } = this.props;
     return row.map((v, i) => {
@@ -150,7 +146,7 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
           key={i}
           style={style}
           className={styles.chessman}
-          onKeyDown={this.handleKeyDown}
+          onKeyDown={() => null}
           onClick={() => this.gameGo(index, i)}>
           <button
             type="button"

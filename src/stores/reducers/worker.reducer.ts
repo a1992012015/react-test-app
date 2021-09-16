@@ -5,7 +5,8 @@ import { WorkerStatus } from '../interfaces/worker.interface';
 import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 
 const initialState: WorkerStatus = {
-  type: WorkerType.START
+  type: WorkerType.START,
+  payload: { first: true, randomOpening: false }
 };
 
 export const workerReducer = createReducer(initialState, (builder) => {

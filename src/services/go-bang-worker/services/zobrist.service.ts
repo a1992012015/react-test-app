@@ -31,7 +31,7 @@ export class Zobrist implements IZobrist {
 
   go = (piece: IPiece): number => {
     const index = this.size * piece.x + piece.y;
-    this.code ^= piece.role === ERole.com ? this.com[index] : this.hum[index];
+    this.code ^= piece.role === ERole.white ? this.com[index] : this.hum[index];
     return this.code;
   };
 
