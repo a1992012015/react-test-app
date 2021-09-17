@@ -18,8 +18,7 @@ module.exports = {
       paths.appBuild = 'docs';
       webpackConfig.output = {
         ...webpackConfig.output,
-        path: path.resolve(__dirname, 'docs'),
-        publicPath: './'
+        path: path.resolve(__dirname, 'docs')
       };
 
       return webpackConfig;
