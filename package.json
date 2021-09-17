@@ -4,7 +4,7 @@
   "private": true,
   "description": "Single Page Apps for GitHub Pages",
   "scripts": {
-    "start": "webpack-dev-server --host 0.0.0.0 --disable-host-check --open-page repo-name",
+    "start": "webpack-dev-server --host 0.0.0.0 --disable-host-check --open-page react-test-app",
     "build": "webpack -p"
   },
   "repository": {
