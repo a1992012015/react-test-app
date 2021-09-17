@@ -1,95 +1,78 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
+import * as React from 'react';
+import { Switch, Route } from 'react-router-dom';
+import { DarkModeButton } from './ui/DarkModeButton';
+import { GitHubIconLink } from './ui/GitHubIconLink';
+import { globalCss, styled } from './stitches.config';
+import { Home } from './components/Home';
+import { ExampleComponent } from './components/ExampleComponent';
+import { ExampleTwoDeepComponent } from './components/ExampleTwoDeepComponent';
+import { SitemapLinkGenerator } from './components/SitemapLinkGenerator';
+import { PageNotFound } from './components/PageNotFound';
+import { Breadcrumbs } from './components/Breadcrumbs';
 
-import { MenuInfo } from 'rc-menu/lib/interface';
-import styles from './App.module.less';
-import { GoBangRedux } from './features/go-bang/go-bang';
-import { Dashboard } from './features/dashboard/dashboard';
-import { SwitchDefault } from './components/switch-default';
-import { BaseComponent } from './components/should-component-update';
-import { Counter } from './features/counter/counter';
-import { Pokemon } from './features/pokemon/pokemon';
-import { WebWorker } from './features/web-worker/web-worker';
+const AppContainer = styled('div', {
+  maxWidth: '540px',
+  padding: '12px 15px 25px',
+  margin: '0 auto',
+});
 
-interface State {
-  collapsed: boolean;
-  defaultKeys: string[];
-}
+const HeaderContainer = styled('header', {
+  display: 'flex',
+  justifyContent: 'space-between',
+  marginBottom: '18px',
+});
 
-interface Props {
-  history: RouteComponentProps['history'];
-}
+const H1 = styled('h1', {
+  fontSize: '26px',
+  marginRight: '16px',
+});
 
-export default class App extends BaseComponent<Props, State> {
-  menuList = [
-    { name: 'Dashboard', icon: <UserOutlined />, value: '/dashboard' },
-    { name: '五子棋', icon: <VideoCameraOutlined />, value: '/go-bang' },
-    { name: '计数器', icon: <VideoCameraOutlined />, value: '/counter' },
-    { name: 'WebWorker', icon: <VideoCameraOutlined />, value: '/web-worker' },
-    { name: 'Pokemon', icon: <VideoCameraOutlined />, value: '/pokemon' }
-  ];
+const HeaderIconContainer = styled('span', {
+  width: '78px',
+  display: 'inline-flex',
+  justifyContent: 'space-between',
+  gap: '12px',
+});
 
-  constructor(props: Props) {
-    super(props);
-    const activeMenu = this.menuList.filter((menu) => {
-      return props.history.location.pathname.includes(menu.value);
-    });
+const BreadcrumbsNav = styled('nav', {
+  margin: '18px 0',
+});
 
-    const activeKeys = activeMenu.map((menu) => menu.value);
+export const App: React.VFC = () => {
+  globalCss();
 
-    this.state = {
-      collapsed: false,
-      defaultKeys: activeKeys.length ? activeKeys : ['/dashboard']
-    };
-  }
+  return (
+    <AppContainer>
+      <HeaderContainer>
+        <H1>Single Page Apps for GitHub Pages</H1>
+        <HeaderIconContainer>
+          <DarkModeButton />
+          <GitHubIconLink
+            href="https://github.com/rafgraph/spa-github-pages"
+            title="GitHub repository for SPA GitHub Pages"
+          />
+        </HeaderIconContainer>
+      </HeaderContainer>
 
-  toggle = (): void => {
-    this.setState({ collapsed: !this.state.collapsed });
-  };
+      <BreadcrumbsNav>
+        <Breadcrumbs />
+      </BreadcrumbsNav>
 
-  pathTo = (info: MenuInfo): void => {
-    const { history } = this.props;
-    history.push({ pathname: info.key });
-  };
-
-  render(): React.ReactNode {
-    const { collapsed, defaultKeys } = this.state;
-    const { history } = this.props;
-    return (
-      <Layout className={styles.container}>
-        <Layout.Sider trigger={null} collapsible collapsed={collapsed}>
-          <div className={styles.logo} />
-
-          <Menu onClick={this.pathTo} theme="dark" mode="inline" defaultSelectedKeys={defaultKeys}>
-            {this.renderHomeMenu()}
-          </Menu>
-        </Layout.Sider>
-
-        <Layout className={styles.siteLayout}>
-          <Layout.Content className={styles.siteLayoutContent}>
-            <SwitchDefault history={history}>
-              <Route exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/go-bang" component={GoBangRedux} />
-              <Route exact path="/counter" component={Counter} />
-              <Route exact path="/pokemon" component={Pokemon} />
-              <Route exact path="/web-worker" component={WebWorker} />
-              <Redirect exact from="/" to="/dashboard" />
-            </SwitchDefault>
-          </Layout.Content>
-        </Layout>
-      </Layout>
-    );
-  }
-
-  renderHomeMenu = (): React.ReactNode => {
-    return this.menuList.map((menu) => {
-      return (
-        <Menu.Item key={menu.value} icon={menu.icon}>
-          {menu.name}
-        </Menu.Item>
-      );
-    });
-  };
-}
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/example" component={ExampleComponent} />
+        <Route
+          exact
+          path="/example/two-deep"
+          component={ExampleTwoDeepComponent}
+        />
+        <Route
+          exact
+          path="/sitemap-link-generator"
+          component={SitemapLinkGenerator}
+        />
+        <Route component={PageNotFound} />
+      </Switch>
+    </AppContainer>
+  );
+};
