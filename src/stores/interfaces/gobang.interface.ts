@@ -1,5 +1,5 @@
-import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
-import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
+import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
+import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 
 export interface IGameStatus {
   gameType: GameType;

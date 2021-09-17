@@ -1,6 +1,6 @@
-import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
-import { IAI } from '../../services/go-bang-worker/interfaces/ai.interface';
-import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
+import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
+import { IAI } from '../../services/gobang-worker/interfaces/ai.interface';
+import { WorkerType } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
 
 export interface IWorkerRequest {
   type: WorkerType;

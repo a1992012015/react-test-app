@@ -2,24 +2,20 @@ import React, { RefObject } from 'react';
 import { connect } from 'react-redux';
 import divide from 'lodash-es/divide';
 
-import styles from './go-bang.module.less';
-import { GoBangController } from './go-bang-controller/go-bang-controller';
-import { GoBangWorkerRedux } from './go-bang-worker/go-bang-worker';
-import { GoBangCheckerboard } from './go-bang-checkerboard/go-bang-checkerboard';
-import { GameType, IGameStatus } from '../../stores/interfaces/go-bang.interface';
+import styles from './gobang.module.less';
+import { GobangController } from './gobang-controller/gobang-controller';
+import { GoBangWorkerRedux } from './gobang-worker/gobang-worker';
+import { GobangCheckerboard } from './gobang-checkerboard/gobang-checkerboard';
+import { GameType, IGameStatus } from '../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../components/should-component-update';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
 import { IWorkerRequest } from '../../stores/interfaces/worker.interface';
-import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
-import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
+import { WorkerType } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
-import {
-  gameSagaChangeBoard,
-  gameSagaInit,
-  gameSagaPut
-} from '../../stores/actions/go-bang.action';
-import { creatPiece } from '../../services/go-bang-worker/services/piece.service';
-import { IAI } from '../../services/go-bang-worker/interfaces/ai.interface';
+import { gameSagaChangeBoard, gameSagaInit, gameSagaPut } from '../../stores/actions/gobang.action';
+import { creatPiece } from '../../services/gobang-worker/services/piece.service';
+import { IAI } from '../../services/gobang-worker/interfaces/ai.interface';
 
 interface IState {
   width: number;
@@ -29,7 +25,7 @@ interface IProps extends IGameStatus {
   dispatch: AppDispatch;
 }
 
-class GoBang extends BaseComponent<IProps, IState> {
+class Gobang extends BaseComponent<IProps, IState> {
   containerRef: RefObject<HTMLDivElement> = React.createRef();
 
   constructor(props: IProps) {
@@ -138,20 +134,20 @@ class GoBang extends BaseComponent<IProps, IState> {
       <div ref={this.containerRef} className={styles.container}>
         <GoBangWorkerRedux />
 
-        <GoBangCheckerboard {...boardProps} />
+        <GobangCheckerboard {...boardProps} />
 
-        <GoBangController {...controllerProps} />
+        <GobangController {...controllerProps} />
       </div>
     );
   }
 }
 
 const mapStateToProps = (state: RootState): Omit<IProps, 'dispatch'> => {
-  return { ...state.goBang };
+  return { ...state.gobang };
 };
 
 const mapDispatchToProps = (dispatch: AppDispatch): Omit<IProps, keyof IGameStatus> => ({
   dispatch
 });
 
-export const GoBangRedux = connect(mapStateToProps, mapDispatchToProps)(GoBang);
+export const GoBangRedux = connect(mapStateToProps, mapDispatchToProps)(Gobang);

@@ -1,12 +1,12 @@
 import React, { MouseEvent } from 'react';
 import { Button } from 'antd';
 
-import styles from './go-bang-controller.module.less';
-import { GameType } from '../../../stores/interfaces/go-bang.interface';
+import styles from './gobang-controller.module.less';
+import { GameType } from '../../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../../components/should-component-update';
-import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
-import { IPiece } from '../../../services/go-bang-worker/interfaces/piece.interface';
-import { commons } from '../../../services/go-bang-worker/services/commons.service';
+import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
+import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
+import { commons } from '../../../services/gobang-worker/services/commons.service';
 
 export interface Props {
   time: number;
@@ -22,7 +22,7 @@ export interface Props {
   gameBackward(): void;
 }
 
-export class GoBangController extends BaseComponent<Props> {
+export class GobangController extends BaseComponent<Props> {
   gameStartWay = (first: number) => {
     return (event: MouseEvent<HTMLElement>): void => {
       console.log(event);

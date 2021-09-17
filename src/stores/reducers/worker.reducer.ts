@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { changeWorkerPost } from '../actions/worker.action';
 import { IWorkerRequest } from '../interfaces/worker.interface';
-import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
+import { WorkerType } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
 
 const initialState: IWorkerRequest = {
   type: WorkerType.START,

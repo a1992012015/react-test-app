@@ -3,32 +3,32 @@ import { connect } from 'react-redux';
 
 import { BaseComponent } from '../../../components/should-component-update';
 import { IWorkerRequest } from '../../../stores/interfaces/worker.interface';
-import { GameType } from '../../../stores/interfaces/go-bang.interface';
+import { GameType } from '../../../stores/interfaces/gobang.interface';
 import {
   gameSagaChangeGame,
   gameSagaPut,
   gameChangeState
-} from '../../../stores/actions/go-bang.action';
+} from '../../../stores/actions/gobang.action';
 import {
   IWorkerResponse,
   IWResponsePut,
   IWResponseStart,
   WorkerType
-} from '../../../services/go-bang-worker/interfaces/go-bang-worker.interface';
+} from '../../../services/gobang-worker/interfaces/gobang-worker.interface';
 import { AppDispatch, RootState } from '../../../stores/interfaces/store.interface';
-import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
+import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
 
 interface IProps {
   workerPost: IWorkerRequest;
   dispatch: AppDispatch;
 }
 
-class GoBangWorker extends BaseComponent<IProps> {
+class GobangWorker extends BaseComponent<IProps> {
   // static defaultProps = { dispatch: {}, workerPost: undefined };
   gameWorker?: Worker;
 
   componentDidMount(): void {
-    this.gameWorker = new Worker('../../../services/go-bang-worker/go-bang.worker.ts', {
+    this.gameWorker = new Worker('../../../services/gobang-worker/gobang.worker.ts', {
       type: 'module'
     });
 
@@ -98,4 +98,4 @@ const mapStateToProps = (state: RootState): Omit<IProps, 'dispatch'> => {
 
 const mapDispatchToProps = (dispatch: AppDispatch): Omit<IProps, 'workerPost'> => ({ dispatch });
 
-export const GoBangWorkerRedux = connect(mapStateToProps, mapDispatchToProps)(GoBangWorker);
+export const GoBangWorkerRedux = connect(mapStateToProps, mapDispatchToProps)(GobangWorker);

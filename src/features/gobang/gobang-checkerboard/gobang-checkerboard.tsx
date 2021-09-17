@@ -2,12 +2,12 @@ import React, { RefObject } from 'react';
 import multiply from 'lodash-es/multiply';
 import divide from 'lodash-es/divide';
 
-import styles from './go-bang-checkerboard.module.less';
+import styles from './gobang-checkerboard.module.less';
 import logo from '../../../assets/logo.svg';
-import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { creatPiece } from '../../../services/go-bang-worker/services/piece.service';
-import { ERole } from '../../../services/go-bang-worker/interfaces/role.interface';
-import { IPiece } from '../../../services/go-bang-worker/interfaces/piece.interface';
+import { GameType } from '../../../stores/interfaces/gobang.interface';
+import { creatPiece } from '../../../services/gobang-worker/services/piece.service';
+import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
+import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
 import { BaseComponent } from '../../../components/should-component-update';
 
 interface Props {
@@ -21,7 +21,7 @@ interface Props {
   gameGo(p: IPiece): void;
 }
 
-export class GoBangCheckerboard extends BaseComponent<Props> {
+export class GobangCheckerboard extends BaseComponent<Props> {
   canvasRef: RefObject<HTMLCanvasElement> = React.createRef();
 
   componentDidUpdate(prevProps: Readonly<Props>): void {

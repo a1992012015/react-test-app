@@ -13,18 +13,18 @@ import {
   gameSagaChangeGame,
   gameSagaInit,
   gameSagaPut
-} from '../actions/go-bang.action';
-import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
-import { GameType, IGamePut, IGameStatus, SagaAction } from '../interfaces/go-bang.interface';
-import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
-import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
-import { SCORE } from '../../services/go-bang-worker/configs/score.config';
+} from '../actions/gobang.action';
+import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
+import { GameType, IGamePut, IGameStatus, SagaAction } from '../interfaces/gobang.interface';
+import { WorkerType } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
+import { SCORE } from '../../services/gobang-worker/configs/score.config';
 
 /**
  * 落子的预检测
  * @constructor
  */
-function* goBangGoOnWatch(): Generator<
+function* gobangGoOnWatch(): Generator<
   TakeEffect | PutEffect | SelectEffect | CallEffect,
   void,
   SagaAction<Omit<IGamePut, 'winMap'>> | IGameStatus
@@ -34,16 +34,16 @@ function* goBangGoOnWatch(): Generator<
 
     const { payload } = action as SagaAction<IGamePut>;
 
-    const goBang = yield select((store) => store.goBang);
+    const gobang = yield select((store) => store.gobang);
 
-    const { board, gameType } = goBang as IGameStatus;
+    const { board, gameType } = gobang as IGameStatus;
 
     const { piece } = payload;
 
     if (!checkPieceRepeat(board, piece)) {
       yield put(gamePut({ ...payload, winMap: [] }));
 
-      yield call(goBangWinCheckWork, piece);
+      yield call(gobangWinCheckWork, piece);
 
       if (gameType === GameType.DUEL_HUM) {
         const post: IWorkerRequest = {
@@ -61,10 +61,10 @@ function* goBangGoOnWatch(): Generator<
  * 输赢的检测
  * @constructor
  */
-function* goBangWinCheckWork(piece: IPiece): SagaIterator<void> {
+function* gobangWinCheckWork(piece: IPiece): SagaIterator<void> {
   if (piece.score >= SCORE.FIVE) {
-    const goBang = yield select((store) => store.goBang);
-    console.log('goBang', goBang.board);
+    const gobang = yield select((store) => store.gobang);
+    console.log('gobang', gobang.board);
   }
 }
 
@@ -83,7 +83,7 @@ function checkPieceRepeat(board: IPiece[][], piece: IPiece): boolean {
  * 初始化游戏所有的状态，重新开始游戏
  * @constructor
  */
-function* GoBangInitWatch(): Generator<TakeEffect | PutEffect> {
+function* gobangInitWatch(): Generator<TakeEffect | PutEffect> {
   while (true) {
     yield take([gameSagaInit]);
 
@@ -95,7 +95,7 @@ function* GoBangInitWatch(): Generator<TakeEffect | PutEffect> {
  * 修改现在游戏的状态到准备状态，并且通知AI修改状态
  * @constructor
  */
-function* GoBangChangeBoardWatch(): Generator<
+function* gobangChangeBoardWatch(): Generator<
   TakeEffect | PutEffect,
   void,
   SagaAction<IWorkerRequest>
@@ -113,7 +113,7 @@ function* GoBangChangeBoardWatch(): Generator<
  * 修改现在游戏的状态到落子状态，根据AI返回的状态给出通知
  * @constructor
  */
-function* GoBangChangeGameWatch(): Generator<TakeEffect | PutEffect> {
+function* gobangChangeGameWatch(): Generator<TakeEffect | PutEffect> {
   while (true) {
     yield take([gameSagaChangeGame]);
 
@@ -121,9 +121,9 @@ function* GoBangChangeGameWatch(): Generator<TakeEffect | PutEffect> {
   }
 }
 
-export const goBangSaga = [
-  goBangGoOnWatch(),
-  GoBangInitWatch(),
-  GoBangChangeBoardWatch(),
-  GoBangChangeGameWatch()
+export const gobangSaga = [
+  gobangGoOnWatch(),
+  gobangInitWatch(),
+  gobangChangeBoardWatch(),
+  gobangChangeGameWatch()
 ];

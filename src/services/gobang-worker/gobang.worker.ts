@@ -1,7 +1,7 @@
-import { WorkerType } from './interfaces/go-bang-worker.interface';
+import { WorkerType } from './interfaces/gobang-worker.interface';
 import { ERole } from './interfaces/role.interface';
 import { AI } from './configs/ai.config';
-import { goBangAI } from './services/go-bang-ai.service';
+import { goBangAI } from './services/gobang-ai.service';
 import {
   IWorkerRequest,
   IWRequestConfig,

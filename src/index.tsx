@@ -8,10 +8,12 @@ import App from './App';
 import { rootStore } from './stores/main';
 import reportWebVitals from './reportWebVitals';
 
+console.log('REACT_APP_BASENAME', process.env.REACT_APP_BASENAME);
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={rootStore}>
-      <BrowserRouter>
+      <BrowserRouter basename={process.env.REACT_APP_BASENAME}>
         <Route component={App} />
       </BrowserRouter>
     </Provider>

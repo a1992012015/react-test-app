@@ -1,17 +1,17 @@
 import { createReducer, current } from '@reduxjs/toolkit';
 
 import { cloneDeep } from 'lodash-es';
-import { GameType, IGameStatus } from '../interfaces/go-bang.interface';
+import { GameType, IGameStatus } from '../interfaces/gobang.interface';
 import {
   gameBackward,
   gameChangeState,
   gameForward,
   gameInit,
   gamePut
-} from '../actions/go-bang.action';
-import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
-import { wuyue } from '../../services/go-bang-worker/configs/opens.config';
-import { creatPiece } from '../../services/go-bang-worker/services/piece.service';
+} from '../actions/gobang.action';
+import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
+import { wuyue } from '../../services/gobang-worker/configs/opens.config';
+import { creatPiece } from '../../services/gobang-worker/services/piece.service';
 
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
@@ -31,7 +31,7 @@ let startTime = new Date().getTime();
 // 结束时间
 let endTime = new Date().getTime();
 
-export const goBangReducer = createReducer(initialState, (builder) => {
+export const gobangReducer = createReducer(initialState, (builder) => {
   builder
     .addCase(gameInit, () => {
       return initialState;
