@@ -14,14 +14,6 @@ module.exports = {
       // 开发环境console 可以查看文件名称
       webpackConfig.devtool = environment ? 'eval-cheap-module-source-map' : 'nosources-source-map';
 
-      // 修改build的生成文件名称
-      // paths.appBuild = 'docs';
-      // webpackConfig.output = {
-      //   ...webpackConfig.output,
-      //   path: path.resolve(__dirname, 'docs'),
-      //   publicPath: '/'
-      // };
-
       return webpackConfig;
     },
     plugins: [
