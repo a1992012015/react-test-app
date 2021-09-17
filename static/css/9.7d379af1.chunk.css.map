@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack://src/features/pokemon/pokemon.module.less"],"names":[],"mappings":"AAAA,sBACE,sBAAA,CACA,iBACF","file":"9.7d379af1.chunk.css","sourcesContent":[".container {\n  font-family: sans-serif;\n  text-align: center;\n}\n\n@primary-color: #1DA57A;"]}
