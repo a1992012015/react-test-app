@@ -45,7 +45,7 @@ module.exports = {
   // and test spa-github-pages redirect in dev
   devServer: {
     historyApiFallback: {
-      rewrites: [{ from: /\/repo-name\/[^?]/, to: '/404.html' }]
+      rewrites: [{ from: /\/react-test-app\/[^?]/, to: '/404.html' }]
     },
   },
 };
