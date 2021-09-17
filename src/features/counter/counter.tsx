@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import styles from './counter.module.less';
 import { useAppDispatch, useAppSelector } from '../../stores/hooks';
 import {
   decrement,
@@ -9,9 +10,10 @@ import {
   incrementIfOdd,
   selectCount
 } from '../../stores/reducers/counter.reducer';
-import styles from './counter.module.less';
+import { dynamicTitle } from '../../components/dynamic-title';
 
 export function Counter(): JSX.Element {
+  dynamicTitle('计数器');
   const count = useAppSelector(selectCount);
   const dispatch = useAppDispatch();
   const [incrementAmount, setIncrementAmount] = useState('2');

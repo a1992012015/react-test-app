@@ -16,6 +16,7 @@ import { AppDispatch, RootState } from '../../stores/interfaces/store.interface'
 import { gameSagaChangeBoard, gameSagaInit, gameSagaPut } from '../../stores/actions/gobang.action';
 import { creatPiece } from '../../services/gobang-worker/services/piece.service';
 import { IAI } from '../../services/gobang-worker/interfaces/ai.interface';
+import { dynamicTitle } from '../../components/dynamic-title';
 
 interface IState {
   width: number;
@@ -35,6 +36,7 @@ class Gobang extends BaseComponent<IProps, IState> {
   }
 
   componentDidMount(): void {
+    dynamicTitle('五子棋');
     this.resizeCheckerboard();
     window.addEventListener('resize', this.resizeCheckerboard);
   }

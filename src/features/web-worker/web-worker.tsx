@@ -4,6 +4,7 @@ import Countdown from 'react-countdown';
 import styles from './web-worker.module.less';
 import { BaseComponent } from '../../components/should-component-update';
 import fibonacci from './component/fibonacci';
+import { dynamicTitle } from '../../components/dynamic-title';
 
 interface State {
   count1: number;
@@ -29,6 +30,7 @@ export class WebWorker extends BaseComponent<unknown, State> {
   }
 
   componentDidMount(): void {
+    dynamicTitle('Web Worker');
     this.worker = new Worker('./component/fibonacci.worker.ts', { type: 'module' });
     this.worker.onerror = (event) => {
       console.warn(event);

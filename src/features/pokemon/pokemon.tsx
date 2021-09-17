@@ -3,6 +3,7 @@ import React from 'react';
 import styles from './pokemon.module.less';
 import { useGetPokemonByNameQuery } from '../../services/pokemon.service';
 import { BaseComponent } from '../../components/should-component-update';
+import { dynamicTitle } from '../../components/dynamic-title';
 
 const pokemon = ['bulbasaur', 'pikachu', 'ditto', 'bulbasaur'];
 
@@ -35,6 +36,10 @@ const PokemonItem = ({ name }: Props): JSX.Element | null => {
 };
 
 export class Pokemon extends BaseComponent {
+  componentDidMount(): void {
+    dynamicTitle('宝可梦获取');
+  }
+
   render(): React.ReactNode {
     return <div className={styles.container}>{this.renderPokemon()}</div>;
   }

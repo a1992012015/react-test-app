@@ -1,46 +1,53 @@
-# Getting Started with Create React App
+# 五子棋AI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+完全是业余研究和学习使用的项目，所以在里面会看到其他的feature的代码
+项目可以直接在[这里](https://a1992012015.github.io/react-test-app/go-bang) 查看
 
-## Available Scripts
+### **怎么启动**
 
-In the project directory, you can run:
+使用Git克隆我的项目：
 
-### `yarn start`
+    git clone https://github.com/a1992012015/react-test-app.git
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+然后安装依赖:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+    cd react-test-app
 
-### `yarn test`
+    npm run install 
+    or
+    yarn install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+然后你可以运行这个命令启动项目:
 
-### `yarn build`
+    npm run start
+    or
+    yarn start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### **AI文档**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+暂时还没有时间写，有空了我会补充上
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### **基本算法**
 
-### `yarn eject`
+* 极大极小值搜索（完成）
+* Alpha Beta剪枝（完成）
+* 启发式评估函数（暂无）
+* Zobrist缓存（暂无）
+* 迭代加深（暂无）
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### **使用技术**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+* [react](https://zh-hans.reactjs.org/)
+* [react-router-dom](https://github.com/remix-run/react-router/tree/main/packages/react-router-dom)
+* [redux-toolkit](https://redux-toolkit.js.org/)
+* [redux-saga](https://redux-saga.js.org/)
+* [eslint](https://cn.eslint.org/)
+* [typescript](https://www.tslang.cn/)
+* 还有一些其他的react的插件，如果想了解可以查看[package.json](https://github.com/a1992012015/react-test-app/blob/master/package.json)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### **其他**
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+* 这个项目是Fork的[gobang](https://github.com/lihongxun945/gobang) 这个项目的基础上改动的
+* 有兴趣的话可以去这个项目看看，或者找这位大佬讨论
+* 当然也可以在issues上面给我留言，我会一一回复
+* 项目本身只是我的学习和使用的笔记，如果有什么问题或者建议可以给我留言

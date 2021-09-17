@@ -3,8 +3,13 @@ import React from 'react';
 import styles from './dashboard.module.less';
 import logo from '../../assets/logo.svg';
 import { BaseComponent } from '../../components/should-component-update';
+import { dynamicTitle } from '../../components/dynamic-title';
 
 export class Dashboard extends BaseComponent {
+  componentDidMount(): void {
+    dynamicTitle('Dashboard');
+  }
+
   render(): React.ReactNode {
     return (
       <div className={styles.container}>
