@@ -1,7 +1,14 @@
-import { createReducer } from '@reduxjs/toolkit';
+import { createReducer, current } from '@reduxjs/toolkit';
 
+import { cloneDeep } from 'lodash-es';
 import { GameType, IGameStatus } from '../interfaces/go-bang.interface';
-import { gameChangeType, gameInit, gamePut, gameStart } from '../actions/go-bang.action';
+import {
+  gameBackward,
+  gameChangeState,
+  gameForward,
+  gameInit,
+  gamePut
+} from '../actions/go-bang.action';
 import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
 import { wuyue } from '../../services/go-bang-worker/configs/opens.config';
 import { creatPiece } from '../../services/go-bang-worker/services/piece.service';
@@ -14,45 +21,66 @@ const initialState: IGameStatus = {
   winning: ERole.empty,
   winMap: [],
   piece: creatPiece({ x: 0, y: 0, role: ERole.empty }),
-  spendTime: 0
+  spendTime: 0,
+  gameStatus: [],
+  forwardStatus: []
 };
 
 // 开始时间
 let startTime = new Date().getTime();
 // 结束时间
 let endTime = new Date().getTime();
-let flag = 0;
 
 export const goBangReducer = createReducer(initialState, (builder) => {
   builder
-    .addCase(gameStart, (state, action) => {
-      state.gameType = action.payload.gameType;
-      state.first = action.payload.first;
-      state.board = action.payload.board;
-    })
-    .addCase(gameChangeType, (state, action) => {
-      state.gameType = action.payload;
-    })
     .addCase(gameInit, () => {
       return initialState;
     })
-    .addCase(gamePut, (state, action) => {
-      flag++;
+    .addCase(gameChangeState, (state, action) => {
+      state.gameType = action.payload.gameType;
 
-      if (flag === 1) {
-        startTime = new Date().getTime();
-      } else if (flag === 2) {
-        endTime = new Date().getTime();
-        state.spendTime = (endTime - startTime) / 1000;
-        flag = 0;
+      if (action.payload.first) {
+        state.first = action.payload.first;
       }
 
-      const { piece } = action.payload;
+      if (action.payload.board) {
+        state.board = action.payload.board;
+      }
+    })
+    .addCase(gameBackward, (state) => {
+      console.log('gameBackward state', current(state));
+      // const lastState = cloneDeep(state);
+      const currentState = cloneDeep(state.gameStatus.pop());
+      if (currentState) {
+        return currentState;
+      } else {
+        return initialState;
+      }
+    })
+    .addCase(gameForward, (state) => {
+      console.log(current(state));
+    })
+    .addCase(gamePut, (state, action) => {
+      const { piece, winMap } = action.payload;
+      const currentState = cloneDeep(state);
 
+      state.winning = winMap.length ? piece.role : ERole.empty;
+      state.winMap = winMap;
       state.steps += 1;
       piece.step = state.steps;
       state.piece = piece;
-      state.board[piece.x][piece.y] = piece;
+      state.board[piece.y][piece.x] = piece;
       state.gameType = piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM;
+      state.forwardStatus = [];
+
+      if (piece.role === ERole.block) {
+        startTime = new Date().getTime();
+        console.log('currentState', currentState);
+        state.gameStatus.push(currentState);
+      } else {
+        endTime = new Date().getTime();
+        state.spendTime = (endTime - startTime) / 1000;
+      }
+      console.log('gamePut state', current(state));
     });
 });

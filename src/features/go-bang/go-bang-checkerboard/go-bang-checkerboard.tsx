@@ -31,6 +31,7 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
   }
 
   private gameGo = (x: number, y: number): void => {
+    console.log(`[x: ${x}, y: ${y}]`);
     const { gameStatus } = this.props;
     if (gameStatus === GameType.DUEL_HUM) {
       this.props.gameGo(creatPiece({ x, y, role: ERole.block }));
@@ -66,8 +67,8 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
     }
   };
 
-  private getPieceClassName(piece: IPiece, x: number, y: number): string {
-    const { steps, gameStatus, winning, winMap, first } = this.props;
+  private getPieceClassName(piece: IPiece, y: number, x: number): string {
+    const { steps, gameStatus, winMap, first } = this.props;
 
     let className = '';
 
@@ -85,7 +86,7 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
       className = `${className} ${styles.chessmanAnim}`;
     }
 
-    if (gameStatus === GameType.DUEL_READY && winning === piece.role && steps !== piece.step) {
+    if (gameStatus === GameType.DUEL_FINISH) {
       winMap.forEach((item) => {
         if (item.x === x && item.y === y) {
           className = `${className} ${styles.chessmanAnim}`;
@@ -125,33 +126,31 @@ export class GoBangCheckerboard extends BaseComponent<Props> {
 
   private renderRowDiv = (): React.ReactNode => {
     const { board } = this.props;
-    return board.map((v, i) => {
+    return board.map((v, y) => {
       return (
-        <li className={styles.piecesRow} key={i}>
-          {this.row(i, v)}
+        <li className={styles.piecesRow} key={y}>
+          {this.row(y, v)}
         </li>
       );
     });
   };
 
-  private row = (index: number, row: IPiece[]): React.ReactNode => {
+  private row = (y: number, row: IPiece[]): React.ReactNode => {
     const { width } = this.props;
-    return row.map((v, i) => {
+    return row.map((v, x) => {
       const style = { width: `${width}px`, height: `${width}px` };
       return (
         <div
           tabIndex={0}
           role="button"
-          key={i}
+          key={x}
           style={style}
           className={styles.chessman}
           onKeyDown={() => null}
-          onClick={() => this.gameGo(index, i)}>
-          <button
-            type="button"
-            aria-label="piece"
-            className={this.getPieceClassName(v, index, i)}
-          />
+          onClick={() => this.gameGo(x, y)}>
+          <button type="button" aria-label="piece" className={this.getPieceClassName(v, y, x)}>
+            {v.step}
+          </button>
         </div>
       );
     });

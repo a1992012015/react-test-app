@@ -1,11 +1,12 @@
-import { call, delay, put, select, take } from 'redux-saga/effects';
+import { call, put, select, take } from 'redux-saga/effects';
 import { CallEffect, PutEffect, SelectEffect, TakeEffect } from '@redux-saga/core/effects';
 
 import { SagaIterator } from 'redux-saga';
 import { changeWorkerPost } from '../actions/worker.action';
 import { IWorkerRequest } from '../interfaces/worker.interface';
 import {
-  gameChangeType,
+  gameBackward,
+  gameChangeState,
   gameInit,
   gamePut,
   gameSagaChangeBoard,
@@ -17,6 +18,7 @@ import { ERole } from '../../services/go-bang-worker/interfaces/role.interface';
 import { GameType, IGamePut, IGameStatus, SagaAction } from '../interfaces/go-bang.interface';
 import { WorkerType } from '../../services/go-bang-worker/interfaces/go-bang-worker.interface';
 import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface';
+import { SCORE } from '../../services/go-bang-worker/configs/score.config';
 
 /**
  * 落子的预检测
@@ -25,7 +27,7 @@ import { IPiece } from '../../services/go-bang-worker/interfaces/piece.interface
 function* goBangGoOnWatch(): Generator<
   TakeEffect | PutEffect | SelectEffect | CallEffect,
   void,
-  SagaAction<IGamePut> | IGameStatus
+  SagaAction<Omit<IGamePut, 'winMap'>> | IGameStatus
 > {
   while (true) {
     const action = yield take([gameSagaPut]);
@@ -39,9 +41,9 @@ function* goBangGoOnWatch(): Generator<
     const { piece } = payload;
 
     if (!checkPieceRepeat(board, piece)) {
-      yield put(gamePut(payload));
+      yield put(gamePut({ ...payload, winMap: [] }));
 
-      yield call(goBangWinCheckWork, goBang as IGameStatus);
+      yield call(goBangWinCheckWork, piece);
 
       if (gameType === GameType.DUEL_HUM) {
         const post: IWorkerRequest = {
@@ -59,9 +61,11 @@ function* goBangGoOnWatch(): Generator<
  * 输赢的检测
  * @constructor
  */
-function* goBangWinCheckWork(goBang: IGameStatus): SagaIterator<void> {
-  console.log('goBangWinCheckWork => goBang', goBang);
-  yield delay(100);
+function* goBangWinCheckWork(piece: IPiece): SagaIterator<void> {
+  if (piece.score >= SCORE.FIVE) {
+    const goBang = yield select((store) => store.goBang);
+    console.log('goBang', goBang.board);
+  }
 }
 
 /**
@@ -101,7 +105,7 @@ function* GoBangChangeBoardWatch(): Generator<
 
     yield put(changeWorkerPost(payload));
 
-    yield put(gameChangeType(GameType.DUEL_READY));
+    yield put(gameBackward());
   }
 }
 
@@ -113,7 +117,7 @@ function* GoBangChangeGameWatch(): Generator<TakeEffect | PutEffect> {
   while (true) {
     yield take([gameSagaChangeGame]);
 
-    yield put(gameChangeType(GameType.DUEL_HUM));
+    yield put(gameChangeState({ gameType: GameType.DUEL_HUM }));
   }
 }
 

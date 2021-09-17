@@ -18,8 +18,8 @@ import { IScorePoint } from '../interfaces/evaluate-point.interface';
 export class Board {
   board: IBoard = { name: '', pieces: [] };
   currentSteps: IPiece[] = []; // 当前一次思考的步骤
-  allSteps: IPiece[] = [];
-  stepsTail: IPiece[] = [];
+  allSteps: IPiece[] = []; // 每一步的棋子
+  stepsTail: IPiece[] = []; // 悔棋的步数储存
   count = 0; // 走了的步数
   comScore: number[][] = [];
   humScore: number[][] = [];
@@ -99,12 +99,11 @@ export class Board {
     if (this.allSteps.length < 2) {
       return;
     }
-    let i = 0;
-    while (i < 2) {
+
+    for (let i = 2; i > 0; i--) {
       const s = this.allSteps[this.allSteps.length - 1];
       this.remove(s);
       this.stepsTail.push(s);
-      i++;
     }
   };
 
@@ -113,16 +112,33 @@ export class Board {
    */
   forward = (): void => {
     if (this.stepsTail.length < 2) {
+      // 加入没有储存有悔棋的步数则会失败
       return;
     }
-    let i = 0;
-    while (i < 2) {
+
+    // 将缓存的两步重新添加回去
+    for (let i = 2; i > 0; i--) {
       const s = this.stepsTail.pop();
       if (s) {
         this.put(s);
       }
-      i++;
     }
+  };
+
+  /**
+   * 移除棋盘上的棋子
+   * @param p 需要移除的棋子
+   */
+  remove = (p: IPiece): void => {
+    const r = this.board.pieces[p.y][p.x];
+    AI.debug && console.log(`put [${r}] piece:`, p);
+    zobrist.go(p);
+    this.board.pieces[p.y][p.x].role = ERole.empty;
+    // 移除之后也需要更新周围的分数
+    this.updateScore(p);
+    this.allSteps.pop();
+    this.currentSteps.pop();
+    this.count--;
   };
 
   /**
@@ -499,18 +515,6 @@ export class Board {
     return (
       (role === ERole.white && scoreCom >= THREE) || (role === ERole.block && scoreHum >= THREE)
     );
-  };
-
-  // 移除棋子
-  remove = (p: IPiece): void => {
-    const r = this.board.pieces[p.y][p.x];
-    AI.debug && console.log(`put [${r}] piece:`, p);
-    zobrist.go(p);
-    this.board.pieces[p.y][p.x].role = ERole.empty;
-    this.updateScore(p);
-    this.allSteps.pop();
-    this.currentSteps.pop();
-    this.count--;
   };
 
   log = (): void => {

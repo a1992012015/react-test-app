@@ -4,7 +4,11 @@ import { connect } from 'react-redux';
 import { BaseComponent } from '../../../components/should-component-update';
 import { IWorkerRequest } from '../../../stores/interfaces/worker.interface';
 import { GameType } from '../../../stores/interfaces/go-bang.interface';
-import { gameSagaChangeGame, gameSagaPut, gameStart } from '../../../stores/actions/go-bang.action';
+import {
+  gameSagaChangeGame,
+  gameSagaPut,
+  gameChangeState
+} from '../../../stores/actions/go-bang.action';
 import {
   IWorkerResponse,
   IWResponsePut,
@@ -49,7 +53,7 @@ class GoBangWorker extends BaseComponent<IProps> {
           first: putData.first ? ERole.block : ERole.white,
           board: putData.pieces
         };
-        this.props.dispatch(gameStart(payload));
+        this.props.dispatch(gameChangeState(payload));
       } else if (data.type === WorkerType.BACKWARD) {
         console.log('悔棋成功。。。');
         this.props.dispatch(gameSagaChangeGame());
