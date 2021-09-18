@@ -40,13 +40,14 @@ export class Negamax {
   deepAll = (role: ERole = ERole.white, deep = AI.searchDeep): IPiece => {
     const candidates = board.gen(role);
 
-    console.log('candidates', candidates);
+    AI.debug && console.log('candidates', candidates);
 
     const result = this.deepenSearch(candidates, role, deep);
 
-    console.log('deepAll => result', result);
+    AI.debug && console.log('deepAll => result', result);
 
-    console.log('%c======================================================', 'color: yellow');
+    AI.debug &&
+      console.log('%c======================================================', 'color: yellow');
 
     // return this.deepen(candidates, role, deep);
     return this.deepenSearch(candidates, role, deep);
@@ -126,7 +127,7 @@ export class Negamax {
 
       const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
 
-      console.log('bestScore', bestScore);
+      AI.debug && console.log('bestScore', bestScore);
 
       if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
         // 当有一步的分数大于或者等于活五，停止循环
@@ -141,7 +142,7 @@ export class Negamax {
       // }
     }
 
-    console.log('deepenSearchFun => searchPiece:', cloneDeep(searchPiece));
+    AI.debug && console.log('deepenSearchFun => searchPiece:', cloneDeep(searchPiece));
 
     // 排序 升序
     // 经过测试，这个如果放在上面的for循环中（就是每次迭代都排序），反而由于迭代深度太浅，排序不好反而会降低搜索速度。
@@ -167,7 +168,7 @@ export class Negamax {
 
     const result = searchPiece[0];
 
-    console.log('result', cloneDeep(result));
+    AI.debug && console.log('result', cloneDeep(result));
 
     board.log();
 
@@ -196,10 +197,14 @@ export class Negamax {
 
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
-      console.log(`%c======= minMaxSearch start deep: ${deep} index: ${i} =======`, 'color: red;');
-      console.log(`%c======= [${p.y}, ${p.x}] =======`, 'color: red;');
-      console.log('minMaxSearch role:', ERole[role]);
-      console.log(`A~B: ${alpha}~${beta}`);
+      AI.debug &&
+        console.log(
+          `%c======= minMaxSearch start deep: ${deep} index: ${i} =======`,
+          'color: red;'
+        );
+      AI.debug && console.log(`%c======= [${p.y}, ${p.x}] =======`, 'color: red;');
+      AI.debug && console.log('minMaxSearch role:', ERole[role]);
+      AI.debug && console.log(`A~B: ${alpha}~${beta}`);
 
       // 因为是冲过 gen 函数得到的可以的落子点，这里确定一下这一步的落子的选手
       board.put({ ...p, role });
@@ -241,7 +246,7 @@ export class Negamax {
       // 查找这一步的后续可能走法和分数
       const { evaluate, step: nowStep, steps } = this.deepMinMaxSearch(searchData);
 
-      console.log('nowStep', nowStep);
+      AI.debug && console.log('nowStep', nowStep);
 
       // 因为在保留剪枝的对比值的时候会一直选取最大的那个保留
       // 在查询极小值的时候就把对比值和计算得到的值都取相反数
@@ -271,23 +276,32 @@ export class Negamax {
       // 而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
       // TODO 原代码就是greatOrEqualThan 具体使用那个方法以后留待测试
       if (commons.greatOrEqualThan(p.score, beta)) {
-        console.log(`AB cut [${p.x}, ${p.y}], ${p.score} >= ${beta}`);
+        AI.debug && console.log(`AB cut [${p.x}, ${p.y}], ${p.score} >= ${beta}`);
         this.abCut++;
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
         p.abCut = true;
         // cache(deep, v) // 别缓存被剪枝的，而且，这个返回到上层之后，也注意都不要缓存
-        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
+        AI.debug &&
+          console.log(
+            `%c======= minMaxSearch end deep: ${deep} index: ${i} =======`,
+            'color: aqua;'
+          );
         return deepCandidates;
       }
 
       // 超时判定
       if (new Date().getTime() - this.start > AI.timeLimit * 1000) {
-        console.log('timeout...');
+        AI.debug && console.log('timeout...');
         // 超时，退出循环
-        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
+        AI.debug &&
+          console.log(
+            `%c======= minMaxSearch end deep: ${deep} index: ${i} =======`,
+            'color: aqua;'
+          );
         return deepCandidates;
       }
-      console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
+      AI.debug &&
+        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
     }
 
     this.saveCache(deep, deepCandidates);
@@ -361,7 +375,7 @@ export class Negamax {
       // 记得clone，因为score在搜索的时候可能会被改的，这里要clone一个新的
       const cache = { deep, piece: pieces };
       this.searchCache[zobrist.code] = cloneDeep(cache);
-      console.log(`add cache[${zobrist.code}]`, this.searchCache[zobrist.code]);
+      AI.debug && console.log(`add cache[${zobrist.code}]`, this.searchCache[zobrist.code]);
       this.cacheCount++;
       return true;
     }

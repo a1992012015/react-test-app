@@ -1,5 +1,6 @@
 import { IPiece } from '../interfaces/piece.interface';
 import { commons } from './commons.service';
+import { AI } from '../configs/ai.config';
 
 /**
  * 打印现在的分数
@@ -12,11 +13,12 @@ export class Statistic {
   };
 
   print = (candidates: IPiece[]): void => {
-    console.log(
-      this.table.map((r) => {
-        return r.map((s) => parseInt(String(Math.sqrt((s || 0) / 10000)), 10)).join(',');
-      })
-    );
+    AI.log &&
+      console.log(
+        this.table.map((r) => {
+          return r.map((s) => parseInt(String(Math.sqrt((s || 0) / 10000)), 10)).join(',');
+        })
+      );
     let max = 0;
     let p: number[] = [];
     for (let i = 0; i < candidates.length; i++) {
@@ -27,7 +29,7 @@ export class Statistic {
         p = [c.y, c.x];
       }
     }
-    console.log('历史表推荐走法:', p);
+    AI.log && console.log('历史表推荐走法:', p);
   };
 }
 

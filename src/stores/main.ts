@@ -13,7 +13,7 @@ const sagaMiddleware = createSagaMiddleware();
 // sagaMiddleware: Makes redux-sagas work
 const middlewares = [sagaMiddleware, pokemonApi.middleware];
 
-if (process.env.NODE_ENV !== `development`) {
+if (process.env.NODE_ENV !== 'production') {
   const logger = createLogger({
     // ...options
   });

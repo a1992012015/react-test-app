@@ -45,6 +45,11 @@
 * [typescript](https://www.tslang.cn/)
 * 还有一些其他的react的插件，如果想了解可以查看[package.json](https://github.com/a1992012015/react-test-app/blob/master/package.json)
 
+### **实现功能**
+* Component按需加在
+* 路由切换动画
+* Web Worker
+
 ### **其他**
 
 * 这个项目是Fork的[gobang](https://github.com/lihongxun945/gobang) 这个项目的基础上改动的

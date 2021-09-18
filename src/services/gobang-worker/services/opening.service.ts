@@ -19,7 +19,7 @@ import { negamax } from './negamax.service';
 export class Opening {
   match = (board: Board): IPiece => {
     const s = board.allSteps;
-    console.log('match => s', cloneDeep(s));
+    AI.debug && console.log('match => s', cloneDeep(s));
     const { x, y } = s[0];
     if (board.board.pieces[y][x].role !== ERole.white) {
       return negamax.deepAll(ERole.white, AI.searchDeep);
@@ -57,7 +57,7 @@ export class Opening {
   };
 
   private huayue = (board: Board): IPiece => {
-    console.log('使用花月开局');
+    AI.debug && console.log('使用花月开局');
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 7])) {
       if (s.length === 2) {
@@ -83,7 +83,7 @@ export class Opening {
   };
 
   private puyue = (board: Board): IPiece => {
-    console.log('使用浦月开局');
+    AI.debug && console.log('使用浦月开局');
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 6])) {
       if (s.length === 2) {

@@ -5,7 +5,7 @@ import logo from '../../assets/logo.svg';
 import { BaseComponent } from '../../components/should-component-update';
 import { dynamicTitle } from '../../components/dynamic-title';
 
-export class Dashboard extends BaseComponent {
+export default class Dashboard extends BaseComponent {
   componentDidMount(): void {
     dynamicTitle('Dashboard');
   }

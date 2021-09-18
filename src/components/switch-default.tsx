@@ -1,9 +1,11 @@
-import React, { Ref } from 'react';
+import React, { Ref, Suspense } from 'react';
 import { Route, RouteComponentProps, Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-import { Error } from '../features/error/error';
 import { BaseComponent } from './should-component-update';
+import { asyncComponent } from './asyncComponent';
+
+const Error = asyncComponent(() => import('../features/error/error'));
 
 interface Props {
   history: RouteComponentProps['history'];
@@ -22,10 +24,12 @@ export class SwitchDefault extends BaseComponent<Props> {
       <TransitionGroup className="wrap-transition">
         <CSSTransition key={pathname} classNames="alert" nodeRef={this.nodeRef} timeout={300}>
           <div className="wrap-container" ref={this.nodeRef}>
-            <Switch location={history.location}>
-              {children}
-              <Route path="*" component={Error} />
-            </Switch>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Switch location={history.location}>
+                {children}
+                <Route path="*" component={Error} />
+              </Switch>
+            </Suspense>
           </div>
         </CSSTransition>
       </TransitionGroup>

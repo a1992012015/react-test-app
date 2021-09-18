@@ -3,7 +3,7 @@ import Countdown from 'react-countdown';
 
 import styles from './web-worker.module.less';
 import { BaseComponent } from '../../components/should-component-update';
-import fibonacci from './component/fibonacci';
+import { fibonacci } from '../../services/fibonacci-worker/fibonacci';
 import { dynamicTitle } from '../../components/dynamic-title';
 
 interface State {
@@ -15,7 +15,7 @@ interface State {
 
 const Completionist = (): JSX.Element => <span>You are good to go!</span>;
 
-export class WebWorker extends BaseComponent<unknown, State> {
+export default class WebWorker extends BaseComponent<unknown, State> {
   worker?: Worker;
 
   constructor(props: unknown) {
@@ -31,7 +31,9 @@ export class WebWorker extends BaseComponent<unknown, State> {
 
   componentDidMount(): void {
     dynamicTitle('Web Worker');
-    this.worker = new Worker('./component/fibonacci.worker.ts', { type: 'module' });
+    this.worker = new Worker('../../services/fibonacci-worker/fibonacci.worker.ts', {
+      type: 'module'
+    });
     this.worker.onerror = (event) => {
       console.warn(event);
     };

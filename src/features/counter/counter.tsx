@@ -12,7 +12,7 @@ import {
 } from '../../stores/reducers/counter.reducer';
 import { dynamicTitle } from '../../components/dynamic-title';
 
-export function Counter(): JSX.Element {
+export default function Counter(): JSX.Element {
   dynamicTitle('计数器');
   const count = useAppSelector(selectCount);
   const dispatch = useAppDispatch();

@@ -9,8 +9,8 @@ import { GobangCheckerboard } from './gobang-checkerboard/gobang-checkerboard';
 import { GameType, IGameStatus } from '../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../components/should-component-update';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
-import { IWorkerRequest } from '../../stores/interfaces/worker.interface';
-import { WorkerType } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { WorkerType } from '../../stores/interfaces/worker.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
 import { gameSagaChangeBoard, gameSagaInit, gameSagaPut } from '../../stores/actions/gobang.action';
@@ -152,4 +152,4 @@ const mapDispatchToProps = (dispatch: AppDispatch): Omit<IProps, keyof IGameStat
   dispatch
 });
 
-export const GoBangRedux = connect(mapStateToProps, mapDispatchToProps)(Gobang);
+export default connect(mapStateToProps, mapDispatchToProps)(Gobang);

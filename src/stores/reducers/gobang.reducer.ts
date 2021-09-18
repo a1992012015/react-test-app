@@ -1,14 +1,7 @@
-import { createReducer, current } from '@reduxjs/toolkit';
+import { createReducer } from '@reduxjs/toolkit';
 
-import { cloneDeep } from 'lodash-es';
 import { GameType, IGameStatus } from '../interfaces/gobang.interface';
-import {
-  gameBackward,
-  gameChangeState,
-  gameForward,
-  gameInit,
-  gamePut
-} from '../actions/gobang.action';
+import { gameChangeState, gameInit, gamePut } from '../actions/gobang.action';
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { wuyue } from '../../services/gobang-worker/configs/opens.config';
 import { creatPiece } from '../../services/gobang-worker/services/piece.service';
@@ -16,14 +9,13 @@ import { creatPiece } from '../../services/gobang-worker/services/piece.service'
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
   board: wuyue.pieces,
+  name: wuyue.name,
   first: ERole.empty,
   steps: 0,
   winning: ERole.empty,
   winMap: [],
   piece: creatPiece({ x: 0, y: 0, role: ERole.empty }),
-  spendTime: 0,
-  gameStatus: [],
-  forwardStatus: []
+  spendTime: 0
 };
 
 // 开始时间
@@ -39,48 +31,39 @@ export const gobangReducer = createReducer(initialState, (builder) => {
     .addCase(gameChangeState, (state, action) => {
       state.gameType = action.payload.gameType;
 
-      if (action.payload.first) {
+      if (action.payload.first != null) {
         state.first = action.payload.first;
       }
 
-      if (action.payload.board) {
+      if (action.payload.board != null) {
         state.board = action.payload.board;
       }
-    })
-    .addCase(gameBackward, (state) => {
-      console.log('gameBackward state', current(state));
-      // const lastState = cloneDeep(state);
-      const currentState = cloneDeep(state.gameStatus.pop());
-      if (currentState) {
-        return currentState;
-      } else {
-        return initialState;
+
+      if (action.payload.name != null) {
+        state.name = action.payload.name;
+      }
+
+      if (action.payload.winning != null) {
+        state.winning = action.payload.winning;
+      }
+
+      if (action.payload.winMap != null) {
+        state.winMap = action.payload.winMap;
       }
     })
-    .addCase(gameForward, (state) => {
-      console.log(current(state));
-    })
     .addCase(gamePut, (state, action) => {
-      const { piece, winMap } = action.payload;
-      const currentState = cloneDeep(state);
-
-      state.winning = winMap.length ? piece.role : ERole.empty;
-      state.winMap = winMap;
+      const { piece } = action.payload;
       state.steps += 1;
       piece.step = state.steps;
       state.piece = piece;
       state.board[piece.y][piece.x] = piece;
       state.gameType = piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM;
-      state.forwardStatus = [];
 
       if (piece.role === ERole.block) {
         startTime = new Date().getTime();
-        console.log('currentState', currentState);
-        state.gameStatus.push(currentState);
       } else {
         endTime = new Date().getTime();
         state.spendTime = (endTime - startTime) / 1000;
       }
-      console.log('gamePut state', current(state));
     });
 });

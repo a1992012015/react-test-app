@@ -6,6 +6,7 @@ import { creatPiece } from './piece.service';
 import { opening } from './opening.service';
 import { IOpen } from '../interfaces/opens.interface';
 import { IPiece } from '../interfaces/piece.interface';
+import { IBoard } from '../interfaces/board.interface';
 
 export class GoBangAI {
   /**
@@ -61,15 +62,21 @@ export class GoBangAI {
   /**
    * 悔棋
    */
-  backward = (): void => {
-    board.backward();
+  backward = (): { board: IBoard; backward: boolean } => {
+    return {
+      backward: board.backward(),
+      board: board.board
+    };
   };
 
   /**
    * 返回悔棋的哪一步
    */
-  forward = (): void => {
-    board.forward();
+  forward = (): { board: IBoard; forward: boolean } => {
+    return {
+      forward: board.forward(),
+      board: board.board
+    };
   };
 }
 

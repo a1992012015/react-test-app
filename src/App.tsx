@@ -1,17 +1,19 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
+import { MenuInfo } from 'rc-menu/lib/interface';
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 
-import { MenuInfo } from 'rc-menu/lib/interface';
 import styles from './App.module.less';
-import { GoBangRedux } from './features/gobang/gobang';
-import { Dashboard } from './features/dashboard/dashboard';
 import { SwitchDefault } from './components/switch-default';
 import { BaseComponent } from './components/should-component-update';
-import { Counter } from './features/counter/counter';
-import { Pokemon } from './features/pokemon/pokemon';
-import { WebWorker } from './features/web-worker/web-worker';
+import { asyncComponent } from './components/asyncComponent';
+
+const Gobang = asyncComponent(() => import('./features/gobang/gobang'));
+const Counter = asyncComponent(() => import('./features/counter/counter'));
+const Pokemon = asyncComponent(() => import('./features/pokemon/pokemon'));
+const Dashboard = asyncComponent(() => import('./features/dashboard/dashboard'));
+const WebWorker = asyncComponent(() => import('./features/web-worker/web-worker'));
 
 interface State {
   collapsed: boolean;
@@ -41,7 +43,7 @@ export default class App extends BaseComponent<Props, State> {
 
     this.state = {
       collapsed: false,
-      defaultKeys: activeKeys.length ? activeKeys : ['/dashboard']
+      defaultKeys: activeKeys.length ? activeKeys : []
     };
   }
 
@@ -71,7 +73,7 @@ export default class App extends BaseComponent<Props, State> {
           <Layout.Content className={styles.siteLayoutContent}>
             <SwitchDefault history={history}>
               <Route exact path="/dashboard" component={Dashboard} />
-              <Route exact path="/gobang" component={GoBangRedux} />
+              <Route exact path="/gobang" component={Gobang} />
               <Route exact path="/counter" component={Counter} />
               <Route exact path="/pokemon" component={Pokemon} />
               <Route exact path="/web-worker" component={WebWorker} />

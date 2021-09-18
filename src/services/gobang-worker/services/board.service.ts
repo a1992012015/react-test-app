@@ -84,7 +84,7 @@ export class Board {
     AI.debug && console.log(`put [${ERole[piece.role]}] piece:`, piece);
     this.board.pieces[piece.y][piece.x] = piece;
     const code = zobrist.go(piece);
-    console.log(`put => zobrist => code: ${code}`);
+    AI.debug && console.log(`put => zobrist => code: ${code}`);
     this.updateScore(piece);
     this.allSteps.push(piece);
     this.currentSteps.push(piece);
@@ -95,9 +95,9 @@ export class Board {
   /**
    * 悔棋
    */
-  backward = (): void => {
+  backward = (): boolean => {
     if (this.allSteps.length < 2) {
-      return;
+      return false;
     }
 
     for (let i = 2; i > 0; i--) {
@@ -105,15 +105,17 @@ export class Board {
       this.remove(s);
       this.stepsTail.push(s);
     }
+
+    return true;
   };
 
   /**
    * 返回悔棋的哪一步
    */
-  forward = (): void => {
+  forward = (): boolean => {
     if (this.stepsTail.length < 2) {
-      // 加入没有储存有悔棋的步数则会失败
-      return;
+      // 加入没有储存有悔棋的步数则会失败, 但是还是返回的当前棋盘
+      return false;
     }
 
     // 将缓存的两步重新添加回去
@@ -123,6 +125,8 @@ export class Board {
         this.put(s);
       }
     }
+
+    return true;
   };
 
   /**
@@ -527,7 +531,7 @@ export class Board {
   };
 
   logSteps = (): void => {
-    console.log(`steps: ${this.allSteps.map((d) => `[${d.y}, ${d.x}]`).join(';')}`);
+    AI.debug && console.log(`steps: ${this.allSteps.map((d) => `[${d.y}, ${d.x}]`).join(';')}`);
   };
 
   starTo = (point: IPiece, points?: IPiece[]): boolean => {

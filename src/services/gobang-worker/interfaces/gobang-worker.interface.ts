@@ -1,28 +1,21 @@
 import { IPiece } from './piece.interface';
-import { ERole } from './role.interface';
+import { IAI } from './ai.interface';
+import { WorkerType } from '../../../stores/interfaces/worker.interface';
 
-export interface IWorkerResponse {
+export interface IWorkerRequest {
   type: WorkerType;
-  payload: IWResponseStart | IWResponsePut;
+  payload?: IWRStart | IWRPut | IWRConfig;
 }
 
-export interface IWResponseStart {
-  pieces: IPiece[][];
-  first: ERole;
-  name: string;
+export interface IWRStart {
+  first: boolean;
+  randomOpening: boolean;
 }
 
-export interface IWResponsePut {
+export interface IWRPut {
   piece: IPiece;
 }
 
-export enum WorkerType {
-  GO,
-  PUT,
-  START,
-  BEGIN,
-  BOARD,
-  CONFIG,
-  FORWARD,
-  BACKWARD
+export interface IWRConfig {
+  config: IAI;
 }

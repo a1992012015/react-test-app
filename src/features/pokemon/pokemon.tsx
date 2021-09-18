@@ -35,7 +35,7 @@ const PokemonItem = ({ name }: Props): JSX.Element | null => {
   return null;
 };
 
-export class Pokemon extends BaseComponent {
+export default class Pokemon extends BaseComponent {
   componentDidMount(): void {
     dynamicTitle('宝可梦获取');
   }

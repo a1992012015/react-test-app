@@ -10,10 +10,12 @@ export const AI: IAI = {
   timeLimit: 100,
   vcxDeep: 5,
   random: false,
-  log: false,
+  log: process.env.REACT_APP_LOG === 'false',
+  // log: process.env.REACT_APP_LOG === 'true',
   spreadLimit: 1,
   star: true,
   cache: false,
   window: false,
-  debug: false
+  debug: process.env.REACT_APP_LOG === 'false'
+  // debug: process.env.REACT_APP_LOG === 'true'
 };

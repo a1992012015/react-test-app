@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 
-import F from './fibonacci';
+import { fibonacci } from './fibonacci';
 
 // eslint-disable-next-line no-restricted-globals
 addEventListener('message', ({ data }) => {
@@ -9,7 +9,5 @@ addEventListener('message', ({ data }) => {
     return;
   }
 
-  const num = F(data);
-
-  postMessage(num);
+  postMessage(fibonacci(data));
 });

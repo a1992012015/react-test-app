@@ -4,7 +4,7 @@ import styles from './error.module.less';
 import { BaseComponent } from '../../components/should-component-update';
 import { dynamicTitle } from '../../components/dynamic-title';
 
-export class Error extends BaseComponent {
+export default class Error extends BaseComponent {
   componentDidMount(): void {
     dynamicTitle('404了...');
   }
