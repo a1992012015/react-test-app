@@ -1,27 +1,22 @@
-import React, {
-  ComponentClass,
-  ComponentType,
-  FunctionComponent,
-  NamedExoticComponent
-} from 'react';
+import React, { ComponentClass, FunctionComponent, NamedExoticComponent } from 'react';
 
 import { BaseComponent } from './should-component-update';
 
-type IAsyncComponent = ComponentClass | NamedExoticComponent | FunctionComponent;
+type IAsyncComponent<P> = ComponentClass<P> | NamedExoticComponent | FunctionComponent;
 
-type IAsyncFunction = () => Promise<{ readonly default: IAsyncComponent }>;
+type IAsyncFunction<P> = () => Promise<{ readonly default: IAsyncComponent<P> }>;
 
-interface IState {
-  component: IAsyncComponent | null;
+interface IState<P> {
+  component: IAsyncComponent<P> | null;
 }
 
 /**
  * 按需加在所有的component
  * @param importComponent 需要加载的component
  */
-export const asyncComponent = (importComponent: IAsyncFunction): ComponentType => {
-  class AsyncComponent extends BaseComponent<unknown, IState> {
-    constructor(props: unknown) {
+export function asyncComponent<P = unknown>(importComponent: IAsyncFunction<P>): ComponentClass<P> {
+  class AsyncComponent extends BaseComponent<P, IState<P>> {
+    constructor(props: P) {
       super(props);
 
       this.state = { component: null };
@@ -40,4 +35,4 @@ export const asyncComponent = (importComponent: IAsyncFunction): ComponentType =
   }
 
   return AsyncComponent;
-};
+}

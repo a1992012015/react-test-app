@@ -96,9 +96,10 @@ class Gobang extends BaseComponent<IProps, IState> {
   private resizeCheckerboard = (): void => {
     if (this.containerRef?.current) {
       const maxWidth = 720;
+      const controllerHeight = 98;
       const bounding = this.containerRef.current.getBoundingClientRect();
-      const boundingWidth = bounding.width - 40;
-      const boundingHeight = bounding.height - 40;
+      const boundingWidth = bounding.width;
+      const boundingHeight = bounding.height - controllerHeight;
       const clientWidth = boundingWidth > boundingHeight ? boundingHeight : boundingWidth;
       const canvasWidth = clientWidth > maxWidth ? maxWidth : clientWidth;
       const width = Math.floor(divide(canvasWidth, 16));

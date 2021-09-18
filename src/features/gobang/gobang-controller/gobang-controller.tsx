@@ -6,7 +6,6 @@ import { GameType } from '../../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../../components/should-component-update';
 import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
 import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
-import { commons } from '../../../services/gobang-worker/services/commons.service';
 
 export interface Props {
   time: number;
@@ -38,22 +37,33 @@ export class GobangController extends BaseComponent<Props> {
 
   getChessColor = (): string => {
     const { piece, first } = this.props;
-    const role = piece.role || commons.reverseRole(first);
-    if (role === ERole.white) {
-      return styles.black;
-    } else if (role === ERole.block) {
-      return styles.white;
+
+    if (piece.role === ERole.empty && first === ERole.empty) {
+      return 'lime';
+    } else if (piece.role === ERole.empty && first === ERole.white) {
+      return 'white';
+    } else if (piece.role === ERole.empty && first === ERole.block) {
+      return 'black';
+    } else if (piece.role === ERole.block) {
+      return 'white';
+    } else if (piece.role === ERole.white) {
+      return 'black';
     } else {
-      return '';
+      return 'lime';
     }
   };
 
   render(): React.ReactNode {
-    const { width } = this.props;
+    const { width, piece, first } = this.props;
+    const active = piece.role === ERole.empty && first === ERole.empty ? '' : styles.active;
     return (
-      <div className={styles.container} style={{ width: width * 16 + 40 }}>
+      <div className={styles.container} style={{ width: width * 16 }}>
         <div className={styles.tips}>
-          <span className={`${styles.chess} ${this.getChessColor()}`} />
+          <svg viewBox="0 0 50 50" className={`${styles.loadingSvg} ${active}`}>
+            <circle className={styles.path} cx="25" cy="25" r="20" fill="none" />
+            <circle cx="25" cy="25" r="17" fill={this.getChessColor()} />
+          </svg>
+
           {this.renderMessage()}
         </div>
 

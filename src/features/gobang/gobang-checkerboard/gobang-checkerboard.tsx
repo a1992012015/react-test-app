@@ -103,20 +103,18 @@ export class GobangCheckerboard extends BaseComponent<Props> {
     const padding = divide(width, 2);
     if (width) {
       return (
-        <div className={styles.container}>
+        <div className={styles.container} style={{ width: width * 16, height: width * 16 }}>
+          <div className={styles.piecesAnimation}>
+            <img src={logo} className={styles.piecesLogo} alt="logo" />
+          </div>
+
           <canvas className={styles.canvas} ref={this.canvasRef} width={canvas} height={canvas}>
             你的电脑浏览器不支持canvas，换电脑吧~
           </canvas>
 
-          <div className={styles.pieces}>
-            <div className={styles.piecesAnimation}>
-              <img src={logo} className={styles.piecesLogo} alt="logo" />
-            </div>
-
-            <ul className={styles.piecesBox} style={{ padding: `${padding}px` }}>
-              {this.renderRowDiv()}
-            </ul>
-          </div>
+          <ul className={styles.piecesBox} style={{ padding: `${padding}px` }}>
+            {this.renderRowDiv()}
+          </ul>
         </div>
       );
     } else {

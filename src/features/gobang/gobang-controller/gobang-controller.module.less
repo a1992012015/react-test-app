@@ -2,33 +2,37 @@
 
 .container {
   margin: 0 auto;
-  padding: 0 20px;
 }
 
 .tips {
   width: 100%;
   margin: 10px auto;
-  padding: .5rem 0 .5rem .5rem;
+  padding: 15px 0 15px 15px;
   background-color: #aaa;
   border-radius: 5px;
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  position: relative;
 
-  .chess {
-    display: inline-block;
-    height: 14px;
-    width: 14px;
-    background-color: lime;
-    border-radius: 50%;
-    vertical-align: -.20rem;
-    margin-right: .5rem;
+  .loadingSvg {
+    width: 25px; /*设置svg显示区域大小*/
+    height: 25px;
 
-    &.black {
-      background-color: black;
+    &.active {
+      animation: loading-rotate 1.5s infinite ease-in-out; /*给svg也加上一个旋转动画*/
+
+      .path {
+        animation: loading-dash 1.5s ease-in-out infinite;
+        stroke: #ff4040; /*给画笔设置一个颜色*/
+      }
     }
+  }
 
-    &.white {
-      background-color: white;
-    }
+  .path {
+    stroke-width: 4; /*设置线条的宽度*/
+    stroke-dasharray: 95, 126; /*设置实现长95，虚线长126*/
+    stroke-dashoffset: 0; /*设置虚线的偏移位置*/
   }
 }
 
@@ -36,4 +40,27 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+@keyframes loading-dash {
+  0% {
+    stroke-dasharray: 1, 126; /*实线部分1，虚线部分126*/
+    stroke-dashoffset: 0; /*前面1/126显示实线，后面125显示空白*/
+  }
+
+  50% {
+    stroke-dasharray: 95, 126; /*实线部分95，虚线部分126*/
+    stroke-dashoffset: -31px /*顺时针偏移31/126，即前31/126显示空白，后面3/4显示线条*/
+  }
+
+  to {
+    stroke-dasharray: 6, 120; /*实线部分6，虚线部分120*/
+    stroke-dashoffset: -120px; /*最后顺时针偏移120/126，即前120/126显示空白，后面6点显示线条部分*/
+  }
+}
+
+@keyframes loading-rotate {
+  to {
+    transform: rotate(1turn); // 旋转1圈
+  }
 }

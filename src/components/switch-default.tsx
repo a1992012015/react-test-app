@@ -4,8 +4,9 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { BaseComponent } from './should-component-update';
 import { asyncComponent } from './asyncComponent';
+import { IEProps } from '../features/error/error';
 
-const Error = asyncComponent(() => import('../features/error/error'));
+const Error = asyncComponent<IEProps>(() => import('../features/error/error'));
 
 interface Props {
   history: RouteComponentProps['history'];

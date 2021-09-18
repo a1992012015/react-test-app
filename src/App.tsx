@@ -57,11 +57,11 @@ export default class App extends BaseComponent<Props, State> {
   };
 
   render(): React.ReactNode {
-    const { collapsed, defaultKeys } = this.state;
+    const { defaultKeys } = this.state;
     const { history } = this.props;
     return (
       <Layout className={styles.container}>
-        <Layout.Sider trigger={null} collapsible collapsed={collapsed}>
+        <Layout.Sider className={styles.siteSlider} trigger={null}>
           <div className={styles.logo} />
 
           <Menu onClick={this.pathTo} theme="dark" mode="inline" defaultSelectedKeys={defaultKeys}>
@@ -77,7 +77,7 @@ export default class App extends BaseComponent<Props, State> {
               <Route exact path="/counter" component={Counter} />
               <Route exact path="/pokemon" component={Pokemon} />
               <Route exact path="/web-worker" component={WebWorker} />
-              <Redirect exact from="/" to="/dashboard" />
+              <Redirect exact from="/" to="/gobang" />
             </SwitchDefault>
           </Layout.Content>
         </Layout>

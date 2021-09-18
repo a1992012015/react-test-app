@@ -7,11 +7,11 @@ import { dynamicTitle } from '../../components/dynamic-title';
 
 const pokemon = ['bulbasaur', 'pikachu', 'ditto', 'bulbasaur'];
 
-interface Props {
+interface IProps {
   name: string;
 }
 
-const PokemonItem = ({ name }: Props): JSX.Element | null => {
+const PokemonItem = ({ name }: IProps): JSX.Element | null => {
   const pollingInterval = 0;
   const { data, error, isLoading, isFetching } = useGetPokemonByNameQuery(name, {
     pollingInterval
