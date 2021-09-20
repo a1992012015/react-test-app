@@ -21,6 +21,7 @@ import {
   ISearchCache,
   ISMinMax
 } from '../interfaces/negamax.interface';
+import { creatPiece } from './piece.service';
 
 /**
  * 极大极小值检索
@@ -37,20 +38,20 @@ export class Negamax {
   private cacheGet = 0; // zobrist缓存命中数量
   private start = 0; // 开始深入计算的开始时间
 
-  deepAll = (role: ERole = ERole.white, deep = AI.searchDeep): IPiece => {
+  deepAll = (role: ERole, deep = AI.searchDeep): IPiece => {
     const candidates = board.gen(role);
 
     AI.debug && console.log('candidates', candidates);
 
-    const result = this.deepenSearch(candidates, role, deep);
+    AI.debug && console.log('%c=========================================', 'color: yellow');
 
-    AI.debug && console.log('deepAll => result', result);
-
-    AI.debug &&
-      console.log('%c======================================================', 'color: yellow');
-
-    // return this.deepen(candidates, role, deep);
-    return this.deepenSearch(candidates, role, deep);
+    if (candidates.length > 1) {
+      return this.deepenSearch(candidates, role, deep);
+    } else if (candidates.length === 1) {
+      return candidates[0];
+    } else {
+      return creatPiece({ x: 0, y: 0, role: ERole.empty });
+    }
 
     // const attackPoints = candidates.filter((p) => {
     //  return role === ERole.com ? (p.scoreCom >= T.TWO) : (p.scoreHum >= T.TWO)

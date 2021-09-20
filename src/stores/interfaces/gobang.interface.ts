@@ -1,12 +1,14 @@
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
+import { IBoard } from '../../services/gobang-worker/interfaces/board.interface';
+import { IStartOpen } from '../../services/gobang-worker/interfaces/opens.interface';
 
 export interface IGameStatus {
   gameType: GameType;
   name: string; // 棋局的名称
   board: IPiece[][];
   winMap: IPiece[];
-  first: ERole;
+  playChess: ERole;
   steps: number;
   winning: ERole;
   piece: IPiece; // 当前的落子
@@ -15,14 +17,14 @@ export interface IGameStatus {
 
 export enum GameType {
   DUEL_READY,
-  DUEL_HUM,
-  DUEL_COM,
+  DUEL_BLOCK,
+  DUEL_WHITE,
   DUEL_FINISH
 }
 
-export interface IGameStart {
+export interface IGameChange {
   gameType: GameType;
-  first?: ERole;
+  playChess?: ERole;
   board?: IPiece[][];
   name?: string;
   winning?: ERole;
@@ -32,6 +34,11 @@ export interface IGameStart {
 export interface IGamePut {
   gameType: GameType;
   piece: IPiece;
+}
+
+export interface IGameStart extends IStartOpen {
+  first: boolean;
+  open: boolean;
 }
 
 export interface SagaAction<P> {

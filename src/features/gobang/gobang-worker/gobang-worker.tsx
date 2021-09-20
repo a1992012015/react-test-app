@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 
 import { BaseComponent } from '../../../components/should-component-update';
 import { IWorkerRequest } from '../../../services/gobang-worker/interfaces/gobang-worker.interface';
-import { GameType } from '../../../stores/interfaces/gobang.interface';
+import { GameType, IGameStart } from '../../../stores/interfaces/gobang.interface';
 import {
-  gameChangeState,
   gameSagaChangeBackward,
-  gameSagaChangeForward,
   gameSagaChangeConfig,
-  gameSagaPut
+  gameSagaChangeForward,
+  gameSagaPut,
+  gameSagaStart
 } from '../../../stores/actions/gobang.action';
 import {
   IWorkerResponse,
@@ -21,6 +21,7 @@ import {
 } from '../../../stores/interfaces/worker.interface';
 import { AppDispatch, RootState } from '../../../stores/interfaces/store.interface';
 import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
+import { app } from '../../../configs/commons.config';
 
 interface IProps {
   workerPost: IWorkerRequest;
@@ -38,47 +39,48 @@ class GobangWorker extends BaseComponent<IProps> {
 
     this.gameWorker.onmessage = (event: MessageEvent<IWorkerResponse>) => {
       const { data } = event;
-      console.log(`%c=============== ${WorkerType[data.type]} ===============`, 'color: aqua;');
-      console.log('get onmessage:', data);
+      app.log && console.log(`%c========== ${WorkerType[data.type]} ==========`, 'color: aqua;');
+      app.log && console.log('get onmessage:', data);
 
       if (data.type === WorkerType.PUT) {
         const putData = data.payload as IWRPut;
         const payload = {
-          gameType: putData.piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM,
+          gameType: putData.piece.role === ERole.white ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE,
           piece: putData.piece
         };
 
         this.props.dispatch(gameSagaPut(payload));
       } else if (data.type === WorkerType.BOARD) {
         // 返回的开局
-        const putData = data.payload as IWRStart;
-        const payload = {
-          gameType: putData.first ? GameType.DUEL_HUM : GameType.DUEL_COM,
-          first: putData.first ? ERole.block : ERole.white,
-          board: putData.pieces,
-          name: putData.name
+        const boardData = data.payload as IWRStart;
+        const payload: IGameStart = {
+          pieces: boardData.pieces,
+          piece: boardData.piece,
+          name: boardData.name,
+          first: boardData.first,
+          open: boardData.open
         };
-        this.props.dispatch(gameChangeState(payload));
+        this.props.dispatch(gameSagaStart(payload));
       } else if (data.type === WorkerType.BACKWARD) {
-        console.log('悔棋成功。。。');
+        app.log && console.log('悔棋成功。。。');
         const backwardData = data.payload as IWRBackward;
         this.props.dispatch(gameSagaChangeBackward(backwardData));
       } else if (data.type === WorkerType.FORWARD) {
-        console.log('前进成功。。。');
+        app.log && console.log('前进成功。。。');
         const forwardData = data.payload as IWRForward;
         this.props.dispatch(gameSagaChangeForward(forwardData));
       } else if (data.type === WorkerType.CONFIG) {
-        console.log('设置config成功。。。');
+        app.log && console.log('设置config成功。。。');
         this.props.dispatch(gameSagaChangeConfig());
       } else {
         // TODO 意外的Type返回，无法处理，检查代码，或者结束游戏
-        console.log(`worker => ${WorkerType[data.type]}`);
-        console.log('错误的Type。。。');
+        app.log && console.log(`worker => ${WorkerType[data.type]}`);
+        app.log && console.log('错误的Type。。。');
       }
     };
 
     this.gameWorker.onerror = (e) => {
-      console.warn(e);
+      app.log && console.warn(e);
     };
   }
 

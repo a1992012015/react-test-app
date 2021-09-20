@@ -38,11 +38,12 @@ export class Commons {
       boards.push(row);
     }
 
-    points.forEach(([x, y], index) => {
+    points.forEach(([y, x], index) => {
       boards.forEach((board) => {
         board.forEach((piece) => {
           if (piece.x === x && piece.y === y) {
-            piece.role = index % 2 === 0 ? ERole.white : ERole.block;
+            piece.role = index % 2 === 0 ? ERole.block : ERole.white;
+            piece.step = index + 1;
           }
         });
       });
@@ -116,12 +117,12 @@ export class Commons {
   };
 
   containPoint = (arrays: number[][], p: IPiece): boolean => {
-    return arrays.some((a) => {
-      return a[0] === p.x && a[1] === p.y;
+    return arrays.some(([y, x]) => {
+      return x === p.x && y === p.y;
     });
   };
 
-  pointEqual = (a: IPiece, [x, y]: number[]): boolean => {
+  pointEqual = (a: IPiece, [y, x]: number[]): boolean => {
     return a.x === x && a.y === y;
   };
 

@@ -9,12 +9,13 @@ import { creatPiece } from '../../../services/gobang-worker/services/piece.servi
 import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
 import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
 import { BaseComponent } from '../../../components/should-component-update';
+import { app } from '../../../configs/commons.config';
 
 interface Props {
   steps: number;
   width: number;
-  first: ERole;
   winning: ERole;
+  playChess: ERole;
   winMap: IPiece[];
   board: IPiece[][];
   gameStatus: GameType;
@@ -31,12 +32,15 @@ export class GobangCheckerboard extends BaseComponent<Props> {
   }
 
   private gameGo = (x: number, y: number): void => {
-    console.log(`[x: ${x}, y: ${y}]`);
-    const { gameStatus } = this.props;
-    if (gameStatus === GameType.DUEL_HUM) {
-      this.props.gameGo(creatPiece({ x, y, role: ERole.block }));
+    app.log && console.log(`[x: ${x}, y: ${y}]`);
+    const { gameStatus, playChess } = this.props;
+    if (
+      (gameStatus === GameType.DUEL_BLOCK && playChess === ERole.block) ||
+      (gameStatus === GameType.DUEL_WHITE && playChess === ERole.white)
+    ) {
+      this.props.gameGo(creatPiece({ x, y, role: playChess }));
     } else {
-      console.log('还不能落子！！');
+      app.log && console.log('还不能落子！！');
     }
   };
 
@@ -68,30 +72,35 @@ export class GobangCheckerboard extends BaseComponent<Props> {
   };
 
   private getPieceClassName(piece: IPiece, y: number, x: number): string {
-    const { steps, gameStatus, winMap, first } = this.props;
+    const { steps, gameStatus, winMap } = this.props;
 
     let className = '';
 
-    if (piece.step !== null && piece.role !== ERole.empty) {
-      if (piece.role !== first) {
+    if (piece.role !== ERole.empty) {
+      // 有棋子
+      if (piece.role === ERole.white) {
+        // 白棋
         className = `${styles.chessmanMain} ${styles.chessmanWhite}`;
       } else {
+        // 黑棋
         className = `${styles.chessmanMain} ${styles.chessmanBlack}`;
       }
     } else {
+      // 空位
       className = styles.chessmanDisappear;
     }
 
-    if (steps === piece.step) {
-      className = `${className} ${styles.chessmanAnim}`;
-    }
-
+    // 添加高亮动画
     if (gameStatus === GameType.DUEL_FINISH) {
+      // 对局完成显示赢家的棋子
       winMap.forEach((item) => {
         if (item.x === x && item.y === y) {
           className = `${className} ${styles.chessmanAnim}`;
         }
       });
+    } else if (steps === piece.step) {
+      // 还在对局中 显示最后落子
+      className = `${className} ${styles.chessmanAnim}`;
     }
 
     return className;

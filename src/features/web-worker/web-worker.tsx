@@ -5,6 +5,7 @@ import styles from './web-worker.module.less';
 import { BaseComponent } from '../../components/should-component-update';
 import { fibonacci } from '../../services/fibonacci-worker/fibonacci';
 import { dynamicTitle } from '../../components/dynamic-title';
+import { app } from '../../configs/commons.config';
 
 interface State {
   count1: number;
@@ -58,7 +59,7 @@ export default class WebWorker extends BaseComponent<unknown, State> {
     this.worker?.postMessage(43);
     const start = new Date().getTime();
     this.worker?.addEventListener('message', ({ data }) => {
-      console.log('get response data', data);
+      app.log && console.log('get response data', data);
       const end = new Date().getTime();
       const expenditure = (end - start) / 1000;
       this.setState({

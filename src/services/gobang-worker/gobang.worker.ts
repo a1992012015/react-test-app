@@ -1,5 +1,4 @@
 import { WorkerType } from '../../stores/interfaces/worker.interface';
-import { ERole } from './interfaces/role.interface';
 import { AI } from './configs/ai.config';
 import { goBangAI } from './services/gobang-ai.service';
 import { IWorkerRequest, IWRConfig, IWRPut, IWRStart } from './interfaces/gobang-worker.interface';
@@ -16,7 +15,7 @@ addEventListener('message', (event: MessageEvent<IWorkerRequest>) => {
 
     postMessage({
       type: WorkerType.BOARD,
-      payload: { ...open, first: startD.first ? ERole.block : ERole.white }
+      payload: { ...open, first: startD.first, open: startD.randomOpening }
     });
   } else if (type === WorkerType.BEGIN) {
     // 电脑下棋

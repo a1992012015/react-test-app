@@ -1,6 +1,6 @@
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { IBoard } from '../../services/gobang-worker/interfaces/board.interface';
+import { IStartOpen } from '../../services/gobang-worker/interfaces/opens.interface';
 
 /**
  * worker 的返回值
@@ -13,8 +13,9 @@ export interface IWorkerResponse {
 /**
  * 游戏启动的返回值的 payload
  */
-export interface IWRStart extends IBoard {
-  first: ERole;
+export interface IWRStart extends IStartOpen {
+  first: boolean;
+  open: boolean;
 }
 
 /**

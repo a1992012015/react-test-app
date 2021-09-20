@@ -1,4 +1,4 @@
-import { createReducer } from '@reduxjs/toolkit';
+import { createReducer, current } from '@reduxjs/toolkit';
 
 import { GameType, IGameStatus } from '../interfaces/gobang.interface';
 import { gameChangeState, gameInit, gamePut } from '../actions/gobang.action';
@@ -10,7 +10,7 @@ const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
   board: wuyue.pieces,
   name: wuyue.name,
-  first: ERole.empty,
+  playChess: ERole.empty,
   steps: 0,
   winning: ERole.empty,
   winMap: [],
@@ -31,33 +31,22 @@ export const gobangReducer = createReducer(initialState, (builder) => {
     .addCase(gameChangeState, (state, action) => {
       state.gameType = action.payload.gameType;
 
-      if (action.payload.first != null) {
-        state.first = action.payload.first;
-      }
-
-      if (action.payload.board != null) {
-        state.board = action.payload.board;
-      }
-
-      if (action.payload.name != null) {
-        state.name = action.payload.name;
-      }
-
-      if (action.payload.winning != null) {
-        state.winning = action.payload.winning;
-      }
-
-      if (action.payload.winMap != null) {
-        state.winMap = action.payload.winMap;
-      }
+      state.playChess = action.payload?.playChess || state.playChess;
+      state.winning = action.payload?.winning || state.winning;
+      state.winMap = action.payload?.winMap || state.winMap;
+      state.board = action.payload?.board || state.board;
+      state.name = action.payload?.name || state.name;
     })
     .addCase(gamePut, (state, action) => {
       const { piece } = action.payload;
+      console.log('piece', piece);
+      console.log('current', current(state));
       state.steps += 1;
+      console.log(state.steps);
       piece.step = state.steps;
       state.piece = piece;
       state.board[piece.y][piece.x] = piece;
-      state.gameType = piece.role === ERole.white ? GameType.DUEL_HUM : GameType.DUEL_COM;
+      state.gameType = piece.role === ERole.white ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE;
 
       if (piece.role === ERole.block) {
         startTime = new Date().getTime();

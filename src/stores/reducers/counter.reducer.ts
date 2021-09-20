@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchCount } from '../../features/counter/counterAPI';
 // eslint-disable-next-line import/no-cycle
 import { AppThunk, RootState } from '../interfaces/store.interface';
+import { app } from '../../configs/commons.config';
 
 export interface CounterState {
   value: number;
@@ -70,7 +71,7 @@ export const selectCount = (state: RootState): number => state.counter.value;
 export const incrementIfOdd = (amount: number): AppThunk => {
   return (dispatch, getState) => {
     const currentValue = selectCount(getState());
-    console.log(currentValue);
+    app.log && console.log(currentValue);
     if (currentValue % 2 === 1) {
       dispatch(incrementByAmount(amount));
     }

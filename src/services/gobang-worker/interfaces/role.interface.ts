@@ -1,5 +1,5 @@
 export enum ERole {
   empty = 0, // 空位
-  white = 1, // Computer 电脑
-  block = 2 // Human 玩家
+  block = 1, // 黑棋 先手
+  white = 2 // 白棋 后手
 }

@@ -17,6 +17,7 @@ import { IScorePoint } from '../interfaces/evaluate-point.interface';
  */
 export class Board {
   board: IBoard = { name: '', pieces: [] };
+  playChess: ERole = ERole.empty; // 执棋的棋子
   currentSteps: IPiece[] = []; // 当前一次思考的步骤
   allSteps: IPiece[] = []; // 每一步的棋子
   stepsTail: IPiece[] = []; // 悔棋的步数储存
@@ -31,11 +32,12 @@ export class Board {
 
   steps = [];
 
-  init = (board: IBoard): IBoard => {
+  init = (board: IBoard, first: boolean): IBoard => {
     this.currentSteps = []; // 当前一次思考的步骤
     this.allSteps = [];
     this.stepsTail = [];
     this.count = 0; // chessman count
+    this.playChess = first ? ERole.white : ERole.block;
 
     if (board.pieces.length === 15 && board.pieces.every((b) => b.length === 15)) {
       this.board = cloneDeep(board);
@@ -77,7 +79,7 @@ export class Board {
     ];
 
     this.initScore();
-    return this.board;
+    return cloneDeep(this.board);
   };
 
   put = (piece: IPiece): void => {

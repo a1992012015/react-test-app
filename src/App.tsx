@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Typography } from 'antd';
 import { MenuInfo } from 'rc-menu/lib/interface';
 import { UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
@@ -80,6 +80,14 @@ export default class App extends BaseComponent<Props, State> {
               <Redirect exact from="/" to="/gobang" />
             </SwitchDefault>
           </Layout.Content>
+
+          <Layout.Footer style={{ textAlign: 'center' }}>
+            {'Copyright © '}
+            <Typography.Link target="_blank" href="https://github.com/a1992012015/react-test-app">
+              圆环之理
+            </Typography.Link>
+            {` ${new Date().getFullYear()}`}.
+          </Layout.Footer>
         </Layout>
       </Layout>
     );

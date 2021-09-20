@@ -4,7 +4,7 @@
 
 import { cloneDeep } from 'lodash-es';
 import { IPiece } from '../interfaces/piece.interface';
-import { Board } from './board.service';
+import { board } from './board.service';
 import { commons } from './commons.service';
 import { AI } from '../configs/ai.config';
 import { ERole } from '../interfaces/role.interface';
@@ -16,47 +16,15 @@ import { negamax } from './negamax.service';
  * -1-
  * ---
  */
-export class Opening {
-  match = (board: Board): IPiece => {
-    const s = board.allSteps;
-    AI.debug && console.log('match => s', cloneDeep(s));
-    const { x, y } = s[0];
-    if (board.board.pieces[y][x].role !== ERole.white) {
-      return negamax.deepAll(ERole.white, AI.searchDeep);
-    }
-    if (s.length > 2) {
-      return negamax.deepAll(ERole.white, AI.searchDeep);
-    }
-    if (
-      commons.containPoint(
-        [
-          [6, 7],
-          [7, 6],
-          [8, 7],
-          [7, 8]
-        ],
-        s[1]
-      )
-    ) {
-      return this.huayue(board);
-    }
-    if (
-      commons.containPoint(
-        [
-          [6, 6],
-          [8, 8],
-          [8, 6],
-          [6, 8]
-        ],
-        s[1]
-      )
-    ) {
-      return this.puyue(board);
-    }
-    return negamax.deepAll(ERole.white, AI.searchDeep);
+export class Dueling {
+  match = (): IPiece => {
+    const steps = board.allSteps;
+    const play = board.playChess;
+    AI.debug && console.log('match => s', cloneDeep(steps));
+    return negamax.deepAll(play, AI.searchDeep);
   };
 
-  private huayue = (board: Board): IPiece => {
+  private huayue = (): IPiece => {
     AI.debug && console.log('使用花月开局');
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 7])) {
@@ -82,7 +50,7 @@ export class Opening {
     return creatPiece({ x: 7, y: 7, role: ERole.empty });
   };
 
-  private puyue = (board: Board): IPiece => {
+  private puyue = (): IPiece => {
     AI.debug && console.log('使用浦月开局');
     const s = board.steps;
     if (commons.pointEqual(s[1], [6, 6])) {
@@ -109,4 +77,4 @@ export class Opening {
   };
 }
 
-export const opening = new Opening();
+export const dueling = new Dueling();

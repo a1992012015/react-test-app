@@ -13,13 +13,16 @@ import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-w
 import { WorkerType } from '../../stores/interfaces/worker.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
-import { gameSagaChangeBoard, gameSagaInit, gameSagaPut } from '../../stores/actions/gobang.action';
+import { gameInit, gameSagaChangeBoard, gameSagaPut } from '../../stores/actions/gobang.action';
 import { creatPiece } from '../../services/gobang-worker/services/piece.service';
 import { IAI } from '../../services/gobang-worker/interfaces/ai.interface';
 import { dynamicTitle } from '../../components/dynamic-title';
+import { app } from '../../configs/commons.config';
+import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 
 interface IState {
   width: number;
+  clickPiece: IPiece;
 }
 
 interface IProps extends IGameStatus {
@@ -32,7 +35,10 @@ class Gobang extends BaseComponent<IProps, IState> {
   constructor(props: IProps) {
     super(props);
 
-    this.state = { width: 0 };
+    this.state = {
+      width: 0,
+      clickPiece: creatPiece({ x: 0, y: 0, role: ERole.empty })
+    };
   }
 
   componentDidMount(): void {
@@ -45,6 +51,11 @@ class Gobang extends BaseComponent<IProps, IState> {
     window.removeEventListener('resize', this.resizeCheckerboard);
   }
 
+  /**
+   * 启动游戏
+   * @param first 是否需要先手
+   * @param opening 是否需要随机棋谱
+   */
   gameStart = (first: boolean, opening: boolean): void => {
     const post: IWorkerRequest = {
       type: WorkerType.START,
@@ -54,7 +65,7 @@ class Gobang extends BaseComponent<IProps, IState> {
   };
 
   gameConfig = (config: IAI): void => {
-    console.log('gameConfig');
+    app.log && console.log('gameConfig');
     const post: IWorkerRequest = {
       type: WorkerType.CONFIG,
       payload: { config }
@@ -63,24 +74,40 @@ class Gobang extends BaseComponent<IProps, IState> {
   };
 
   gameGo = (piece: IPiece): void => {
-    console.log('gameGo piece:', piece);
-    const payload = {
-      gameType: GameType.DUEL_COM,
-      piece: creatPiece(piece)
-    };
-    this.props.dispatch(gameSagaPut(payload));
+    app.log && console.log('gameGo piece:', piece);
+    const { playChess } = this.props;
+
+    if (/Android|webOS|iPhone|iPad|BlackBerry/i.test(navigator.userAgent)) {
+      const { clickPiece } = this.state;
+
+      if (clickPiece.x === piece.x && clickPiece.y === piece.y) {
+        const payload = {
+          gameType: playChess === ERole.block ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
+          piece: creatPiece(piece)
+        };
+        this.props.dispatch(gameSagaPut(payload));
+      } else {
+        this.setState({ clickPiece: piece });
+      }
+    } else {
+      const payload = {
+        gameType: playChess === ERole.block ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
+        piece: creatPiece(piece)
+      };
+      this.props.dispatch(gameSagaPut(payload));
+    }
   };
 
   // 前进方法
   gameForward = (): void => {
-    console.log('gameForward');
+    app.log && console.log('gameForward');
     const post: IWorkerRequest = { type: WorkerType.FORWARD };
     this.props.dispatch(gameSagaChangeBoard(post));
   };
 
   // 悔棋
   gameBackward = (): void => {
-    console.log('gameBackward');
+    app.log && console.log('gameBackward');
     const post: IWorkerRequest = { type: WorkerType.BACKWARD };
     this.props.dispatch(gameSagaChangeBoard(post));
   };
@@ -89,8 +116,8 @@ class Gobang extends BaseComponent<IProps, IState> {
    * 重置游戏
    */
   gameReset = (): void => {
-    console.log('gameReset');
-    this.props.dispatch(gameSagaInit());
+    app.log && console.log('gameReset');
+    this.props.dispatch(gameInit());
   };
 
   private resizeCheckerboard = (): void => {
@@ -111,22 +138,22 @@ class Gobang extends BaseComponent<IProps, IState> {
   render(): React.ReactNode {
     const boardProps = {
       width: this.state.width,
-      first: this.props.first,
       steps: this.props.steps,
       board: this.props.board,
       winMap: this.props.winMap,
       winning: this.props.winning,
       gameStatus: this.props.gameType,
+      playChess: this.props.playChess,
       gameGo: this.gameGo
     };
 
     const controllerProps = {
-      time: this.props.spendTime,
       width: this.state.width,
       steps: this.props.steps,
-      first: this.props.first,
       piece: this.props.piece,
+      time: this.props.spendTime,
       winning: this.props.winning,
+      playChess: this.props.playChess,
       gameStatus: this.props.gameType,
       gameReset: this.gameReset,
       gameStart: this.gameStart,
