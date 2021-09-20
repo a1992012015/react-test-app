@@ -226,9 +226,9 @@ function* gobangChangeBoardWatch(): Generator<
 > {
   while (true) {
     const { payload } = yield take([gameSagaChangeBoard]);
-
+    // 将棋盘切换到准备状态
     yield put(gameChangeState({ gameType: GameType.DUEL_READY }));
-
+    // 通知worker
     yield put(changeWorkerPost(payload));
   }
 }
@@ -238,19 +238,25 @@ function* gobangChangeBoardWatch(): Generator<
  * @constructor
  */
 function* gobangChangeGameWatch(): Generator<
-  TakeEffect | PutEffect,
+  TakeEffect | PutEffect | SelectEffect,
   void,
-  SagaAction<IWRBackward | IWRForward | undefined>
+  SagaAction<IWRBackward | IWRForward> | IGameStatus
 > {
   while (true) {
-    const { type, payload } = yield take([
+    const action = yield take([
       gameSagaChangeConfig,
       gameSagaChangeForward,
       gameSagaChangeBackward
     ]);
 
+    const { type, payload } = action as SagaAction<IWRBackward | IWRForward>;
+
+    const gobang = yield select((store) => store.gobang);
+
+    const { playChess } = gobang as IGameStatus;
+
     const statePayload: IGameChange = {
-      gameType: GameType.DUEL_BLOCK
+      gameType: playChess === ERole.block ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE
     };
 
     if (type === gameSagaChangeForward.type) {

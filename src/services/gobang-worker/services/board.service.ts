@@ -84,6 +84,7 @@ export class Board {
 
   put = (piece: IPiece): void => {
     AI.debug && console.log(`put [${ERole[piece.role]}] piece:`, piece);
+    piece.step = this.allSteps.length + 1;
     this.board.pieces[piece.y][piece.x] = piece;
     const code = zobrist.go(piece);
     AI.debug && console.log(`put => zobrist => code: ${code}`);
@@ -137,7 +138,7 @@ export class Board {
    */
   remove = (p: IPiece): void => {
     const r = this.board.pieces[p.y][p.x];
-    AI.debug && console.log(`put [${r}] piece:`, p);
+    AI.debug && console.log(`remove [${r.y}, ${r.x}] piece:`, p);
     zobrist.go(p);
     this.board.pieces[p.y][p.x].role = ERole.empty;
     // 移除之后也需要更新周围的分数

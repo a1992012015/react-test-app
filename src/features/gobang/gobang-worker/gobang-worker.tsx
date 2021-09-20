@@ -64,6 +64,7 @@ class GobangWorker extends BaseComponent<IProps> {
       } else if (data.type === WorkerType.BACKWARD) {
         app.log && console.log('悔棋成功。。。');
         const backwardData = data.payload as IWRBackward;
+        app.log && console.log('backwardData', backwardData);
         this.props.dispatch(gameSagaChangeBackward(backwardData));
       } else if (data.type === WorkerType.FORWARD) {
         app.log && console.log('前进成功。。。');

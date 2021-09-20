@@ -98,7 +98,7 @@ class Gobang extends BaseComponent<IProps, IState> {
     }
   };
 
-  // 前进方法
+  // 放弃悔棋
   gameForward = (): void => {
     app.log && console.log('gameForward');
     const post: IWorkerRequest = { type: WorkerType.FORWARD };

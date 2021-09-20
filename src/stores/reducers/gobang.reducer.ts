@@ -39,10 +39,7 @@ export const gobangReducer = createReducer(initialState, (builder) => {
     })
     .addCase(gamePut, (state, action) => {
       const { piece } = action.payload;
-      console.log('piece', piece);
-      console.log('current', current(state));
       state.steps += 1;
-      console.log(state.steps);
       piece.step = state.steps;
       state.piece = piece;
       state.board[piece.y][piece.x] = piece;

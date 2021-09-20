@@ -32,7 +32,7 @@ export class GobangController extends BaseComponent<IProps, IState> {
     super(props);
 
     this.state = {
-      first: false,
+      first: true,
       open: false
     };
   }
@@ -126,7 +126,7 @@ export class GobangController extends BaseComponent<IProps, IState> {
   };
 
   renderActions = (): React.ReactNode => {
-    const { gameStatus } = this.props;
+    const { gameReset, gameForward, gameBackward, steps, playChess, gameStatus } = this.props;
     const { first, open } = this.state;
     if (gameStatus === GameType.DUEL_READY) {
       return (
@@ -156,10 +156,12 @@ export class GobangController extends BaseComponent<IProps, IState> {
         </React.Fragment>
       );
     }
-    const { gameReset, gameForward, gameBackward } = this.props;
+    const white = gameStatus === GameType.DUEL_WHITE;
+    const block = gameStatus === GameType.DUEL_BLOCK;
+    const disabled = steps !== 0 && playChess === ERole.block ? white : block;
     return (
       <React.Fragment>
-        <Button type="primary" size="large" disabled onClick={gameBackward}>
+        <Button type="primary" size="large" disabled={disabled} onClick={gameBackward}>
           悔棋
         </Button>
         <Button type="primary" size="large" onClick={gameReset}>

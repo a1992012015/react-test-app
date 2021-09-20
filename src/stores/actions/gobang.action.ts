@@ -4,7 +4,7 @@ import { IGamePut, IGameChange, IGameStart } from '../interfaces/gobang.interfac
 import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
 import { IWRBackward, IWRForward } from '../interfaces/worker.interface';
 
-export const gameChangeState = createAction<IGameChange>('gobang/start');
+export const gameChangeState = createAction<IGameChange>('gobang/state');
 export const gamePut = createAction<IGamePut>('gobang/put');
 export const gameInit = createAction('gobang/init');
 
