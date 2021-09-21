@@ -29,9 +29,9 @@ const boards = commons.getOpenBoard([
   [0, 6],
   [1, 7],
   [0, 5],
-  [1, 6],
+  [13, 5],
   [0, 4],
-  [1, 5],
+  [11, 5],
   [0, 2],
   [0, 1]
 ]);
@@ -47,6 +47,7 @@ const initialStateTest: IGameStatus = {
   piece: creatPiece({ x: 0, y: 0, role: ERole.empty }),
   spendTime: 0
 };
+
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
   board: wuyue.pieces,
@@ -64,7 +65,7 @@ let startTime = new Date().getTime();
 // 结束时间
 let endTime = new Date().getTime();
 
-export const gobangReducer = createReducer(initialState, (builder) => {
+export const gobangReducer = createReducer(initialStateTest, (builder) => {
   builder
     .addCase(gameInit, () => {
       return initialState;

@@ -99,9 +99,11 @@ export class FilterCandidates {
       }
     });
 
+    console.log('searchPiece', cloneDeep(searchPiece));
+
     const randomPiece = searchPiece.reduce((random: IPiece[], c) => {
       if (random.length) {
-        if (random.every((r) => r.x === c.x && r.y === c.y && r.step === c.step)) {
+        if (random.every((r) => r.score === c.score && r.step === c.step)) {
           return [...random, c];
         } else {
           return random;
@@ -111,7 +113,7 @@ export class FilterCandidates {
       }
     }, []);
 
-    console.log('searchPiece', cloneDeep(randomPiece));
+    console.log('randomPiece', cloneDeep(randomPiece));
 
     const result = randomPiece[commons.getRandom(0, randomPiece.length)];
 
@@ -136,10 +138,14 @@ export class FilterCandidates {
     const deepCandidates: IPiece[] = [];
     let alphaCut = alpha;
 
+    console.log(`%c============= deepSearch start deep: ${deep} =============`, 'color: red;');
+    console.log('candidates', candidates);
+
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
       // 因为是冲过 gen 函数得到的可以的落子点，这里确定一下这一步的落子的选手
       board.put({ ...p, role });
+      console.log(`%c========== start deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
 
       // 因为一直用的是alpha参数作为计算，所以每进入下一层就交换参数位置
       // 这样能保证在MIN层使用的alpha，MAX层使用的beta
@@ -158,6 +164,9 @@ export class FilterCandidates {
 
       // 查找这一步的后续可能走法和分数
       const { evaluate, step: currentStep, steps } = this.search(searchData);
+
+      console.log('evaluate', evaluate);
+
       // 因为在保留剪枝的对比值的时候会一直选取最大的那个保留
       // 在查询极小值的时候就把对比值和计算得到的值都取相反数
       // 再保留最大的就可以了
@@ -188,16 +197,20 @@ export class FilterCandidates {
       if (commons.greaterThan(p.score, beta)) {
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
         p.abCut = true;
-        // cache(deep, v) // 别缓存被剪枝的，而且，这个返回到上层之后，也注意都不要缓存
+        console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
         return deepCandidates;
       }
 
       // 超时判定
       if (new Date().getTime() - this.start > AI.timeLimit * 1000) {
+        console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
         // 超时，退出循环
         return deepCandidates;
       }
+      console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
     }
+
+    console.log(`%c============= deepSearch start end: ${deep} =============`, 'color: red;');
 
     return deepCandidates;
   };
@@ -210,7 +223,7 @@ export class FilterCandidates {
   private search = (data: ISearch): ISResponse => {
     const { deep, alpha, beta, role, step, spread } = data;
     // 给当前的棋盘打分
-    const evaluate = board.evaluate(role);
+    const evaluate = board.evaluate(role, deep);
     // 当前的分数有大于连五的分数
     // deep为 0 迭代到了最后需要结束的位置
     if (

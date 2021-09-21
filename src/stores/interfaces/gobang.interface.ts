@@ -1,6 +1,5 @@
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { IBoard } from '../../services/gobang-worker/interfaces/board.interface';
 import { IStartOpen } from '../../services/gobang-worker/interfaces/opens.interface';
 
 export interface IGameStatus {

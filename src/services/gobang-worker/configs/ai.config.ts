@@ -5,7 +5,7 @@ import { IAI } from '../interfaces/ai.interface';
  */
 export const AI: IAI = {
   opening: true,
-  searchDeep: 6,
+  searchDeep: 2,
   countLimit: 20,
   timeLimit: 100,
   vcxDeep: 5,
@@ -15,5 +15,5 @@ export const AI: IAI = {
   star: true,
   cache: false,
   window: false,
-  debug: process.env.REACT_APP_LOG === 'true'
+  debug: false
 };

@@ -27,8 +27,10 @@ import { IWRBackward, IWRForward, WorkerType } from '../interfaces/worker.interf
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 import { SCORE } from '../../services/gobang-worker/configs/score.config';
 import { IScorePoint } from '../../services/gobang-worker/interfaces/evaluate-point.interface';
-import { evaluatePoint } from '../../services/gobang-worker/services/evaluate-point.service';
+import { EvaluatePoint } from '../../services/gobang-worker/services/evaluate-point.service';
 import { app } from '../../configs/commons.config';
+
+const evaluatePoint = new EvaluatePoint('saga');
 
 /**
  * 落子的预检测
@@ -55,6 +57,16 @@ function* gobangGoOnWatch(): Generator<
 
       const winMap = yield call(gobangWinCheckWork, piece);
 
+      // TODO 测试打分函数
+      const gobang1 = yield select((store) => store.gobang);
+      const { board: board1 } = gobang1 as IGameStatus;
+      evaluatePoint.scorePoint({
+        x: piece.x,
+        y: piece.y,
+        pieces: board1,
+        role: piece.role
+      });
+
       if ((winMap as IPiece[]).length) {
         const statePayload = {
           gameType: GameType.DUEL_FINISH,
@@ -72,7 +84,9 @@ function* gobangGoOnWatch(): Generator<
           payload: { piece }
         };
 
-        yield put(changeWorkerPost(post));
+        console.log('post', post);
+
+        // yield put(changeWorkerPost(post));
       } else {
         console.log('电脑完成走棋。。。');
       }

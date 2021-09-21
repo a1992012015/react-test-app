@@ -31,6 +31,17 @@ export class Statistic {
     }
     AI.log && console.log('历史表推荐走法:', p);
   };
+
+  printBoard = (board: IPiece[][]): void => {
+    const numberBoard = commons.createScores(15, 15);
+    board.forEach((row) => {
+      row.forEach((p) => {
+        numberBoard[p.y][p.x] = p.role;
+      });
+    });
+
+    AI.log && console.log('role board', numberBoard);
+  };
 }
 
 export const statistic = new Statistic();

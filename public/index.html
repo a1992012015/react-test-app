@@ -25,7 +25,6 @@
     // the correct url will be waiting in the browser's history for
     // the single page app to route accordingly.
     (function(l) {
-      console.log('location', l);
       if (l.search[1] === '/') {
         let decoded = l.search.slice(1).split('&').map((s) => s.replace(/~and~/g, '&')).join('?');
         window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);

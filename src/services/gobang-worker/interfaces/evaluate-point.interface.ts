@@ -16,10 +16,11 @@ export interface IScorePoint {
  * 分数缓存
  */
 export type IScoreCache = {
-  [key in ERole]: [number, number, number, number];
+  [key in ERole]: number[][][];
 };
 
 /**
  * 收集棋盘数组的返回值
+ * 按照顺序依次为：empty count block
  */
 export type TCResult = [boolean, number, boolean];

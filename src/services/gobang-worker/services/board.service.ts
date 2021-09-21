@@ -6,7 +6,7 @@ import { ERole } from '../interfaces/role.interface';
 import { zobrist } from './zobrist.service';
 import { commons } from './commons.service';
 import { statistic } from './statistic.service';
-import { evaluatePoint } from './evaluate-point.service';
+import { EvaluatePoint } from './evaluate-point.service';
 import { creatPiece } from './piece.service';
 import { AI } from '../configs/ai.config';
 import { SCORE } from '../configs/score.config';
@@ -28,8 +28,9 @@ export class Board {
   humMaxScore = 0;
   starCount = 0;
   total = 0;
-
   steps = [];
+
+  private evaluatePoint = new EvaluatePoint('board');
 
   init = (board: IBoard, first: boolean): IBoard => {
     this.currentSteps = []; // 当前一次思考的步骤
@@ -57,6 +58,8 @@ export class Board {
     // 存储双方得分
     this.comScore = commons.createScores(size, size);
     this.humScore = commons.createScores(size, size);
+    // 初始化打分函数
+    this.evaluatePoint = new EvaluatePoint('board');
 
     this.initScore();
     return cloneDeep(this.board);
@@ -65,8 +68,7 @@ export class Board {
   put = (piece: IPiece): void => {
     piece.step = this.allSteps.length + 1;
     this.board.pieces[piece.y][piece.x] = piece;
-    const code = zobrist.go(piece);
-    AI.debug && console.log(`put => zobrist => code: ${code}`);
+    // const code = zobrist.go(piece);
     this.updateScore(piece);
     this.allSteps.push(piece);
     this.currentSteps.push(piece);
@@ -393,18 +395,18 @@ export class Board {
         if (pieces[y][x].role === ERole.empty) {
           if (this.hasNeighbor(y, x, 2, 2)) {
             // 必须是有邻居的才行
-            const cs = evaluatePoint.scorePoint({ ...data, role: ERole.white });
-            const hs = evaluatePoint.scorePoint({ ...data, role: ERole.black });
+            const cs = this.evaluatePoint.scorePoint({ ...data, role: ERole.white });
+            const hs = this.evaluatePoint.scorePoint({ ...data, role: ERole.black });
             this.comScore[y][x] = cs;
             this.humScore[y][x] = hs;
           }
         } else if (pieces[y][x].role === ERole.white) {
           // 对电脑打分，玩家此位置分数为0
-          this.comScore[y][x] = evaluatePoint.scorePoint({ ...data, role: ERole.white });
+          this.comScore[y][x] = this.evaluatePoint.scorePoint({ ...data, role: ERole.white });
           this.humScore[y][x] = 0;
         } else if (pieces[y][x].role === ERole.black) {
           // 对玩家打分，电脑位置分数为0
-          this.humScore[y][x] = evaluatePoint.scorePoint({ ...data, role: ERole.black });
+          this.humScore[y][x] = this.evaluatePoint.scorePoint({ ...data, role: ERole.black });
           this.comScore[y][x] = 0;
         }
       }
@@ -462,14 +464,14 @@ export class Board {
    * 1 * -1000 = -1000
    * @param role 当前的选手
    */
-  evaluate = (role: ERole): number => {
+  evaluate = (role: ERole, deep?: number): number => {
     // 这里加了缓存，但是并没有提升速度
     // if (AI.cache && evaluateCache[zobrist.code]) {
     //   return evaluateCache[zobrist.code];
     // }
     // 这里都是用正整数初始化的，所以初始值是0
-    this.comMaxScore = 0;
-    this.humMaxScore = 0;
+    let comMaxScore = 0;
+    let humMaxScore = 0;
 
     const board = this.board.pieces;
 
@@ -477,18 +479,26 @@ export class Board {
     for (let y = 0; y < board.length; y++) {
       for (let x = 0; x < board[y].length; x++) {
         if (board[y][x].role === ERole.white) {
-          this.comMaxScore += this.fixScore(this.comScore[y][x]);
+          comMaxScore += this.fixScore(this.comScore[y][x]);
         } else if (board[y][x].role === ERole.black) {
-          this.humMaxScore += this.fixScore(this.humScore[y][x]);
+          humMaxScore += this.fixScore(this.humScore[y][x]);
         }
       }
+    }
+
+    if (deep !== undefined && deep <= 0) {
+      statistic.printBoard(this.board.pieces);
+      console.log('comMaxScore', comMaxScore);
+      console.log('comScore', cloneDeep(this.comScore));
+      console.log('humMaxScore', humMaxScore);
+      console.log('humScore', cloneDeep(this.humScore));
     }
     // 有冲四延伸了，不需要专门处理冲四活三
     // 不过这里做了这一步，可以减少电脑胡乱冲四的毛病
     // this.comMaxScore = fixScore(this.comMaxScore)
     // this.humMaxScore = fixScore(this.humMaxScore)
     // if (aiConfig.cache) this.evaluateCache[this.zobrist.code] = result
-    return (role === ERole.white ? 1 : -1) * (this.comMaxScore - this.humMaxScore);
+    return (role === ERole.white ? 1 : -1) * (comMaxScore - humMaxScore);
   };
 
   checkRoleScore = (piece: IPiece, role: ERole): boolean => {
@@ -541,6 +551,7 @@ export class Board {
   updateScore = (p: IPiece): void => {
     const radius = 4;
     const len = this.board.pieces.length;
+    console.log(`===========updateScore [${p.y}, ${p.x}]===========`);
 
     // 无论是不是空位 都需要更新
     // 更新竖向
@@ -605,11 +616,13 @@ export class Board {
    * @param scores 需要更新的分数数组
    */
   mergeScore = (data: IScorePoint, role: ERole, scores: number[][]): void => {
-    if (role !== commons.reverseRole(data.role)) {
-      const score = evaluatePoint.scorePoint(data);
+    if (role === data.role) {
+      // 只有自己的棋子才更新分数
+      const score = this.evaluatePoint.scorePoint(data);
       scores[data.y][data.x] = score;
       statistic.table[data.y][data.x] += score;
     } else {
+      // 空位和对方的棋子都是 0 分
       scores[data.y][data.x] = 0;
     }
   };
