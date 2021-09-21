@@ -9,7 +9,7 @@ import { commons } from './commons.service';
 import { AI } from '../configs/ai.config';
 import { ERole } from '../interfaces/role.interface';
 import { creatPiece } from './piece.service';
-import { negamax } from './negamax.service';
+import { filterCandidates } from './filter-candidates.service';
 
 /**
  * -2-
@@ -21,7 +21,7 @@ export class Dueling {
     const steps = board.allSteps;
     const play = board.playChess;
     AI.debug && console.log('match => s', cloneDeep(steps));
-    return negamax.deepAll(play, AI.searchDeep);
+    return filterCandidates.deepFilter(play, AI.searchDeep);
   };
 
   private huayue = (): IPiece => {

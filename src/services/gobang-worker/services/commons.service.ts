@@ -149,6 +149,16 @@ export class Commons {
     }
     return neg * SCORE.FIVE;
   };
+
+  /**
+   * 生成 n ~ m 的随机数
+   * 左闭右开
+   * @param min 最小值
+   * @param max 最大值
+   */
+  getRandom = (min: number, max: number): number => {
+    return Math.floor(Math.random() * (max - min) + min);
+  };
 }
 
 export const commons = new Commons();

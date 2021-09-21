@@ -8,19 +8,19 @@ import cloneDeep from 'lodash-es/cloneDeep';
 
 import { ERole } from '../interfaces/role.interface';
 import { SCORE } from '../configs/score.config';
-import { board } from './board.service';
+import { board } from '../services/board.service';
 import { AI } from '../configs/ai.config';
-import { commons } from './commons.service';
+import { commons } from '../services/commons.service';
 import { IPiece } from '../interfaces/piece.interface';
-import { zobrist } from './zobrist.service';
+import { zobrist } from '../services/zobrist.service';
 import {
   IGCache,
-  IRMinMax,
+  ISResponse,
   ISearch,
   ISearchCache,
-  ISMinMax
+  IDeepSearch
 } from '../interfaces/negamax.interface';
-import { creatPiece } from './piece.service';
+import { creatPiece } from '../services/piece.service';
 
 /**
  * 极大极小值检索
@@ -31,8 +31,8 @@ export class Negamax {
   private readonly MIN = this.MAX * -1; // 白棋
 
   private count = 0; // 每次思考的节点数
-  private pvCut = 0;
-  private abCut = 0; // AB剪枝次数
+  private pvCut = 0; // pv 剪枝次数
+  private abCut = 0; // AB 剪枝次数
   private cacheCount = 0; // zobrist缓存节点数
   private cacheGet = 0; // zobrist缓存命中数量
   private start = 0; // 开始深入计算的开始时间
@@ -102,7 +102,7 @@ export class Negamax {
       this.pvCut = 0;
       board.currentSteps = [];
 
-      const minMaxData: ISMinMax = {
+      const minMaxData: IDeepSearch = {
         candidates,
         role,
         deep: i,
@@ -174,7 +174,7 @@ export class Negamax {
    * 第一层是电脑计算一个alpha后续同级的分数除非高于它否则不用计算
    * @param data 检索需要参数
    */
-  minMaxSearch = (data: ISMinMax): IPiece[] => {
+  minMaxSearch = (data: IDeepSearch): IPiece[] => {
     const { candidates, role, deep, alpha, beta, step, spread } = data;
     const deepCandidates: IPiece[] = [];
     let alphaCut = alpha;
@@ -277,7 +277,7 @@ export class Negamax {
    * 通过上一步的数据生成下一层的落子点，并继续递归上层函数计算
    * @param data 查询需要的数据
    */
-  deepMinMaxSearch = (data: ISearch): IRMinMax => {
+  deepMinMaxSearch = (data: ISearch): ISResponse => {
     const { deep, alpha, beta, role, step, spread } = data;
 
     // 给当前的棋盘打分
@@ -316,7 +316,7 @@ export class Negamax {
       });
 
       // 生成当前局势的分数
-      const reduceData: IRMinMax = { evaluate: this.MIN, steps: [], step };
+      const reduceData: ISResponse = { evaluate: this.MIN, steps: [], step };
 
       return values.reduce((s, c) => {
         const maxV = Math.max(s.evaluate, c.score);
