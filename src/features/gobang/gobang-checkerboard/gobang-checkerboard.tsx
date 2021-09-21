@@ -35,7 +35,7 @@ export class GobangCheckerboard extends BaseComponent<Props> {
     app.log && console.log(`[x: ${x}, y: ${y}]`);
     const { gameStatus, playChess } = this.props;
     if (
-      (gameStatus === GameType.DUEL_BLOCK && playChess === ERole.block) ||
+      (gameStatus === GameType.DUEL_BLOCK && playChess === ERole.black) ||
       (gameStatus === GameType.DUEL_WHITE && playChess === ERole.white)
     ) {
       this.props.gameGo(creatPiece({ x, y, role: playChess }));

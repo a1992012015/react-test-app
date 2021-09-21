@@ -26,9 +26,8 @@ import {
 import { IWRBackward, IWRForward, WorkerType } from '../interfaces/worker.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
 import { SCORE } from '../../services/gobang-worker/configs/score.config';
-import { evaluatePoint } from '../../services/gobang-worker/services/evaluate-point.service';
 import { IScorePoint } from '../../services/gobang-worker/interfaces/evaluate-point.interface';
-import { commons } from '../../services/gobang-worker/services/commons.service';
+import { evaluatePoint } from '../../services/gobang-worker/services/evaluate-point.service';
 import { app } from '../../configs/commons.config';
 
 /**
@@ -66,7 +65,7 @@ function* gobangGoOnWatch(): Generator<
         yield put(gameChangeState(statePayload));
       } else if (
         (gameType === GameType.DUEL_BLOCK && playChess === ERole.white) ||
-        (gameType === GameType.DUEL_WHITE && playChess === ERole.block)
+        (gameType === GameType.DUEL_WHITE && playChess === ERole.black)
       ) {
         const post: IWorkerRequest = {
           type: WorkerType.GO,
@@ -90,29 +89,12 @@ function* gobangGoOnWatch(): Generator<
  */
 function* gobangWinCheckWork(piece: IPiece): SagaIterator<IPiece[]> {
   const gobang: IGameStatus = yield select((store) => store.gobang);
-  const scoreCache: number[][][][] = [
-    [], // placeholder
-    [
-      // for role 1
-      commons.createScores(15, 15),
-      commons.createScores(15, 15),
-      commons.createScores(15, 15),
-      commons.createScores(15, 15)
-    ],
-    [
-      // for role 2
-      commons.createScores(15, 15),
-      commons.createScores(15, 15),
-      commons.createScores(15, 15),
-      commons.createScores(15, 15)
-    ]
-  ];
+
   const scorePoint: IScorePoint = {
     x: piece.x,
     y: piece.y,
     role: piece.role,
-    pieces: gobang.board,
-    scoreCache
+    pieces: gobang.board
   };
 
   for (let i = 0; i < 4; i++) {
@@ -200,7 +182,7 @@ function* gobangStartWatch(): Generator<TakeEffect | PutEffect, void, SagaAction
 
     const startPayload: IGameChange = {
       gameType,
-      playChess: payload.first ? ERole.block : ERole.white,
+      playChess: payload.first ? ERole.black : ERole.white,
       board: payload.pieces,
       name: payload.name
     };
@@ -256,7 +238,7 @@ function* gobangChangeGameWatch(): Generator<
     const { playChess } = gobang as IGameStatus;
 
     const statePayload: IGameChange = {
-      gameType: playChess === ERole.block ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE
+      gameType: playChess === ERole.black ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE
     };
 
     if (type === gameSagaChangeForward.type) {

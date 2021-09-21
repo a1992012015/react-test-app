@@ -40,6 +40,7 @@ module.exports = {
     'no-plusplus': 0,
     'no-bitwise': 'off',
     'default-case': 'error',
+    'no-lonely-if': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     'import/no-extraneous-dependencies': [0],
     'no-else-return': ['off', { allowElseIf: true }],

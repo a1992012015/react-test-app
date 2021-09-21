@@ -4,7 +4,6 @@
  * 这样迭代的深度越大，则分数越精确，并且，任何时候达到时间限制而中断迭代的时候，能保证这个列表中的分数都是可靠的
  */
 
-// var SCORE = T
 import cloneDeep from 'lodash-es/cloneDeep';
 
 import { ERole } from '../interfaces/role.interface';
@@ -40,10 +39,6 @@ export class Negamax {
 
   deepAll = (role: ERole, deep = AI.searchDeep): IPiece => {
     const candidates = board.gen(role);
-
-    AI.debug && console.log('candidates', candidates);
-
-    AI.debug && console.log('%c=========================================', 'color: yellow');
 
     if (candidates.length > 1) {
       return this.deepenSearch(candidates, role, deep);
@@ -128,8 +123,6 @@ export class Negamax {
 
       const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
 
-      AI.debug && console.log('bestScore', bestScore);
-
       if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
         // 当有一步的分数大于或者等于活五，停止循环
         break;
@@ -142,8 +135,6 @@ export class Negamax {
       //   bestScore = this.MIN;
       // }
     }
-
-    AI.debug && console.log('deepenSearchFun => searchPiece:', cloneDeep(searchPiece));
 
     // 排序 升序
     // 经过测试，这个如果放在上面的for循环中（就是每次迭代都排序），反而由于迭代深度太浅，排序不好反而会降低搜索速度。
@@ -169,8 +160,6 @@ export class Negamax {
 
     const result = searchPiece[0];
 
-    AI.debug && console.log('result', cloneDeep(result));
-
     board.log();
 
     return result;
@@ -190,23 +179,14 @@ export class Negamax {
     const deepCandidates: IPiece[] = [];
     let alphaCut = alpha;
 
-    const { pieces, isCache } = this.getCache(deep);
+    // const { pieces, isCache } = this.getCache(deep);
 
-    if (isCache) {
-      return pieces;
-    }
+    // if (isCache) {
+    //   return pieces;
+    // }
 
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
-      AI.debug &&
-        console.log(
-          `%c======= minMaxSearch start deep: ${deep} index: ${i} =======`,
-          'color: red;'
-        );
-      AI.debug && console.log(`%c======= [${p.y}, ${p.x}] =======`, 'color: red;');
-      AI.debug && console.log('minMaxSearch role:', ERole[role]);
-      AI.debug && console.log(`A~B: ${alpha}~${beta}`);
-
       // 因为是冲过 gen 函数得到的可以的落子点，这里确定一下这一步的落子的选手
       board.put({ ...p, role });
 
@@ -225,15 +205,15 @@ export class Negamax {
 
       if (spread < AI.spreadLimit) {
         // 冲四延伸
-        const { scoreCom, scoreHum } = p;
-        if (
-          (role === ERole.white && scoreHum >= FIVE) ||
-          (role === ERole.block && scoreCom >= FIVE)
-        ) {
-          // _deep = deep+1
-          searchData.deep += 2;
-          searchData.spread++;
-        }
+        // const { scoreCom, scoreHum } = p;
+        // if (
+        //   (role === ERole.white && scoreHum >= FIVE) ||
+        //   (role === ERole.black && scoreCom >= FIVE)
+        // ) {
+        //   // _deep = deep+1
+        //   searchData.deep += 2;
+        //   searchData.spread++;
+        // }
         // 单步延伸策略：双三延伸
         // if (
         //   (role === ERole.com && p.scoreCom >= SCORE.THREE * 2) ||
@@ -246,9 +226,6 @@ export class Negamax {
 
       // 查找这一步的后续可能走法和分数
       const { evaluate, step: nowStep, steps } = this.deepMinMaxSearch(searchData);
-
-      AI.debug && console.log('nowStep', nowStep);
-
       // 因为在保留剪枝的对比值的时候会一直选取最大的那个保留
       // 在查询极小值的时候就把对比值和计算得到的值都取相反数
       // 再保留最大的就可以了
@@ -277,35 +254,21 @@ export class Negamax {
       // 而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
       // TODO 原代码就是greatOrEqualThan 具体使用那个方法以后留待测试
       if (commons.greatOrEqualThan(p.score, beta)) {
-        AI.debug && console.log(`AB cut [${p.x}, ${p.y}], ${p.score} >= ${beta}`);
         this.abCut++;
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
         p.abCut = true;
         // cache(deep, v) // 别缓存被剪枝的，而且，这个返回到上层之后，也注意都不要缓存
-        AI.debug &&
-          console.log(
-            `%c======= minMaxSearch end deep: ${deep} index: ${i} =======`,
-            'color: aqua;'
-          );
         return deepCandidates;
       }
 
       // 超时判定
       if (new Date().getTime() - this.start > AI.timeLimit * 1000) {
-        AI.debug && console.log('timeout...');
         // 超时，退出循环
-        AI.debug &&
-          console.log(
-            `%c======= minMaxSearch end deep: ${deep} index: ${i} =======`,
-            'color: aqua;'
-          );
         return deepCandidates;
       }
-      AI.debug &&
-        console.log(`%c======= minMaxSearch end deep: ${deep} index: ${i} =======`, 'color: aqua;');
     }
 
-    this.saveCache(deep, deepCandidates);
+    // this.saveCache(deep, deepCandidates);
 
     return deepCandidates;
   };
@@ -376,7 +339,6 @@ export class Negamax {
       // 记得clone，因为score在搜索的时候可能会被改的，这里要clone一个新的
       const cache = { deep, piece: pieces };
       this.searchCache[zobrist.code] = cloneDeep(cache);
-      AI.debug && console.log(`add cache[${zobrist.code}]`, this.searchCache[zobrist.code]);
       this.cacheCount++;
       return true;
     }

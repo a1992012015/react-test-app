@@ -42,7 +42,7 @@ export class Commons {
       boards.forEach((board) => {
         board.forEach((piece) => {
           if (piece.x === x && piece.y === y) {
-            piece.role = index % 2 === 0 ? ERole.block : ERole.white;
+            piece.role = index % 2 === 0 ? ERole.black : ERole.white;
             piece.step = index + 1;
           }
         });
@@ -57,7 +57,7 @@ export class Commons {
    * @param r 现在的玩家
    */
   reverseRole = (r: ERole): ERole => {
-    return r === ERole.white ? ERole.block : ERole.white;
+    return r === ERole.white ? ERole.black : ERole.white;
   };
 
   /**

@@ -1,14 +1,4 @@
-import { IPiece } from '../interfaces/piece.interface';
-import { ERole } from '../interfaces/role.interface';
-
-/**
- * 重新构成Piece的定义，在创建的时候x y role是必须的参数
- */
-interface ICreatPiece extends Partial<IPiece> {
-  x: number;
-  y: number;
-  role: ERole;
-}
+import { ICreatPiece, IPiece } from '../interfaces/piece.interface';
 
 /**
  * 棋子

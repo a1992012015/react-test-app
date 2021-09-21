@@ -60,13 +60,13 @@ export class GobangController extends BaseComponent<IProps, IState> {
       return 'lime';
     } else if (piece.role === ERole.empty && playChess === ERole.white) {
       return 'white';
-    } else if (piece.role === ERole.empty && playChess === ERole.block) {
+    } else if (piece.role === ERole.empty && playChess === ERole.black) {
       return 'black';
-    } else if (winning === ERole.block) {
+    } else if (winning === ERole.black) {
       return 'black';
     } else if (winning === ERole.white) {
       return 'white';
-    } else if (piece.role === ERole.block) {
+    } else if (piece.role === ERole.black) {
       return 'white';
     } else if (piece.role === ERole.white) {
       return 'black';
@@ -117,7 +117,7 @@ export class GobangController extends BaseComponent<IProps, IState> {
       return '您的后手，请落子';
     } else if (
       (gameStatus === GameType.DUEL_BLOCK && playChess === ERole.white) ||
-      (gameStatus === GameType.DUEL_WHITE && playChess === ERole.block)
+      (gameStatus === GameType.DUEL_WHITE && playChess === ERole.black)
     ) {
       return '电脑正在思考中。。。';
     } else {
@@ -158,7 +158,7 @@ export class GobangController extends BaseComponent<IProps, IState> {
     }
     const white = gameStatus === GameType.DUEL_WHITE;
     const block = gameStatus === GameType.DUEL_BLOCK;
-    const disabled = steps !== 0 && playChess === ERole.block ? white : block;
+    const disabled = steps !== 0 && playChess === ERole.black ? white : block;
     return (
       <React.Fragment>
         <Button type="primary" size="large" disabled={disabled} onClick={gameBackward}>

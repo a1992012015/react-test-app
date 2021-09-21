@@ -82,7 +82,7 @@ class Gobang extends BaseComponent<IProps, IState> {
 
       if (clickPiece.x === piece.x && clickPiece.y === piece.y) {
         const payload = {
-          gameType: playChess === ERole.block ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
+          gameType: playChess === ERole.black ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
           piece: creatPiece(piece)
         };
         this.props.dispatch(gameSagaPut(payload));
@@ -91,7 +91,7 @@ class Gobang extends BaseComponent<IProps, IState> {
       }
     } else {
       const payload = {
-        gameType: playChess === ERole.block ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
+        gameType: playChess === ERole.black ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
         piece: creatPiece(piece)
       };
       this.props.dispatch(gameSagaPut(payload));

@@ -1,11 +1,52 @@
-import { createReducer, current } from '@reduxjs/toolkit';
+import { createReducer } from '@reduxjs/toolkit';
 
 import { GameType, IGameStatus } from '../interfaces/gobang.interface';
 import { gameChangeState, gameInit, gamePut } from '../actions/gobang.action';
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { wuyue } from '../../services/gobang-worker/configs/opens.config';
 import { creatPiece } from '../../services/gobang-worker/services/piece.service';
+import { commons } from '../../services/gobang-worker/services/commons.service';
 
+const boards = commons.getOpenBoard([
+  [7, 7],
+  [4, 7],
+  [7, 8],
+  [6, 7],
+  [7, 10],
+  [8, 7],
+  [5, 7],
+  [4, 6],
+  [5, 9],
+  [4, 5],
+  [9, 7],
+  [8, 8],
+  [5, 3],
+  [8, 8],
+  [5, 2],
+  [8, 9],
+  [5, 4],
+  [8, 10],
+  [0, 6],
+  [1, 7],
+  [0, 5],
+  [1, 6],
+  [0, 4],
+  [1, 5],
+  [0, 2],
+  [0, 1]
+]);
+
+const initialStateTest: IGameStatus = {
+  gameType: GameType.DUEL_BLOCK,
+  board: boards,
+  name: wuyue.name,
+  playChess: ERole.black,
+  steps: 0,
+  winning: ERole.empty,
+  winMap: [],
+  piece: creatPiece({ x: 0, y: 0, role: ERole.empty }),
+  spendTime: 0
+};
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
   board: wuyue.pieces,
@@ -45,7 +86,7 @@ export const gobangReducer = createReducer(initialState, (builder) => {
       state.board[piece.y][piece.x] = piece;
       state.gameType = piece.role === ERole.white ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE;
 
-      if (piece.role === ERole.block) {
+      if (piece.role === ERole.black) {
         startTime = new Date().getTime();
       } else {
         endTime = new Date().getTime();

@@ -1,9 +1,9 @@
 import { board } from './board.service';
-import { opens, wuyue, xueyue } from '../configs/opens.config';
+import { opens, wuyue } from '../configs/opens.config';
 import { ERole } from '../interfaces/role.interface';
 import { creatPiece } from './piece.service';
 import { dueling } from './dueling.service';
-import { IOpen, IStartOpen } from '../interfaces/opens.interface';
+import { IStartOpen } from '../interfaces/opens.interface';
 import { IPiece } from '../interfaces/piece.interface';
 import { IBoard } from '../interfaces/board.interface';
 import { commons } from './commons.service';

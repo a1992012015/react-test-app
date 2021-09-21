@@ -1,5 +1,8 @@
 import { ERole } from './role.interface';
 
+/**
+ * 每一颗棋子的对象
+ */
 export interface IPiece {
   x: number; // 横轴 二维数组的第二层的坐标
   y: number; // 竖轴 二维数组的第一层坐标
@@ -10,4 +13,13 @@ export interface IPiece {
   abCut: boolean;
   scoreHum: number;
   scoreCom: number;
+}
+
+/**
+ * 重新构成Piece的定义，在创建的时候x y role是必须的参数
+ */
+export interface ICreatPiece extends Partial<IPiece> {
+  x: number;
+  y: number;
+  role: ERole;
 }

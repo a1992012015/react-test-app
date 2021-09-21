@@ -24,7 +24,6 @@ export class Board {
   count = 0; // 走了的步数
   comScore: number[][] = [];
   humScore: number[][] = [];
-  scoreCache: number[][][][] = [];
   comMaxScore = 0;
   humMaxScore = 0;
   starCount = 0;
@@ -37,7 +36,7 @@ export class Board {
     this.allSteps = [];
     this.stepsTail = [];
     this.count = 0; // chessman count
-    this.playChess = first ? ERole.white : ERole.block;
+    this.playChess = first ? ERole.white : ERole.black;
 
     if (board.pieces.length === 15 && board.pieces.every((b) => b.length === 15)) {
       this.board = cloneDeep(board);
@@ -59,31 +58,11 @@ export class Board {
     this.comScore = commons.createScores(size, size);
     this.humScore = commons.createScores(size, size);
 
-    // scoreCache[role][dir][row][column]
-    this.scoreCache = [
-      [], // placeholder
-      [
-        // for role 1
-        commons.createScores(size, size),
-        commons.createScores(size, size),
-        commons.createScores(size, size),
-        commons.createScores(size, size)
-      ],
-      [
-        // for role 2
-        commons.createScores(size, size),
-        commons.createScores(size, size),
-        commons.createScores(size, size),
-        commons.createScores(size, size)
-      ]
-    ];
-
     this.initScore();
     return cloneDeep(this.board);
   };
 
   put = (piece: IPiece): void => {
-    AI.debug && console.log(`put [${ERole[piece.role]}] piece:`, piece);
     piece.step = this.allSteps.length + 1;
     this.board.pieces[piece.y][piece.x] = piece;
     const code = zobrist.go(piece);
@@ -137,8 +116,6 @@ export class Board {
    * @param p 需要移除的棋子
    */
   remove = (p: IPiece): void => {
-    const r = this.board.pieces[p.y][p.x];
-    AI.debug && console.log(`remove [${r.y}, ${r.x}] piece:`, p);
     zobrist.go(p);
     this.board.pieces[p.y][p.x].role = ERole.empty;
     // 移除之后也需要更新周围的分数
@@ -329,7 +306,7 @@ export class Board {
     }
 
     // 自己能活四，则直接活四，不考虑冲四
-    if (role === ERole.block && humFours.length) {
+    if (role === ERole.black && humFours.length) {
       return humFours;
     }
 
@@ -339,7 +316,7 @@ export class Board {
     }
 
     // 自己有活四冲四，自己冲四都没，则只考虑对面活四 （此时对面冲四就不用考虑了)
-    if (role === ERole.block && comFours.length && !humBlockedFours.length) {
+    if (role === ERole.black && comFours.length && !humBlockedFours.length) {
       return comFours;
     }
 
@@ -363,7 +340,7 @@ export class Board {
         .concat(comThrees)
         .concat(humThrees);
     }
-    if (role === ERole.block) {
+    if (role === ERole.black) {
       result = humTwoThrees
         .concat(comTwoThrees)
         .concat(humBlockedFours)
@@ -410,15 +387,14 @@ export class Board {
         const data = {
           x,
           y,
-          pieces: this.board.pieces,
-          scoreCache: this.scoreCache
+          pieces: this.board.pieces
         };
         // 空位，对双方都打分
         if (pieces[y][x].role === ERole.empty) {
           if (this.hasNeighbor(y, x, 2, 2)) {
             // 必须是有邻居的才行
             const cs = evaluatePoint.scorePoint({ ...data, role: ERole.white });
-            const hs = evaluatePoint.scorePoint({ ...data, role: ERole.block });
+            const hs = evaluatePoint.scorePoint({ ...data, role: ERole.black });
             this.comScore[y][x] = cs;
             this.humScore[y][x] = hs;
           }
@@ -426,9 +402,9 @@ export class Board {
           // 对电脑打分，玩家此位置分数为0
           this.comScore[y][x] = evaluatePoint.scorePoint({ ...data, role: ERole.white });
           this.humScore[y][x] = 0;
-        } else if (pieces[y][x].role === ERole.block) {
+        } else if (pieces[y][x].role === ERole.black) {
           // 对玩家打分，电脑位置分数为0
-          this.humScore[y][x] = evaluatePoint.scorePoint({ ...data, role: ERole.block });
+          this.humScore[y][x] = evaluatePoint.scorePoint({ ...data, role: ERole.black });
           this.comScore[y][x] = 0;
         }
       }
@@ -502,7 +478,7 @@ export class Board {
       for (let x = 0; x < board[y].length; x++) {
         if (board[y][x].role === ERole.white) {
           this.comMaxScore += this.fixScore(this.comScore[y][x]);
-        } else if (board[y][x].role === ERole.block) {
+        } else if (board[y][x].role === ERole.black) {
           this.humMaxScore += this.fixScore(this.humScore[y][x]);
         }
       }
@@ -520,7 +496,7 @@ export class Board {
     const scoreHum = piece?.scoreHum || 0;
     const { THREE } = SCORE;
     return (
-      (role === ERole.white && scoreCom >= THREE) || (role === ERole.block && scoreHum >= THREE)
+      (role === ERole.white && scoreCom >= THREE) || (role === ERole.black && scoreHum >= THREE)
     );
   };
 
@@ -616,11 +592,10 @@ export class Board {
       x,
       y,
       dir,
-      pieces: this.board.pieces,
-      scoreCache: this.scoreCache
+      pieces: this.board.pieces
     };
     this.mergeScore({ ...data, role: ERole.white }, role, this.comScore);
-    this.mergeScore({ ...data, role: ERole.block }, role, this.humScore);
+    this.mergeScore({ ...data, role: ERole.black }, role, this.humScore);
   };
 
   /**

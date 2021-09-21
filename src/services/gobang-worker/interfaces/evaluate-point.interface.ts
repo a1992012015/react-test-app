@@ -10,5 +10,16 @@ export interface IScorePoint {
   role: ERole;
   dir?: number;
   pieces: IPiece[][];
-  scoreCache: number[][][][];
 }
+
+/**
+ * 分数缓存
+ */
+export type IScoreCache = {
+  [key in ERole]: [number, number, number, number];
+};
+
+/**
+ * 收集棋盘数组的返回值
+ */
+export type TCResult = [boolean, number, boolean];

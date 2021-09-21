@@ -1,495 +1,453 @@
+import { TCResult, IScoreCache, IScorePoint } from '../interfaces/evaluate-point.interface';
+import { ERole } from '../interfaces/role.interface';
+import { IPiece } from '../interfaces/piece.interface';
+import { commons } from './commons.service';
+import { SCORE } from '../configs/score.config';
+
 /**
  * 启发式评价函数
  * 这个是专门给某一个位置打分的，不是给整个棋盘打分的
  * 并且是只给某一个角色打分
  */
-import { SCORE } from '../configs/score.config';
-import { ERole } from '../interfaces/role.interface';
-import { IScorePoint } from '../interfaces/evaluate-point.interface';
-
 export class EvaluatePoint {
-  count = 1; // 我方棋子个数
-  block = 0; // 对方棋子个数
-  empty = -1; // 第几颗棋子的位置是空位
-  secondCount = 0; // 另一个方向的我方棋子个数
-
-  init = (): void => {
-    this.count = 1;
-    this.block = 0;
-    this.empty = -1;
-    this.secondCount = 0;
+  private possible = 1; // 可以成为自己棋子的空位和自己的棋子
+  private middleCount = 1; // 落子位置相邻的棋子数量
+  private leftCount = 0; // 左边没有相邻的棋子数量
+  private rightCount = 0; // 右边没有相邻的棋子数量
+  private leftEmpty = false; // 左边是否有空位
+  private rightEmpty = false; // 右边是否有空位
+  private leftBlock = false; // 左边的最后是否有对方的棋子
+  private rightBlock = false; // 右边的最后是否有对方的棋子
+  private scoreCache: IScoreCache = {
+    // 棋子四个方向的分数的缓存
+    [ERole.empty]: [0, 0, 0, 0],
+    [ERole.black]: [0, 0, 0, 0],
+    [ERole.white]: [0, 0, 0, 0]
   };
 
+  private role: ERole = ERole.empty;
+
   /**
-   *
-   * 表示在当前位置下一个棋子后的分数
-   * 为了性能考虑，增加了一个dir参数，如果没有传入则默认计算所有四个方向，如果传入值，则只计算其中一个方向的值
-   * @param data 计算需要的各种数据
+   * 计算当前棋子的分数，给单个的棋子打分
+   * 为了性能考虑，增加了一个dir参数
+   * 如果没有传入则默认计算所有四个方向，如果传入值，则只计算其中一个方向的值
    */
   scorePoint = (data: IScorePoint): number => {
-    const { x: px, y: py, pieces, role, scoreCache, dir } = data;
-    const len = pieces.length;
-    let result = 0;
+    const { x, y, pieces, role, dir } = data;
+    this.role = role;
+    this.scoreCache = {
+      [ERole.empty]: [0, 0, 0, 0],
+      [ERole.black]: [0, 0, 0, 0],
+      [ERole.white]: [0, 0, 0, 0]
+    };
+    const radius = 4;
 
-    // 计算竖向的
     if (dir === undefined || dir === 0) {
-      this.init();
-      // 计算当前点的右边
-      for (let y = py + 1; y <= len; y++) {
-        // 超出棋盘
-        if (y >= len) {
-          this.block++;
-          break;
-        }
-        // 右边一个棋子
-        const t = pieces[y][px];
-        if (t.role === ERole.empty) {
-          // 右边是空位
-          if (this.empty === -1 && y < len - 1 && pieces[y + 1][px].role === role) {
-            // 当前棋子没有在最边上，同时再右边的棋子是自己的
-            this.empty = this.count;
-          } else {
-            // 找到第二个空位
-            // 接下来一个是对方的棋子或空位
-            // 或者已经靠边了
-            break;
-          }
-        } else if (t.role === role) {
-          // 右边是自己的棋子
-          this.count++;
-        } else {
-          // 右边是对方的棋子
-          this.block++;
-          break;
-        }
+      // 计算竖向
+      this.reset();
+      // 计算当前棋子的上面的棋子 left
+      for (let i = 1; i <= radius; i++) {
+        const py = y - i;
+        const p = pieces?.[py]?.[x];
+        const np = pieces?.[py - 1]?.[x];
+
+        [this.leftEmpty, this.leftCount, this.leftBlock] = this.calculatePoint(
+          p,
+          np,
+          this.leftEmpty,
+          this.leftCount,
+          this.leftBlock
+        );
+      }
+      // 计算当前棋子下面的棋子 right
+      for (let i = 1; i <= radius; i++) {
+        const py = y + i;
+        const p = pieces?.[py]?.[x];
+        const np = pieces?.[py + 1]?.[x];
+
+        [this.rightEmpty, this.rightCount, this.rightBlock] = this.calculatePoint(
+          p,
+          np,
+          this.rightEmpty,
+          this.rightCount,
+          this.rightBlock
+        );
       }
 
-      // 计算当前点的左边
-      for (let y = py - 1; y >= -1; y--) {
-        if (y < 0) {
-          // 超出棋盘
-          this.block++;
-          break;
-        }
-        const t = pieces[y][px];
-        if (t.role === ERole.empty) {
-          // 左边是空位
-          if (this.empty === -1 && y > 0 && pieces[y - 1][px].role === role) {
-            // 当前棋子没有在最边上，同时再左边的棋子是自己的
-            this.empty = 0; // 注意这里是0，因为是从右往左走的
-          } else {
-            // 找到第二个空位
-            // 接下来一个是对方的棋子或空位
-            // 或者已经靠边了
-            break;
-          }
-        } else if (t.role === role) {
-          // 左边是自己的棋子
-          this.secondCount++;
-          this.empty !== -1 && this.empty++; // 注意这里，如果左边又多了己方棋子，那么empty的位置就变大了
-        } else {
-          this.block++;
-          break;
-        }
-      }
+      const leftScore = this.countToScore(
+        this.middleCount + this.leftCount,
+        this.leftEmpty,
+        this.leftBlock,
+        this.rightEmpty,
+        this.rightBlock
+      );
 
-      this.count += this.secondCount;
+      const rightScore = this.countToScore(
+        this.middleCount + this.rightCount,
+        this.rightEmpty,
+        this.rightBlock,
+        this.leftEmpty,
+        this.leftBlock
+      );
 
-      scoreCache[role][0][py][px] = this.countToScore();
+      this.scoreCache[role][dir || 0] = leftScore + rightScore;
     }
 
-    result += scoreCache[role][0][py][px] || 0;
-
-    // 计算横向的
     if (dir === undefined || dir === 1) {
-      this.init();
+      // 计算横向
+      this.reset();
+      // 计算当前棋子的左边的棋子 left
+      for (let i = 1; i <= radius; i++) {
+        const px = x - i;
+        const p = pieces?.[y]?.[px];
+        const np = pieces?.[y]?.[px - 1];
 
-      for (let i = px + 1; i <= len; i++) {
-        if (i >= len) {
-          this.block++;
-          break;
-        }
-        const t = pieces[py][i];
-        if (t.role === ERole.empty) {
-          if (this.empty === -1 && i < len - 1 && pieces[py][i + 1].role === role) {
-            this.empty = this.count;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.count++;
-        } else {
-          this.block++;
-          break;
-        }
+        [this.leftEmpty, this.leftCount, this.leftBlock] = this.calculatePoint(
+          p,
+          np,
+          this.leftEmpty,
+          this.leftCount,
+          this.leftBlock
+        );
       }
 
-      for (let i = px - 1; i >= -1; i--) {
-        if (i < 0) {
-          this.block++;
-          break;
-        }
-        const t = pieces[py][i];
-        if (t.role === ERole.empty) {
-          if (this.empty === -1 && i > 0 && pieces[py][i - 1].role === role) {
-            this.empty = 0;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.secondCount++;
-          this.empty !== -1 && this.empty++; // 注意这里，如果左边又多了己方棋子，那么empty的位置就变大了
-        } else {
-          this.block++;
-          break;
-        }
+      // 计算当前棋子右边的棋子 right
+      for (let i = 1; i <= radius; i++) {
+        const px = x + i;
+        const p = pieces?.[y]?.[px];
+        const np = pieces?.[y]?.[px + 1];
+
+        [this.rightEmpty, this.rightCount, this.rightBlock] = this.calculatePoint(
+          p,
+          np,
+          this.rightEmpty,
+          this.rightCount,
+          this.rightBlock
+        );
       }
 
-      this.count += this.secondCount;
+      const leftScore = this.countToScore(
+        this.middleCount + this.leftCount,
+        this.leftEmpty,
+        this.leftBlock,
+        this.rightEmpty,
+        this.rightBlock
+      );
 
-      scoreCache[role][1][py][px] = this.countToScore();
+      const rightScore = this.countToScore(
+        this.middleCount + this.rightCount,
+        this.rightEmpty,
+        this.rightBlock,
+        this.leftEmpty,
+        this.leftBlock
+      );
+
+      this.scoreCache[role][dir || 1] = leftScore + rightScore;
     }
 
-    result += scoreCache[role][1][py][px] || 0;
-
-    // 更新右斜下方 左斜上方
     if (dir === undefined || dir === 2) {
-      this.init();
+      // 计算左上和右下
+      this.reset();
+      // 计算当前棋子的左上的棋子 left
+      for (let i = 1; i <= radius; i++) {
+        const py = y - i;
+        const px = x - i;
+        const p = pieces?.[py]?.[px];
+        const np = pieces?.[py - 1]?.[px - 1];
 
-      for (let i = 1; i <= len; i++) {
-        const x = px + i;
-        const y = py + i;
-        if (x >= len || y >= len) {
-          this.block++;
-          break;
-        }
-        const t = pieces[y][x];
-        if (t.role === ERole.empty) {
-          if (
-            this.empty === -1 &&
-            x < len - 1 &&
-            y < len - 1 &&
-            pieces[y + 1][x + 1].role === role
-          ) {
-            this.empty = this.count;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.count++;
-        } else {
-          this.block++;
-          break;
-        }
+        [this.leftEmpty, this.leftCount, this.leftBlock] = this.calculatePoint(
+          p,
+          np,
+          this.leftEmpty,
+          this.leftCount,
+          this.leftBlock
+        );
+      }
+      // 计算当前棋子右下的棋子 right
+      for (let i = 1; i <= radius; i++) {
+        const py = y + i;
+        const px = x + i;
+        const p = pieces?.[py]?.[px];
+        const np = pieces?.[py + 1]?.[px + 1];
+
+        [this.rightEmpty, this.rightCount, this.rightBlock] = this.calculatePoint(
+          p,
+          np,
+          this.rightEmpty,
+          this.rightCount,
+          this.rightBlock
+        );
       }
 
-      for (let i = 1; i <= len; i++) {
-        const x = px - i;
-        const y = py - i;
-        if (x < 0 || y < 0) {
-          this.block++;
-          break;
-        }
-        const t = pieces[y][x];
-        if (t.role === ERole.empty) {
-          if (this.empty === -1 && x > 0 && y > 0 && pieces[y - 1][x - 1].role === role) {
-            this.empty = 0;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.secondCount++;
-          this.empty !== -1 && this.empty++; // 注意这里，如果左边又多了己方棋子，那么empty的位置就变大了
-        } else {
-          this.block++;
-          break;
-        }
-      }
+      const leftScore = this.countToScore(
+        this.middleCount + this.leftCount,
+        this.leftEmpty,
+        this.leftBlock,
+        this.rightEmpty,
+        this.rightBlock
+      );
 
-      this.count += this.secondCount;
+      const rightScore = this.countToScore(
+        this.middleCount + this.rightCount,
+        this.rightEmpty,
+        this.rightBlock,
+        this.leftEmpty,
+        this.leftBlock
+      );
 
-      scoreCache[role][2][py][px] = this.countToScore();
+      this.scoreCache[role][dir || 2] = leftScore + rightScore;
     }
 
-    result += scoreCache[role][2][py][px] || 0;
-
-    // 更新左斜下方 右斜上方
     if (dir === undefined || dir === 3) {
-      this.init();
+      // 计算左下和右上
+      this.reset();
+      // 计算当前棋子的左下的棋子 left
+      for (let i = 1; i <= radius; i++) {
+        const py = y + i;
+        const px = x - i;
+        const p = pieces?.[py]?.[px];
+        const np = pieces?.[py + 1]?.[px - 1];
 
-      for (let i = 1; i <= len; i++) {
-        const x = px - i;
-        const y = py + i;
-        if (x < 0 || y < 0 || x >= len || y >= len) {
-          this.block++;
-          break;
-        }
-        const t = pieces[y][x];
-        if (t.role === ERole.empty) {
-          if (this.empty === -1 && x > 0 && y < len - 1 && pieces[y + 1][x - 1].role === role) {
-            this.empty = this.count;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.count++;
-        } else {
-          this.block++;
-          break;
-        }
+        [this.leftEmpty, this.leftCount, this.leftBlock] = this.calculatePoint(
+          p,
+          np,
+          this.leftEmpty,
+          this.leftCount,
+          this.leftBlock
+        );
+      }
+      // 计算当前棋子右上的棋子 right
+      for (let i = 1; i <= radius; i++) {
+        const py = y - i;
+        const px = x + i;
+        const p = pieces?.[py]?.[px];
+        const np = pieces?.[py - 1]?.[px + 1];
+
+        [this.rightEmpty, this.rightCount, this.rightBlock] = this.calculatePoint(
+          p,
+          np,
+          this.rightEmpty,
+          this.rightCount,
+          this.rightBlock
+        );
       }
 
-      for (let i = 1; i <= len; i++) {
-        const x = px + i;
-        const y = py - i;
-        if (x < 0 || y < 0 || x >= len || y >= len) {
-          this.block++;
-          break;
-        }
-        const t = pieces[y][x];
-        if (t.role === ERole.empty) {
-          if (this.empty === -1 && x < len - 1 && y > 0 && pieces[y - 1][x + 1].role === role) {
-            this.empty = 0;
-          } else {
-            break;
-          }
-        } else if (t.role === role) {
-          this.secondCount++;
-          this.empty !== -1 && this.empty++; // 注意这里，如果左边又多了己方棋子，那么empty的位置就变大了
-        } else {
-          this.block++;
-          break;
-        }
-      }
+      const leftScore = this.countToScore(
+        this.middleCount + this.leftCount,
+        this.leftEmpty,
+        this.leftBlock,
+        this.rightEmpty,
+        this.rightBlock
+      );
 
-      this.count += this.secondCount;
+      const rightScore = this.countToScore(
+        this.middleCount + this.rightCount,
+        this.rightEmpty,
+        this.rightBlock,
+        this.leftEmpty,
+        this.leftBlock
+      );
 
-      scoreCache[role][3][py][px] = this.countToScore();
+      this.scoreCache[role][dir || 3] = leftScore + rightScore;
     }
 
-    result += scoreCache[role][3][py][px] || 0;
-
-    return result;
+    return this.scoreCache[role].reduce((score, current) => score + current, 0);
   };
 
   /**
-   * 打分函数
-   * 通过计算对方的棋子和自己的棋子组合来决定这条直线的棋子分数
+   * 统计计算的方向的count和空位还有对方是否有对方的棋子
+   * @param p 需要统计的位置
+   * @param np 统计位置的下一个棋子
+   * @param e 当前这个方向是否找到了空位
+   * @param c 当前这个方向自己的棋子数量
+   * @param b 当前这个但方是否有对方的棋子
    */
-  countToScore = (): number => {
-    // console.log('%c=================== countToScore ===================', 'color: slateblue;');
-    // console.log('empty', this.empty);
-    // console.log('count', this.count);
-    // console.log('count', this.block);
+  private calculatePoint = (p: IPiece, np: IPiece, e: boolean, c: number, b: boolean): TCResult => {
+    let empty = e;
+    let count = c;
+    const block = b;
 
-    if (this.empty <= 0) {
-      // 没有空位
-      if (this.count >= 5) {
-        // 自己的棋子有五个
-        return SCORE.FIVE; // 连五
-      }
+    if (!p || p.role === commons.reverseRole(this.role)) {
+      // 到边界外面了
+      // 或者这颗棋子是对方的
+      return [empty, count, true];
+    } else if (p.role === ERole.empty) {
+      // 这颗棋子是空位
 
-      if (this.block === 0) {
-        // 对方的棋子没有
-        switch (this.count) {
-          case 1:
-            return SCORE.ONE;
-          case 2:
-            return SCORE.TWO;
-          case 3:
-            return SCORE.THREE;
-          case 4:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
+      if (!block) {
+        this.possible++;
       }
 
-      if (this.block === 1) {
-        // 又一个对方的棋子
-        switch (this.count) {
-          case 1:
-            return SCORE.BLOCKED_ONE;
-          case 2:
-            return SCORE.BLOCKED_TWO;
-          case 3:
-            return SCORE.BLOCKED_THREE;
-          case 4:
-            return SCORE.BLOCKED_FOUR;
-          default:
-            return SCORE.ZERO;
-        }
+      if (!empty && np?.role === this.role) {
+        empty = true;
+      } else {
+        return [empty, count, block];
       }
-    } else if (this.empty === 1 || this.empty === this.count - 1) {
-      // 第1个是空位
-      if (this.count >= 6) {
-        return SCORE.FIVE;
-      }
+    } else {
+      // 这颗棋子是自己的
+      this.possible++;
 
-      if (this.block === 0) {
-        switch (this.count) {
-          case 2:
-            return SCORE.TWO / 2;
-          case 3:
-            return SCORE.THREE;
-          case 4:
-            return SCORE.BLOCKED_FOUR;
-          case 5:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
+      if (!empty) {
+        this.middleCount++;
+      } else {
+        count++;
       }
-
-      if (this.block === 1) {
-        switch (this.count) {
-          case 2:
-            return SCORE.BLOCKED_TWO;
-          case 3:
-            return SCORE.BLOCKED_THREE;
-          case 4:
-            return SCORE.BLOCKED_FOUR;
-          case 5:
-            return SCORE.BLOCKED_FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-    } else if (this.empty === 2 || this.empty === this.count - 2) {
-      // 第二个是空位
-      if (this.count >= 7) {
-        return SCORE.FIVE;
-      }
-
-      if (this.block === 0) {
-        switch (this.count) {
-          case 3:
-            return SCORE.THREE;
-          case 4:
-          case 5:
-            return SCORE.BLOCKED_FOUR;
-          case 6:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 1) {
-        switch (this.count) {
-          case 3:
-            return SCORE.BLOCKED_THREE;
-          case 4:
-            return SCORE.BLOCKED_FOUR;
-          case 5:
-            return SCORE.BLOCKED_FOUR;
-          case 6:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 2) {
-        switch (this.count) {
-          case 4:
-          case 5:
-          case 6:
-            return SCORE.BLOCKED_FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-    } else if (this.empty === 3 || this.empty === this.count - 3) {
-      if (this.count >= 8) {
-        return SCORE.FIVE;
-      }
-
-      if (this.block === 0) {
-        switch (this.count) {
-          case 4:
-          case 5:
-            return SCORE.THREE;
-          case 6:
-            return SCORE.BLOCKED_FOUR;
-          case 7:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 1) {
-        switch (this.count) {
-          case 4:
-          case 5:
-          case 6:
-            return SCORE.BLOCKED_FOUR;
-          case 7:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 2) {
-        switch (this.count) {
-          case 4:
-          case 5:
-          case 6:
-          case 7:
-            return SCORE.BLOCKED_FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-    } else if (this.empty === 4 || this.empty === this.count - 4) {
-      if (this.count >= 9) {
-        return SCORE.FIVE;
-      }
-
-      if (this.block === 0) {
-        switch (this.count) {
-          case 5:
-          case 6:
-          case 7:
-          case 8:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 1) {
-        switch (this.count) {
-          case 4:
-          case 5:
-          case 6:
-          case 7:
-            return SCORE.BLOCKED_FOUR;
-          case 8:
-            return SCORE.FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-
-      if (this.block === 2) {
-        switch (this.count) {
-          case 5:
-          case 6:
-          case 7:
-          case 8:
-            return SCORE.BLOCKED_FOUR;
-          default:
-            return SCORE.ZERO;
-        }
-      }
-    } else if (this.empty === 5 || this.empty === this.count - 5) {
-      return SCORE.FIVE;
     }
 
-    return SCORE.ZERO;
+    return [empty, count, block];
+  };
+
+  /**
+   * 检查不同方向的分数
+   * 第一个例子
+   * 横向的时候自己的棋子的排列从左到右是三颗连在一起然后是一颗空位又是两颗连在一起再是一颗空位最后又有一颗的排列
+   * 落子是落在中间两颗的其中一颗的时候
+   * 往左边算是一个 BLOCKED_FOUR 也就是10000分
+   * 往右边算是一个 BLOCKED_THREE 也就是1000分
+   * 第二个例子
+   * 横向的时候棋子的排列从左到右是一颗对方的棋子然后四颗自己的连在一起然后是一颗空位又是一颗自己的棋子
+   * 落子落在四颗棋子的其中一颗
+   * 往左边算因为最后四对方的棋子总数只有四颗无法形成任意的连子算是一个 ZERO 也就是0分
+   * 往右边算因为空位加自己最后也没有对方的棋子形成一个 BLOCKED_FOUR 也就是10000分
+   * 也就是说计算的时候另一个方向只有block和empty参与计算是否形成 BLOCKED 并不实际参与分数的计算
+   * 所以落子的分数要算左右两边的分数只和
+   * 所以第一个例子的分数最终四11000分
+   * 所以第二个例子的分数最终四10000分
+   * 此函数是计算一个方向的分数
+   * @param count 需要计算方向的棋子总数
+   * @param checkEmpty 需要计算方向是否有空位
+   * @param backEmpty 需要计算方向的反方向是否有空位
+   * @param checkBlock 需要计算方向的最后是否是对方的棋子
+   * @param backBlock 需要计算方向的反方向的最后是否是对方的棋子
+   */
+  private countToScore = (
+    count: number,
+    checkEmpty: boolean,
+    backEmpty: boolean,
+    checkBlock: boolean,
+    backBlock: boolean
+  ): number => {
+    if (this.possible >= 5) {
+      // 有可能走出五连才开始计算
+      // 现在的棋子加上空位没有对方棋子的情况下大于等于5才算是有效的
+      // 否则这一排的棋子全都没有分数
+      if (this.middleCount < 5) {
+        // 落子相邻的棋子没有达到五连的
+        if (!checkEmpty && !backEmpty) {
+          // 两边都没空位所有棋子都完全相邻排列
+          if (!checkBlock && !backBlock) {
+            // 两边最后也没有对方的棋子
+            switch (count) {
+              case 1:
+                return SCORE.ONE;
+              case 2:
+                return SCORE.TWO;
+              case 3:
+                return SCORE.THREE;
+              case 4:
+                return SCORE.FOUR;
+              default:
+                // 默认值永远不会走这一步
+                return SCORE.ZERO;
+            }
+          } else {
+            // 剩余的三种情况
+            // check的方向最后是对方的棋子 反方向不是
+            // 反方向的最后是对方的棋子 check的不是
+            // check方向和反方向两边都是对方的棋子
+            // 但是因为可能性的棋子是大于五颗所有都是 BLOCKED 的分数
+            switch (count) {
+              case 1:
+                return SCORE.BLOCKED_ONE;
+              case 2:
+                return SCORE.BLOCKED_TWO;
+              case 3:
+                return SCORE.BLOCKED_THREE;
+              case 4:
+                return SCORE.BLOCKED_FOUR;
+              default:
+                // 默认值永远不会走这一步
+                return SCORE.ZERO;
+            }
+          }
+        } else if (!checkEmpty && backEmpty) {
+          // check的方向没有空位 反方向有空位
+          if ((!checkBlock && !backBlock) || (!checkBlock && backBlock)) {
+            // 两边最后也没有对方的棋子
+            // check的方向最后没有对方的棋子 反方最后向有
+            switch (count) {
+              case 1:
+                return SCORE.ONE;
+              case 2:
+                return SCORE.TWO;
+              case 3:
+                return SCORE.THREE;
+              case 4:
+              default:
+                // 这个位置最多只有四颗五颗就是连五
+                return SCORE.FOUR;
+            }
+          } else {
+            // check的方向最后有对方的棋子 反方向最后没有
+            // 两边最后都是对方的棋子
+            switch (count) {
+              case 1:
+                return SCORE.BLOCKED_ONE;
+              case 2:
+                return SCORE.BLOCKED_TWO;
+              case 3:
+                return SCORE.BLOCKED_THREE;
+              case 4:
+              default:
+                // 这个位置最多只有四颗五颗就是连五
+                return SCORE.BLOCKED_FOUR;
+            }
+          }
+        } else {
+          // check方向和反方向两边都有空位
+          // check方向有空位 反方向没有
+
+          // check方向和反方向的最后都没有对方的棋子
+          // check方向的最后有对方棋子 反方向的最后没有
+          // check方向的最后没有对方的棋子 反方向最后最后右
+          // 两边的最后都有对方的棋子
+
+          // check的方向最后是对方的棋子 反方向没有对方的棋子
+          // check的方向最后没有对方的棋子 反方向最后是对方的棋子
+          // check方向最后是对方的棋子 反方向最后也是对方的棋子
+          // 因为可能性是大于5的所以这里的棋子分数都是
+          switch (count) {
+            case 2: // 落子加上空位意味着下一颗棋子也是自己的所以最小的count也是2
+              return SCORE.BLOCKED_TWO;
+            case 3:
+              return SCORE.BLOCKED_THREE;
+            case 4:
+            default:
+              // 这个位置最多只有四颗五颗就是连五
+              return SCORE.BLOCKED_FOUR;
+          }
+        }
+      } else {
+        // 落子相邻的棋子大于等于五颗直接就是五连
+        return SCORE.FIVE;
+      }
+    } else {
+      return SCORE.ZERO;
+    }
+  };
+
+  /**
+   * 初始化所有的记录
+   */
+  private reset = (): void => {
+    this.possible = 1;
+    this.middleCount = 1;
+    this.leftEmpty = false;
+    this.leftBlock = false;
+    this.leftCount = 0;
+    this.rightEmpty = false;
+    this.rightBlock = false;
+    this.rightCount = 0;
   };
 }
 
