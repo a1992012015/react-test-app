@@ -79,7 +79,8 @@ export class EvaluatePoint {
         this.leftEmpty,
         this.leftBlock,
         this.rightEmpty,
-        this.rightBlock
+        this.rightBlock,
+        0
       );
 
       const rightScore = this.countToScore(
@@ -87,7 +88,8 @@ export class EvaluatePoint {
         this.rightEmpty,
         this.rightBlock,
         this.leftEmpty,
-        this.leftBlock
+        this.leftBlock,
+        leftScore
       );
 
       this.scoreCache[role][dir || 0] = leftScore + rightScore;
@@ -131,7 +133,8 @@ export class EvaluatePoint {
         this.leftEmpty,
         this.leftBlock,
         this.rightEmpty,
-        this.rightBlock
+        this.rightBlock,
+        0
       );
 
       const rightScore = this.countToScore(
@@ -139,7 +142,8 @@ export class EvaluatePoint {
         this.rightEmpty,
         this.rightBlock,
         this.leftEmpty,
-        this.leftBlock
+        this.leftBlock,
+        leftScore
       );
 
       this.scoreCache[role][dir || 1] = leftScore + rightScore;
@@ -184,7 +188,8 @@ export class EvaluatePoint {
         this.leftEmpty,
         this.leftBlock,
         this.rightEmpty,
-        this.rightBlock
+        this.rightBlock,
+        0
       );
 
       const rightScore = this.countToScore(
@@ -192,7 +197,8 @@ export class EvaluatePoint {
         this.rightEmpty,
         this.rightBlock,
         this.leftEmpty,
-        this.leftBlock
+        this.leftBlock,
+        leftScore
       );
 
       this.scoreCache[role][dir || 2] = leftScore + rightScore;
@@ -237,7 +243,8 @@ export class EvaluatePoint {
         this.leftEmpty,
         this.leftBlock,
         this.rightEmpty,
-        this.rightBlock
+        this.rightBlock,
+        0
       );
 
       const rightScore = this.countToScore(
@@ -245,7 +252,8 @@ export class EvaluatePoint {
         this.rightEmpty,
         this.rightBlock,
         this.leftEmpty,
-        this.leftBlock
+        this.leftBlock,
+        leftScore
       );
 
       this.scoreCache[role][dir || 3] = leftScore + rightScore;
@@ -319,121 +327,216 @@ export class EvaluatePoint {
    * @param backEmpty 需要计算方向的反方向是否有空位
    * @param checkBlock 需要计算方向的最后是否是对方的棋子
    * @param backBlock 需要计算方向的反方向的最后是否是对方的棋子
+   * @param score 这条直线现在的分数
    */
   private countToScore = (
     count: number,
     checkEmpty: boolean,
     backEmpty: boolean,
     checkBlock: boolean,
-    backBlock: boolean
+    backBlock: boolean,
+    score: number
   ): number => {
-    if (this.possible >= 5) {
-      // 有可能走出五连才开始计算
-      // 现在的棋子加上空位没有对方棋子的情况下大于等于5才算是有效的
-      // 否则这一排的棋子全都没有分数
-      if (this.middleCount < 5) {
-        // 落子相邻的棋子没有达到五连的
-        if (!checkEmpty && !backEmpty) {
-          // 两边都没空位所有棋子都完全相邻排列
-          if (!checkBlock && !backBlock) {
-            // 两边最后也没有对方的棋子
-            switch (count) {
-              case 1:
-                return SCORE.ONE;
-              case 2:
-                return SCORE.TWO;
-              case 3:
-                return SCORE.THREE;
-              case 4:
-                return SCORE.FOUR;
-              default:
-                // 默认值永远不会走这一步
-                return SCORE.ZERO;
-            }
-          } else {
-            // 剩余的三种情况
-            // check的方向最后是对方的棋子 反方向不是
-            // 反方向的最后是对方的棋子 check的不是
-            // check方向和反方向两边都是对方的棋子
-            // 但是因为可能性的棋子是大于五颗所有都是 BLOCKED 的分数
-            switch (count) {
-              case 1:
-                return SCORE.BLOCKED_ONE;
-              case 2:
-                return SCORE.BLOCKED_TWO;
-              case 3:
-                return SCORE.BLOCKED_THREE;
-              case 4:
-                return SCORE.BLOCKED_FOUR;
-              default:
-                // 默认值永远不会走这一步
-                return SCORE.ZERO;
-            }
-          }
-        } else if (!checkEmpty && backEmpty) {
-          // check的方向没有空位 反方向有空位
-          if ((!checkBlock && !backBlock) || (!checkBlock && backBlock)) {
-            // 两边最后也没有对方的棋子
-            // check的方向最后没有对方的棋子 反方最后向有
-            switch (count) {
-              case 1:
-                return SCORE.ONE;
-              case 2:
-                return SCORE.TWO;
-              case 3:
-                return SCORE.THREE;
-              case 4:
-              default:
-                // 这个位置最多只有四颗五颗就是连五
-                return SCORE.FOUR;
-            }
-          } else {
-            // check的方向最后有对方的棋子 反方向最后没有
-            // 两边最后都是对方的棋子
-            switch (count) {
-              case 1:
-                return SCORE.BLOCKED_ONE;
-              case 2:
-                return SCORE.BLOCKED_TWO;
-              case 3:
-                return SCORE.BLOCKED_THREE;
-              case 4:
-              default:
-                // 这个位置最多只有四颗五颗就是连五
-                return SCORE.BLOCKED_FOUR;
-            }
-          }
-        } else {
-          // check方向和反方向两边都有空位
-          // check方向有空位 反方向没有
-
-          // check方向和反方向的最后都没有对方的棋子
-          // check方向的最后有对方棋子 反方向的最后没有
-          // check方向的最后没有对方的棋子 反方向最后最后右
-          // 两边的最后都有对方的棋子
-
-          // check的方向最后是对方的棋子 反方向没有对方的棋子
-          // check的方向最后没有对方的棋子 反方向最后是对方的棋子
-          // check方向最后是对方的棋子 反方向最后也是对方的棋子
-          // 因为可能性是大于5的所以这里的棋子分数都是
+    if (this.possible < 5) {
+      return SCORE.ZERO;
+    } else if (this.middleCount >= 5) {
+      return SCORE.FIVE;
+    } else {
+      // 落子相邻的棋子没有达到五连的
+      if (!checkEmpty && !backEmpty) {
+        // 两边都没空位所有棋子都完全相邻排列
+        // 这种情况无论怎么数两边的分数都是一样的
+        if (!score && !checkBlock && !backBlock) {
+          // 两边最后也没有对方的棋子
           switch (count) {
-            case 2: // 落子加上空位意味着下一颗棋子也是自己的所以最小的count也是2
+            case 1:
+              return SCORE.ONE;
+            case 2:
+              return SCORE.TWO;
+            case 3:
+              return SCORE.THREE;
+            case 4:
+            default:
+              // 五颗会直接走到五连就结束了，所以最大就是活四
+              return SCORE.FOUR;
+          }
+        } else if (!score) {
+          // 剩余的三种情况
+          // check的方向最后是对方的棋子 反方向最后不是
+          // check的方向最后不是对方的棋子 反方向最后是
+          // check方向和反方向最后都是对方的棋子这种可能性不存在
+          // 注意因为两边都有对方的棋子，也没有空位 possible 必定小于5 小于五就直接走到 0 分了
+          // 而相邻的棋子有五颗直接会成为活五也不会到这里
+          // 但是因为可能性的棋子是大于五颗所有都是 BLOCKED 的分数
+          switch (count) {
+            case 1:
+              return SCORE.BLOCKED_ONE;
+            case 2:
               return SCORE.BLOCKED_TWO;
             case 3:
               return SCORE.BLOCKED_THREE;
             case 4:
             default:
-              // 这个位置最多只有四颗五颗就是连五
+              // 在这里count最大就是 4
               return SCORE.BLOCKED_FOUR;
+          }
+        } else {
+          return score;
+        }
+      } else if (!checkEmpty && backEmpty) {
+        // check的方向没有空位 反方向有空位
+        if ((!checkBlock && !backBlock) || (!checkBlock && backBlock)) {
+          // chek的方向和反方向的最后都没有对方的棋子
+          // check的方向最后没有对方的棋子 反方最后向有
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 活一 眠二 分数都一样
+              return this.fixMaxScore(SCORE.BLOCKED_TWO, score);
+            case 3: // 活一 活二 眠三 返回眠三
+              return this.fixMaxScore(SCORE.TWO, score);
+            case 4: // 活一 活二 活三 眠四 但是眠四分数最高返回眠四
+              return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+            case 5: // 从第五颗开始就需要看中间有几颗了
+            default: {
+              // 因为此处middle count 不可能大于等于五
+              if (this.middleCount === 4) {
+                // 如果中间有四颗那么就是活四
+                return this.fixMaxScore(SCORE.FOUR, score);
+              } else {
+                // 其他的无论怎么排列最大的都是眠4
+                return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+              }
+            }
+          }
+        } else {
+          // check的方向最后有对方的棋子 反方向最后没有
+          // 两边最后都是对方的棋子的情况count只能是四
+          // 而这种情况下无论怎么排列组合最大的都是眠四
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 眠一 眠二 眠二最大
+              return this.fixMaxScore(SCORE.BLOCKED_TWO, score);
+            case 3: // 眠一 眠二 眠三 眠三最大
+              return this.fixMaxScore(SCORE.BLOCKED_THREE, score);
+            case 4: // 眠一 眠二 眠三 眠四 眠四最大
+            default:
+              // 就算大于四颗因为有一颗是对方的无论怎么算都是眠四
+              return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+          }
+        }
+      } else if (checkEmpty && !backEmpty) {
+        // check方向有空位 反方向没有
+        if ((!checkBlock && !backBlock) || (checkBlock && !backBlock)) {
+          // chek的方向和反方向的最后都没有对方的棋子
+          // check的方向最后有对方的棋子 反方向最后没有
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 活一 眠二 分数都一样
+              return this.fixMaxScore(SCORE.BLOCKED_TWO, score);
+            case 3: // 活一 活二 眠三 返回眠三
+              return this.fixMaxScore(SCORE.TWO, score);
+            case 4: // 活一 活二 活三 眠四 但是眠四分数最高返回眠四
+              return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+            case 5: // 从第五颗开始就需要看中间有几颗了
+            default: {
+              // 因为此处middle count 不可能大于等于五
+              if (this.middleCount === 4) {
+                // 如果中间有四颗那么就是活四
+                return this.fixMaxScore(SCORE.FOUR, score);
+              } else {
+                // 其他的无论怎么排列最大的都是眠4
+                return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+              }
+            }
+          }
+        } else {
+          // check的方向最后没有对方的棋子 反方向最后有
+          // 两边最后都是对方的棋子的情况count只能是四
+          // 而这种情况下无论怎么排列组合最大的都是眠四
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 眠一 眠二 眠二最大
+              return this.fixMaxScore(SCORE.BLOCKED_TWO, score);
+            case 3: // 眠一 眠二 眠三 眠三最大
+              return this.fixMaxScore(SCORE.BLOCKED_THREE, score);
+            case 4: // 眠一 眠二 眠三 眠四 眠四最大
+            default:
+              // 就算大于四颗因为有一颗是对方的无论怎么算都是眠四
+              return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
           }
         }
       } else {
-        // 落子相邻的棋子大于等于五颗直接就是五连
-        return SCORE.FIVE;
+        // check方向和反方向两边都有空位
+        if (!checkBlock && !backBlock) {
+          // check方向和反方向的最后都没有对方的棋子
+          // 因为两边都有空位。而且两边都没有对方的棋子
+          // 所以分数根据方向不一样会成为两个分数和组成两种棋形
+          // 对方需要下两颗棋子才能断掉这颗棋子的全部生路
+          // 所以这里的分数是两个方向的分数只和
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 活一 眠二 返回眠二加另一方向的
+              return SCORE.BLOCKED_TWO + score;
+            case 3: // 活一 活二 眠三 返回眠三加上另一方向的分数
+              return SCORE.BLOCKED_THREE + score;
+            case 4: // 活一 活二 活三 眠四 返回眠四加另一方向的分数
+              return SCORE.BLOCKED_FOUR + score;
+            case 5:
+            default: {
+              // 因为此处middle count 不可能大于等于五
+              if (this.middleCount === 4) {
+                // 如果中间有四颗那么就是活四
+                return SCORE.FOUR + score;
+              } else {
+                // 其他的无论怎么排列最大的都是眠4
+                return SCORE.BLOCKED_FOUR + score;
+              }
+            }
+          }
+        } else {
+          // check的方向的最后有对方的棋子 反方向的最后没有对方的棋子
+          // check的方向最后没有对方的棋子 反方向的最后有对方的棋子
+          // check的方向和反方向的最后都有对方的棋子
+          switch (count) {
+            case 2: // 因为有空位最小也都是二 活一 眠二 返回眠二
+              return this.fixMaxScore(SCORE.BLOCKED_TWO, score);
+            case 3: // 活一 活二 眠三 返回眠三
+              return this.fixMaxScore(SCORE.BLOCKED_THREE, score);
+            case 4: {
+              // 活一 活二 活三 眠四 返回眠四
+              if (score === SCORE.BLOCKED_FOUR) {
+                // 当另一边形成是眠四 因为当前方向又是眠四 在这种情况下就算又一边是对方的棋子
+                // 两种棋形也都是生效的所以分数相加
+                return SCORE.BLOCKED_FOUR * 2;
+              } else {
+                return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+              }
+            }
+            case 5:
+            default: {
+              // 因为此处middle count 不可能大于等于五
+              if (this.middleCount === 4) {
+                // 如果中间有四颗那么就是活四
+                return this.fixMaxScore(SCORE.FOUR, score);
+              } else {
+                // 活一 活二 活三 眠四 返回眠四
+                if (score === SCORE.BLOCKED_FOUR) {
+                  // 当另一边形成是眠四 因为当前方向又是眠四 在这种情况下就算又一边是对方的棋子
+                  // 两种棋形也都是生效的所以分数相加
+                  return SCORE.BLOCKED_FOUR * 2;
+                } else {
+                  return this.fixMaxScore(SCORE.BLOCKED_FOUR, score);
+                }
+              }
+            }
+          }
+        }
       }
-    } else {
-      return SCORE.ZERO;
     }
+  };
+
+  /**
+   * 计算两个方向的分数找到最大的那个分数
+   * @param curren 当前获得的分数
+   * @param score 上一个计算或者默认的分数
+   */
+  private fixMaxScore = (curren: number, score: number): number => {
+    return curren > score ? curren : score;
   };
 
   /**
