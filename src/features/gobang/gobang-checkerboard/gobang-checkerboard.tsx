@@ -32,7 +32,7 @@ export class GobangCheckerboard extends BaseComponent<Props> {
   }
 
   private gameGo = (x: number, y: number): void => {
-    app.log && console.log(`[x: ${x}, y: ${y}]`);
+    app.log && console.log(`[y: ${y}, x: ${x}]`);
     const { gameStatus, playChess } = this.props;
     if (
       (gameStatus === GameType.DUEL_BLOCK && playChess === ERole.black) ||

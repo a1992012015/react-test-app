@@ -487,7 +487,7 @@ export class Board {
     }
 
     if (deep !== undefined && deep <= 0) {
-      statistic.printBoard(this.board.pieces);
+      statistic.printBoard(this.board.pieces, 'evaluate');
       console.log('comMaxScore', comMaxScore);
       console.log('comScore', cloneDeep(this.comScore));
       console.log('humMaxScore', humMaxScore);

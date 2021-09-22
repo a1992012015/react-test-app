@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash-es';
+
 import { IPiece } from '../interfaces/piece.interface';
 import { commons } from './commons.service';
 import { AI } from '../configs/ai.config';
@@ -32,7 +34,7 @@ export class Statistic {
     AI.log && console.log('历史表推荐走法:', p);
   };
 
-  printBoard = (board: IPiece[][]): void => {
+  printBoard = (board: IPiece[][], name?: string): void => {
     const numberBoard = commons.createScores(15, 15);
     board.forEach((row) => {
       row.forEach((p) => {
@@ -40,7 +42,11 @@ export class Statistic {
       });
     });
 
-    AI.log && console.log('role board', numberBoard);
+    AI.log && console.log(`${name || 'printBoard'} => `, numberBoard);
+  };
+
+  printClone = (data: unknown, name?: string): void => {
+    AI.log && console.log(`${name || 'printClone'} => `, cloneDeep(data));
   };
 }
 

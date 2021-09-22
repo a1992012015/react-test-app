@@ -78,5 +78,10 @@
       "eslint ./src/ --cache --fix",
       "git add ."
     ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "<rootDir>/node_modules/(?!lodash-es)"
+    ]
   }
 }
