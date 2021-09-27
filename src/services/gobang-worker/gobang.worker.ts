@@ -1,17 +1,19 @@
-import { WorkerType } from '../../stores/interfaces/worker.interface';
-import { AI } from './configs/ai.config';
-import { goBangAI } from './services/gobang-ai.service';
 import { IWorkerRequest, IWRConfig, IWRPut, IWRStart } from './interfaces/gobang-worker.interface';
+import { WorkerType } from '../../stores/interfaces/worker.interface';
+import { GobangAI } from './services/gobang-ai.service';
+import { AI } from './configs/ai.config';
 
 // eslint-disable-next-line no-restricted-globals
 addEventListener('message', (event: MessageEvent<IWorkerRequest>) => {
+  let gobangAI: GobangAI = new GobangAI();
   const { payload, type } = event.data;
   AI.log && console.log(`%c=============== ${WorkerType[type]} ===============`, 'color: red;');
   AI.log && console.log('get message:', payload);
   if (type === WorkerType.START) {
     // 开始游戏
     const startD = payload as IWRStart;
-    const open = goBangAI.start(startD.first, startD.randomOpening);
+    gobangAI = new GobangAI();
+    const open = gobangAI.start(startD.first, startD.randomOpening);
 
     postMessage({
       type: WorkerType.BOARD,
@@ -19,25 +21,25 @@ addEventListener('message', (event: MessageEvent<IWorkerRequest>) => {
     });
   } else if (type === WorkerType.BEGIN) {
     // 电脑下棋
-    const p = goBangAI.begin();
+    const p = gobangAI.begin();
 
     postMessage({ type: WorkerType.PUT, payload: { piece: p } });
   } else if (type === WorkerType.GO) {
     // 走一步棋
     const goD = payload as IWRPut;
-    const p = goBangAI.turn(goD.piece.x, goD.piece.y);
+    const p = gobangAI.turn(goD.piece.x, goD.piece.y);
 
     postMessage({ type: WorkerType.PUT, payload: { piece: p } });
   } else if (type === WorkerType.BACKWARD) {
     // 悔棋
-    const { board, backward } = goBangAI.backward();
+    const { board, backward } = gobangAI.backward();
     postMessage({
       type: WorkerType.BACKWARD,
       payload: { ...board, backward }
     });
   } else if (type === WorkerType.FORWARD) {
     // 返回悔棋的一步
-    const { board, forward } = goBangAI.forward();
+    const { board, forward } = gobangAI.forward();
     postMessage({
       type: WorkerType.FORWARD,
       payload: { ...board, forward }

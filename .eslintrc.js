@@ -73,5 +73,6 @@ module.exports = {
     ],
     'arrow-body-style': 'off',
     'prefer-arrow-callback': 'off'
-  }
+  },
+  ignorePatterns: ['src/services/go-bang-ai/*', 'src/services/gobang-worker/obsolete/*']
 };

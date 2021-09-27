@@ -1,14 +1,13 @@
-import { board } from './board.service';
+import { IBackward, IForward, IStartOpen } from '../interfaces/gobang-ai.interface';
+import { IPiece } from '../interfaces/piece.interface';
 import { opens, wuyue } from '../configs/opens.config';
 import { ERole } from '../interfaces/role.interface';
 import { creatPiece } from './piece.service';
-import { dueling } from './dueling.service';
-import { IStartOpen } from '../interfaces/opens.interface';
-import { IPiece } from '../interfaces/piece.interface';
-import { IBoard } from '../interfaces/board.interface';
-import { commons } from './commons.service';
+import { Board } from './board.service';
 
-export class GoBangAI {
+export class GobangAI {
+  board = new Board();
+
   /**
    * 初始化,开始游戏
    * @param first 是否电脑先手
@@ -18,25 +17,26 @@ export class GoBangAI {
     if (randomOpening) {
       // TODO 暂时无法完成需要先去学习什么事花月蒲月开局
       const n = parseInt(String(Math.random() * 26), 10);
-      return board.init(opens[n], first);
+      this.board = new Board(opens[n], first);
     } else if (first) {
       // 玩家先手开局
-      return board.init(wuyue, first);
+      this.board = new Board(wuyue, first);
     } else {
       // 电脑先手开局
-      const open = board.init(wuyue, first);
+      this.board = new Board(wuyue, first);
       const piece = this.begin();
-      return { ...open, piece };
+      return { ...this.board.getBoard(), piece };
     }
+    return this.board.getBoard();
   };
 
   /**
    * 电脑下棋
    */
   begin = (): IPiece => {
-    const piece = dueling.match();
-    piece.role = board.playChess;
-    board.put(piece);
+    const piece = this.board.beginMatch();
+    piece.role = this.board.getPlay();
+    this.board.put(piece);
     return piece;
   };
 
@@ -46,7 +46,7 @@ export class GoBangAI {
    * @param y 落子的y坐标
    */
   turn = (x: number, y: number): IPiece => {
-    this.set(x, y, commons.reverseRole(board.playChess));
+    this.set(x, y, this.board.getReverseRole());
     return this.begin();
   };
 
@@ -57,28 +57,26 @@ export class GoBangAI {
    * @param r 落子的是谁
    */
   set = (x: number, y: number, r: ERole): void => {
-    board.put(creatPiece({ x, y, role: r }));
+    this.board.put(creatPiece({ x, y, role: r }));
   };
 
   /**
    * 悔棋
    */
-  backward = (): { board: IBoard; backward: boolean } => {
+  backward = (): IBackward => {
     return {
-      backward: board.backward(),
-      board: board.board
+      backward: this.board.backward(),
+      board: this.board.getBoard()
     };
   };
 
   /**
    * 返回悔棋的哪一步
    */
-  forward = (): { board: IBoard; forward: boolean } => {
+  forward = (): IForward => {
     return {
-      forward: board.forward(),
-      board: board.board
+      forward: this.board.forward(),
+      board: this.board.getBoard()
     };
   };
 }
-
-export const goBangAI = new GoBangAI();

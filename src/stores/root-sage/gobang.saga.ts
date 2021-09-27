@@ -48,24 +48,14 @@ function* gobangGoOnWatch(): Generator<
 
     const gobang = yield select((store) => store.gobang);
 
-    const { board, playChess } = gobang as IGameStatus;
+    const { board, playChess, gameType: gamaT } = gobang as IGameStatus;
 
     const { piece, gameType } = payload;
 
-    if (!gobangCheckPieceRepeat(board, piece)) {
+    if (yield call(gobangCheckLegalityWork, payload, board, gamaT)) {
       yield put(gamePut(payload));
 
       const winMap = yield call(gobangWinCheckWork, piece);
-
-      // TODO 测试打分函数
-      const gobang1 = yield select((store) => store.gobang);
-      const { board: board1 } = gobang1 as IGameStatus;
-      evaluatePoint.scorePoint({
-        x: piece.x,
-        y: piece.y,
-        pieces: board1,
-        role: piece.role
-      });
 
       if ((winMap as IPiece[]).length) {
         const statePayload = {
@@ -84,16 +74,33 @@ function* gobangGoOnWatch(): Generator<
           payload: { piece }
         };
 
-        console.log('post', post);
-
-        // yield put(changeWorkerPost(post));
+        yield put(changeWorkerPost(post));
       } else {
         console.log('电脑完成走棋。。。');
       }
     } else {
-      // TODO 落子重复了无法执行任务，请重新选择落子点
+      // TODO 落子重复了或者不是当前落子的对象无法执行任务，请重新选择落子点
       console.log('落子重复了。。。');
     }
+  }
+}
+
+/**
+ * 检查是否是重复落子
+ */
+function gobangCheckLegalityWork(payload: IGamePut, board: IPiece[][], type: GameType): boolean {
+  const { piece, gameType } = payload;
+  // 检查是否重复落子
+  const repeat = board.some((r) => {
+    return r.some((p) => p.x === piece.x && p.y === piece.y && p.role !== ERole.empty);
+  });
+  // 检查落子是否是现在落子的人
+  if (type === GameType.DUEL_READY || type === GameType.DUEL_FINISH) {
+    return false;
+  } else if (type === GameType.DUEL_WHITE) {
+    return !repeat && gameType === GameType.DUEL_BLOCK;
+  } else {
+    return !repeat && gameType === GameType.DUEL_WHITE;
   }
 }
 
@@ -108,7 +115,7 @@ function* gobangWinCheckWork(piece: IPiece): SagaIterator<IPiece[]> {
     x: piece.x,
     y: piece.y,
     role: piece.role,
-    pieces: gobang.board
+    board: gobang.board
   };
 
   for (let i = 0; i < 4; i++) {
@@ -122,56 +129,53 @@ function* gobangWinCheckWork(piece: IPiece): SagaIterator<IPiece[]> {
 }
 
 function gobangGetWinMapWork(piece: IPiece, board: IPiece[][], dir: number): IPiece[] {
-  let winMap: IPiece[] = [];
+  const winRoleMap: IPiece[] = [];
 
   if (dir === 0) {
     // 从上往下
     for (let i = -4; i <= 4; i++) {
-      const p = board[piece.y + i]?.[piece.x];
-      winMap = gobangAddWinMapWork(winMap, piece, p);
+      winRoleMap[4 + i] = board[piece.y + i]?.[piece.x];
     }
+
+    return gobangAddWinMapWork(winRoleMap, piece);
   } else if (dir === 1) {
     // 从左到右
     for (let i = -4; i <= 4; i++) {
-      const p = board[piece.y][piece.x + i];
-      winMap = gobangAddWinMapWork(winMap, piece, p);
+      winRoleMap[4 + i] = board[piece.y]?.[piece.x + i];
     }
+
+    return gobangAddWinMapWork(winRoleMap, piece);
   } else if (dir === 2) {
     // 从左上到右下
     for (let i = -4; i <= 4; i++) {
-      const p = board[piece.y + i]?.[piece.x + i];
-      winMap = gobangAddWinMapWork(winMap, piece, p);
+      winRoleMap[4 + i] = board[piece.y + i]?.[piece.x + i];
     }
+
+    return gobangAddWinMapWork(winRoleMap, piece);
   } else {
     // 从左下到右上
     for (let i = -4; i <= 4; i++) {
-      const p = board[piece.y - i]?.[piece.x + i];
-      winMap = gobangAddWinMapWork(winMap, piece, p);
+      winRoleMap[4 + i] = board[piece.y - i]?.[piece.x + i];
     }
-  }
 
-  return winMap;
-}
-
-function gobangAddWinMapWork(winMap: IPiece[], piece: IPiece, p: IPiece): IPiece[] {
-  if (p && p.role === piece.role) {
-    return [...winMap, p];
-  } else if (winMap.length >= 5) {
-    return winMap;
-  } else {
-    return [];
+    return gobangAddWinMapWork(winRoleMap, piece);
   }
 }
 
-/**
- * 检查是否是重复落子
- * @param board
- * @param piece
- */
-function gobangCheckPieceRepeat(board: IPiece[][], piece: IPiece): boolean {
-  return board.some((r) => {
-    return r.some((p) => p.x === piece.x && p.y === piece.y && p.role !== ERole.empty);
-  });
+type TWinMap = [IPiece[], boolean];
+
+function gobangAddWinMapWork(winMap: IPiece[], piece: IPiece): IPiece[] {
+  const init: TWinMap = [[], true];
+  const [winMaps] = winMap.reduce(([win, add]: TWinMap, current) => {
+    if (add && piece.role === current?.role) {
+      return [[...win, current], add] as TWinMap;
+    } else if (add && piece.role !== current?.role) {
+      return [win, win.length < 5] as TWinMap;
+    } else {
+      return [win, add] as TWinMap;
+    }
+  }, init);
+  return winMaps;
 }
 
 /**
@@ -197,7 +201,7 @@ function* gobangStartWatch(): Generator<TakeEffect | PutEffect, void, SagaAction
     const startPayload: IGameChange = {
       gameType,
       playChess: payload.first ? ERole.black : ERole.white,
-      board: payload.pieces,
+      board: payload.board,
       name: payload.name
     };
 
@@ -259,7 +263,7 @@ function* gobangChangeGameWatch(): Generator<
       const payloadForward = payload as IWRForward;
       app.log && console.log('payload', payload);
       if (payloadForward.forward) {
-        statePayload.board = payloadForward.pieces;
+        statePayload.board = payloadForward.board;
       } else {
         // TODO 创建一个message通知回退失败
       }
@@ -267,7 +271,7 @@ function* gobangChangeGameWatch(): Generator<
       const payloadBackward = payload as IWRBackward;
       app.log && console.log('payload', payload);
       if (payloadBackward.backward) {
-        statePayload.board = payloadBackward.pieces;
+        statePayload.board = payloadBackward.board;
       } else {
         // TODO 创建一个message通知悔棋失败
       }

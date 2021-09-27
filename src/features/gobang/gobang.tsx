@@ -31,13 +31,14 @@ interface IProps extends IGameStatus {
 
 class Gobang extends BaseComponent<IProps, IState> {
   containerRef: RefObject<HTMLDivElement> = React.createRef();
+  initPiece = creatPiece({ x: 0, y: 0, role: ERole.empty });
 
   constructor(props: IProps) {
     super(props);
 
     this.state = {
       width: 0,
-      clickPiece: creatPiece({ x: 0, y: 0, role: ERole.empty })
+      clickPiece: this.initPiece
     };
   }
 
@@ -64,6 +65,10 @@ class Gobang extends BaseComponent<IProps, IState> {
     this.props.dispatch(changeWorkerPost(post));
   };
 
+  /**
+   * 修改AI配置
+   * @param config 需要修改的配置
+   */
   gameConfig = (config: IAI): void => {
     app.log && console.log('gameConfig');
     const post: IWorkerRequest = {
@@ -73,6 +78,10 @@ class Gobang extends BaseComponent<IProps, IState> {
     this.props.dispatch(gameSagaChangeBoard(post));
   };
 
+  /**
+   * 落子
+   * @param piece 需要落子的点的对象
+   */
   gameGo = (piece: IPiece): void => {
     app.log && console.log('gameGo piece:', piece);
     const { playChess } = this.props;
@@ -80,7 +89,7 @@ class Gobang extends BaseComponent<IProps, IState> {
     if (/Android|webOS|iPhone|iPad|BlackBerry/i.test(navigator.userAgent)) {
       const { clickPiece } = this.state;
 
-      if (clickPiece.x === piece.x && clickPiece.y === piece.y) {
+      if (clickPiece.x === piece.x && clickPiece.y === piece.y && clickPiece.role === piece.role) {
         const payload = {
           gameType: playChess === ERole.black ? GameType.DUEL_WHITE : GameType.DUEL_BLOCK,
           piece: creatPiece(piece)
@@ -98,18 +107,24 @@ class Gobang extends BaseComponent<IProps, IState> {
     }
   };
 
-  // 放弃悔棋
+  /**
+   * 放弃悔棋
+   */
   gameForward = (): void => {
     app.log && console.log('gameForward');
     const post: IWorkerRequest = { type: WorkerType.FORWARD };
     this.props.dispatch(gameSagaChangeBoard(post));
+    this.setState({ clickPiece: this.initPiece });
   };
 
-  // 悔棋
+  /**
+   * 悔棋
+   */
   gameBackward = (): void => {
     app.log && console.log('gameBackward');
     const post: IWorkerRequest = { type: WorkerType.BACKWARD };
     this.props.dispatch(gameSagaChangeBoard(post));
+    this.setState({ clickPiece: this.initPiece });
   };
 
   /**
@@ -118,6 +133,7 @@ class Gobang extends BaseComponent<IProps, IState> {
   gameReset = (): void => {
     app.log && console.log('gameReset');
     this.props.dispatch(gameInit());
+    this.setState({ clickPiece: this.initPiece });
   };
 
   private resizeCheckerboard = (): void => {

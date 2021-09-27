@@ -1,3 +1,6 @@
+/**
+ * 不同的棋子
+ */
 export enum ERole {
   empty = 0, // 空位
   black = 1, // 黑棋 先手

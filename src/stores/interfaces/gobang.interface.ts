@@ -1,6 +1,6 @@
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { IStartOpen } from '../../services/gobang-worker/interfaces/opens.interface';
+import { IStartOpen } from '../../services/gobang-worker/interfaces/gobang-ai.interface';
 
 export interface IGameStatus {
   gameType: GameType;

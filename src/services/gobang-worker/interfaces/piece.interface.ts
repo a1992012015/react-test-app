@@ -10,9 +10,10 @@ export interface IPiece {
   step: number; // 当前是第几步
   score: number; // 这颗棋子的分数
   steps: IPiece[]; // 这颗棋子的所有走法。会根据剪枝的结果和分数选取走法
+  endgame: ERole[][]; // 当前的局势分布
   abCut: boolean;
-  scoreHum: number;
-  scoreCom: number;
+  scoreHum: number; // 在这里记录的是当前局势的玩家的分数
+  scoreCom: number; // 在这里记录的是当前局势的电脑的分数
 }
 
 /**

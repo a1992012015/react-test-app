@@ -54,7 +54,7 @@ class GobangWorker extends BaseComponent<IProps> {
         // 返回的开局
         const boardData = data.payload as IWRStart;
         const payload: IGameStart = {
-          pieces: boardData.pieces,
+          board: boardData.board,
           piece: boardData.piece,
           name: boardData.name,
           first: boardData.first,

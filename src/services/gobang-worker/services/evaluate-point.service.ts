@@ -6,8 +6,8 @@ import {
 } from '../interfaces/evaluate-point.interface';
 import { ERole } from '../interfaces/role.interface';
 import { SCORE } from '../configs/score.config';
-import { statistic } from './statistic.service';
-import { commons } from './commons.service';
+import { Statistic } from './statistic.service';
+import { Commons } from './commons.service';
 
 /**
  * 启发式评价函数
@@ -21,30 +21,31 @@ export class EvaluatePoint {
     [ERole.black]: [],
     [ERole.white]: []
   };
+  private statistic = new Statistic();
+  private commons = new Commons();
 
-  private readonly testName: string;
+  private readonly testName: string = '';
   private testDir = 0;
 
-  constructor(name: string) {
+  constructor(name?: string) {
     this.init();
-
-    this.testName = name;
+    this.testName = name || '';
   }
 
   init = (): void => {
     this.scoreCache = {
       [ERole.empty]: [],
       [ERole.black]: [
-        commons.createScores(15, 15),
-        commons.createScores(15, 15),
-        commons.createScores(15, 15),
-        commons.createScores(15, 15)
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15)
       ],
       [ERole.white]: [
-        commons.createScores(15, 15),
-        commons.createScores(15, 15),
-        commons.createScores(15, 15),
-        commons.createScores(15, 15)
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15)
       ]
     };
   };
@@ -55,26 +56,29 @@ export class EvaluatePoint {
    * 如果没有传入则默认计算所有四个方向，如果传入值，则只计算其中一个方向的值
    */
   scorePoint = (data: IScorePoint): number => {
-    const { x, y, pieces, role, dir } = data;
+    const { x, y, board, role, dir } = data;
     const radius = 4;
     let result = 0;
 
-    console.log(`%c==== ${this.testName} scorePoint start [${y}, ${x}] ====`, 'color: fuchsia;');
-    console.log('dir', dir);
     if (dir === undefined || dir === 0) {
       this.testDir = 0;
+      this.log() &&
+        console.log(
+          `%c==== ${this.testName} scorePoint start [${y}, ${x}] ====`,
+          'color: fuchsia;'
+        );
       // 计算竖向
       const leftRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
       const rightRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
 
       // 计算当前棋子的上面的棋子 left
       for (let i = 1; i <= radius; i++) {
-        leftRoles[i - 1] = pieces?.[y - i]?.[x]?.role;
+        leftRoles[i - 1] = board?.[y - i]?.[x]?.role;
       }
 
       // 计算当前棋子下面的棋子 right
       for (let i = 1; i <= radius; i++) {
-        rightRoles[i - 1] = pieces?.[y + i]?.[x]?.role;
+        rightRoles[i - 1] = board?.[y + i]?.[x]?.role;
       }
 
       const score = this.calculateScore(leftRoles, rightRoles, role);
@@ -82,24 +86,36 @@ export class EvaluatePoint {
       this.log() && console.log('score', score);
 
       this.scoreCache[role][dir || 0][y][x] = score;
+      this.log() && this.statistic.printClone(board, 'scoreCache pieces');
+      this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
+      this.log() &&
+        console.log(
+          `%c===== ${this.testName} scorePoint end [${y}, ${x}] =====`,
+          'color: fuchsia;'
+        );
     }
 
     result += this.scoreCache[role][0][y][x];
 
     if (dir === undefined || dir === 1) {
       this.testDir = 1;
+      this.log() &&
+        console.log(
+          `%c==== ${this.testName} scorePoint start [${y}, ${x}] ====`,
+          'color: fuchsia;'
+        );
       // 计算横向
       const leftRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
       const rightRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
 
       // 计算当前棋子的左边的棋子 left
       for (let i = 1; i <= radius; i++) {
-        leftRoles[i - 1] = pieces?.[y]?.[x - i]?.role;
+        leftRoles[i - 1] = board?.[y]?.[x - i]?.role;
       }
 
       // 计算当前棋子右边的棋子 right
       for (let i = 1; i <= radius; i++) {
-        rightRoles[i - 1] = pieces?.[y]?.[x + i]?.role;
+        rightRoles[i - 1] = board?.[y]?.[x + i]?.role;
       }
 
       const score = this.calculateScore(leftRoles, rightRoles, role);
@@ -107,24 +123,36 @@ export class EvaluatePoint {
       this.log() && console.log('score', score);
 
       this.scoreCache[role][dir || 1][y][x] = score;
+      this.log() && this.statistic.printClone(board, 'scoreCache pieces');
+      this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
+      this.log() &&
+        console.log(
+          `%c===== ${this.testName} scorePoint end [${y}, ${x}] =====`,
+          'color: fuchsia;'
+        );
     }
 
     result += this.scoreCache[role][1][y][x];
 
     if (dir === undefined || dir === 2) {
       this.testDir = 2;
+      this.log() &&
+        console.log(
+          `%c==== ${this.testName} scorePoint start [${y}, ${x}] ====`,
+          'color: fuchsia;'
+        );
       // 计算左上和右下
       const leftRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
       const rightRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
 
       // 计算当前棋子的左上的棋子 left
       for (let i = 1; i <= radius; i++) {
-        leftRoles[i - 1] = pieces?.[y - i]?.[x - i]?.role;
+        leftRoles[i - 1] = board?.[y - i]?.[x - i]?.role;
       }
 
       // 计算当前棋子右下的棋子 right
       for (let i = 1; i <= radius; i++) {
-        rightRoles[i - 1] = pieces?.[y + i]?.[x + i]?.role;
+        rightRoles[i - 1] = board?.[y + i]?.[x + i]?.role;
       }
 
       const score = this.calculateScore(leftRoles, rightRoles, role);
@@ -132,24 +160,36 @@ export class EvaluatePoint {
       this.log() && console.log('score', score);
 
       this.scoreCache[role][dir || 2][y][x] = score;
+      this.log() && this.statistic.printClone(board, 'scoreCache pieces');
+      this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
+      this.log() &&
+        console.log(
+          `%c===== ${this.testName} scorePoint end [${y}, ${x}] =====`,
+          'color: fuchsia;'
+        );
     }
 
     result += this.scoreCache[role][2][y][x];
 
     if (dir === undefined || dir === 3) {
       this.testDir = 3;
+      this.log() &&
+        console.log(
+          `%c==== ${this.testName} scorePoint start [${y}, ${x}] ====`,
+          'color: fuchsia;'
+        );
       // 计算左下和右上
       const leftRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
       const rightRoles: TCalculate = [ERole.empty, ERole.empty, ERole.empty, ERole.empty];
 
       // 计算当前棋子的左下的棋子 left
       for (let i = 1; i <= radius; i++) {
-        leftRoles[i - 1] = pieces?.[y + i]?.[x - i]?.role;
+        leftRoles[i - 1] = board?.[y + i]?.[x - i]?.role;
       }
 
       // 计算当前棋子右上的棋子 right
       for (let i = 1; i <= radius; i++) {
-        rightRoles[i - 1] = pieces?.[y - i]?.[x + i]?.role;
+        rightRoles[i - 1] = board?.[y - i]?.[x + i]?.role;
       }
 
       const score = this.calculateScore(leftRoles, rightRoles, role);
@@ -157,14 +197,16 @@ export class EvaluatePoint {
       this.log() && console.log('score', score);
 
       this.scoreCache[role][dir || 3][y][x] = score;
+      this.log() && this.statistic.printClone(board, 'scoreCache pieces');
+      this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
+      this.log() &&
+        console.log(
+          `%c===== ${this.testName} scorePoint end [${y}, ${x}] =====`,
+          'color: fuchsia;'
+        );
     }
 
     result += this.scoreCache[role][3][y][x];
-
-    console.log('result', result);
-    this.log() && statistic.printClone(pieces, 'scoreCache pieces');
-    this.log() && statistic.printClone(this.scoreCache, 'scoreCache');
-    console.log(`%c===== ${this.testName} scorePoint end [${y}, ${x}] =====`, 'color: fuchsia;');
 
     return result;
   };
@@ -283,7 +325,6 @@ export class EvaluatePoint {
     // 检查是否有黑棋堵住最后
     const blockRole = [role, ERole.empty];
     if (empty) {
-      console.log('index', count + 1 + emptyCount);
       const blockIndex = count + 1 + emptyCount;
       const block = blockIndex >= roles.length ? false : !blockRole.includes(roles[blockIndex]);
       return [empty, count, block, emptyCount, possible];
@@ -582,6 +623,6 @@ export class EvaluatePoint {
    * 测试函数 决定什么时候打印log
    */
   private log = (): boolean => {
-    return ([0] as number[]).includes(this.testDir);
+    return ([] as number[]).includes(this.testDir);
   };
 }

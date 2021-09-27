@@ -1,6 +1,6 @@
 import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { IBoard } from '../../services/gobang-worker/interfaces/board.interface';
-import { IStartOpen } from '../../services/gobang-worker/interfaces/opens.interface';
+import { IOpenBoard } from '../../services/gobang-worker/interfaces/board.interface';
+import { IStartOpen } from '../../services/gobang-worker/interfaces/gobang-ai.interface';
 
 /**
  * worker 的返回值
@@ -28,14 +28,14 @@ export interface IWRPut {
 /**
  * 游戏悔棋的的返回值的 payload
  */
-export interface IWRBackward extends IBoard {
+export interface IWRBackward extends IOpenBoard {
   backward: boolean;
 }
 
 /**
  * 游戏返回上一步的的返回值的 payload
  */
-export interface IWRForward extends IBoard {
+export interface IWRForward extends IOpenBoard {
   forward: boolean;
 }
 

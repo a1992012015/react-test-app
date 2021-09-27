@@ -1,7 +1,7 @@
 # 五子棋AI
 
 完全是业余研究和学习使用的项目，所以在里面会看到其他的feature的代码
-项目可以直接在[这里](https://a1992012015.github.io/react-test-app/go-bang) 查看
+项目可以直接在[这里](https://a1992012015.github.io/react-test-app/gobang) 查看
 
 ### **怎么启动**
 

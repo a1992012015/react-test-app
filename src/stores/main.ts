@@ -27,7 +27,7 @@ export const rootStore = configureStore({
   reducer: createReducer,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(...middlewares),
   preloadedState: initialState,
-  devTools: false
+  devTools: process.env.REACT_APP_LOGGER !== 'true'
 });
 
 sagaMiddleware.run(rootSaga);

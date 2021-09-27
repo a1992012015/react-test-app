@@ -15,12 +15,17 @@ import { IPiece } from '../interfaces/piece.interface';
 import { zobrist } from '../services/zobrist.service';
 import {
   IGCache,
-  ISResponse,
   ISearch,
   ISearchCache,
   IDeepSearch
-} from '../interfaces/negamax.interface';
+} from '../interfaces/filter-candidates.interface';
 import { creatPiece } from '../services/piece.service';
+
+interface ISResponse {
+  evaluate: number; // 当前局势的分数
+  steps: IPiece[]; // 下一步的所有可能
+  step: number; // 这是第几步,
+}
 
 /**
  * 极大极小值检索
@@ -281,7 +286,7 @@ export class Negamax {
     const { deep, alpha, beta, role, step, spread } = data;
 
     // 给当前的棋盘打分
-    const evaluate = board.evaluate(role);
+    const { evaluate } = board.evaluate(role);
 
     const { FIVE } = SCORE;
 

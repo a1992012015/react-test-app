@@ -1,7 +1,7 @@
-import { ERole } from '../interfaces/role.interface';
 import { IPiece } from '../interfaces/piece.interface';
-import { creatPiece } from './piece.service';
+import { ERole } from '../interfaces/role.interface';
 import { SCORE } from '../configs/score.config';
+import { creatPiece } from './piece.service';
 
 export class Commons {
   private readonly THRESHOLD = 1.15;
@@ -160,5 +160,3 @@ export class Commons {
     return Math.floor(Math.random() * (max - min) + min);
   };
 }
-
-export const commons = new Commons();

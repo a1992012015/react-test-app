@@ -3,13 +3,12 @@ import { createReducer } from '@reduxjs/toolkit';
 import { GameType, IGameStatus } from '../interfaces/gobang.interface';
 import { gameChangeState, gameInit, gamePut } from '../actions/gobang.action';
 import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
-import { wuyue } from '../../services/gobang-worker/configs/opens.config';
 import { creatPiece } from '../../services/gobang-worker/services/piece.service';
 
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,
-  board: wuyue.pieces,
-  name: wuyue.name,
+  board: [],
+  name: '',
   playChess: ERole.empty,
   steps: 0,
   winning: ERole.empty,

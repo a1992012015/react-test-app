@@ -4,12 +4,12 @@
 
 import { cloneDeep } from 'lodash-es';
 import { IPiece } from '../interfaces/piece.interface';
-import { board } from './board.service';
-import { commons } from './commons.service';
+import { board } from '../services/board.service';
+import { commons } from '../services/commons.service';
 import { AI } from '../configs/ai.config';
 import { ERole } from '../interfaces/role.interface';
-import { creatPiece } from './piece.service';
-import { filterCandidates } from './filter-candidates.service';
+import { creatPiece } from '../services/piece.service';
+import { filterCandidates } from '../services/filter-candidates.service';
 
 /**
  * -2-

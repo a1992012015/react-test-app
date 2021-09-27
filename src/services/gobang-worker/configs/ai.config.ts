@@ -5,7 +5,7 @@ import { IAI } from '../interfaces/ai.interface';
  */
 export const AI: IAI = {
   opening: true,
-  searchDeep: 2,
+  searchDeep: 6,
   countLimit: 20,
   timeLimit: 100,
   vcxDeep: 5,

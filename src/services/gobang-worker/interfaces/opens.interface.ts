@@ -1,10 +1,7 @@
-import { IPiece } from './piece.interface';
-
+/**
+ * 开局配置
+ */
 export interface IOpen {
   name: string;
-  pieces: IPiece[][];
-}
-
-export interface IStartOpen extends IOpen {
-  piece?: IPiece;
+  board: Array<[number, number]>;
 }

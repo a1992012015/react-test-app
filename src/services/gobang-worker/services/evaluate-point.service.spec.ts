@@ -1,16 +1,17 @@
 import { IScorePoint } from '../interfaces/evaluate-point.interface';
 import { EvaluatePoint } from './evaluate-point.service';
 import { ERole } from '../interfaces/role.interface';
-import { commons } from './commons.service';
+import { Commons } from './commons.service';
 
 describe('evaluate point service', () => {
+  const commons = new Commons();
   const board = commons.getOpenBoard();
   const evaluatePoint = new EvaluatePoint('test');
   const mockTest: IScorePoint = {
     x: 0,
     y: 0,
     role: ERole.black,
-    pieces: board
+    board
   };
   const chessRecord = [
     { y: 7, x: 7, role: ERole.black, score: 40 },

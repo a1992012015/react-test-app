@@ -1,5 +1,5 @@
-import { ERole } from './role.interface';
 import { IPiece } from './piece.interface';
+import { ERole } from './role.interface';
 
 /**
  * 打分函数
@@ -9,7 +9,7 @@ export interface IScorePoint {
   y: number;
   role: ERole;
   dir?: number;
-  pieces: IPiece[][];
+  board: IPiece[][];
 }
 
 /**

@@ -1,12 +1,16 @@
 import { cloneDeep } from 'lodash-es';
-import { ISearchCache, IDeepSearch, ISearch, ISResponse } from '../interfaces/negamax.interface';
-import { SCORE } from '../configs/score.config';
-import { ERole } from '../interfaces/role.interface';
-import { AI } from '../configs/ai.config';
+import {
+  ISearchCache,
+  IDeepSearch,
+  ISearch,
+  ISResponse
+} from '../interfaces/filter-candidates.interface';
 import { IPiece } from '../interfaces/piece.interface';
-import { board } from './board.service';
+import { IBoard } from '../interfaces/board.interface';
+import { ERole } from '../interfaces/role.interface';
+import { SCORE } from '../configs/score.config';
 import { creatPiece } from './piece.service';
-import { commons } from './commons.service';
+import { AI } from '../configs/ai.config';
 
 /**
  * 思路：
@@ -20,9 +24,22 @@ export class FilterCandidates {
   private searchCache: { [key: number]: ISearchCache } = {};
   private start = 0; // 开始深入计算的开始时间
 
-  deepFilter = (role: ERole, deep = AI.searchDeep): IPiece => {
+  private board: IBoard;
+
+  constructor(board: IBoard) {
+    this.board = board;
+  }
+
+  match = (): IPiece => {
+    const steps = this.board.getSteps();
+    const play = this.board.getPlay();
+    AI.debug && console.log('match => s', cloneDeep(steps));
+    return this.deepFilter(play, AI.searchDeep);
+  };
+
+  private deepFilter = (role: ERole, deep = AI.searchDeep): IPiece => {
     // 获取落子的候选者列表
-    const candidates = board.gen(role);
+    const candidates = this.board.gen(role);
 
     if (candidates.length > 1) {
       // 候选者大于一个的时候才开始迭代
@@ -47,6 +64,8 @@ export class FilterCandidates {
   private loopDeep = (candidates: IPiece[], role: ERole, deep: number): IPiece => {
     this.start = new Date().getTime();
 
+    console.log('searchPiece => init', cloneDeep(candidates));
+
     // TODO 需要做迭代加深和迭代缓存，不然性能开销很大
     // 暂时没有做这里
     let searchPiece: IPiece[] = [];
@@ -66,15 +85,17 @@ export class FilterCandidates {
 
       const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
 
-      if (commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
+      if (this.board.commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
         // 当有一步的分数大于或者等于活五，停止循环
         break;
       }
     }
 
+    console.log('searchPiece => deep', cloneDeep(searchPiece));
+
     // 排序 升序
     searchPiece = searchPiece.sort((f, s) => {
-      if (commons.equal(f.score, s.score)) {
+      if (this.board.commons.equal(f.score, s.score)) {
         // 分数相等
         if (f.score >= 0) {
           // 大于零是优势，尽快获胜，因此取步数短的
@@ -99,9 +120,9 @@ export class FilterCandidates {
       }
     });
 
-    console.log('searchPiece', cloneDeep(searchPiece));
+    console.log('searchPiece => store', cloneDeep(searchPiece));
 
-    const randomPiece = searchPiece.reduce((random: IPiece[], c) => {
+    searchPiece = searchPiece.reduce((random: IPiece[], c) => {
       if (random.length) {
         if (random.every((r) => r.score === c.score && r.step === c.step)) {
           return [...random, c];
@@ -113,13 +134,11 @@ export class FilterCandidates {
       }
     }, []);
 
-    console.log('randomPiece', cloneDeep(randomPiece));
+    console.log('searchPiece => random', cloneDeep(searchPiece));
 
-    const result = randomPiece[commons.getRandom(0, randomPiece.length)];
+    const result = searchPiece[this.board.commons.getRandom(0, searchPiece.length)];
 
     console.log('result', result);
-
-    board.log();
 
     return result;
   };
@@ -138,22 +157,17 @@ export class FilterCandidates {
     const deepCandidates: IPiece[] = [];
     let alphaCut = alpha;
 
-    console.log(`%c============= deepSearch start deep: ${deep} =============`, 'color: red;');
-    console.log('candidates', candidates);
-
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
       // 因为是冲过 gen 函数得到的可以的落子点，这里确定一下这一步的落子的选手
-      board.put({ ...p, role });
-      console.log(`%c========== start deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
-
+      this.board.put({ ...p, role });
       // 因为一直用的是alpha参数作为计算，所以每进入下一层就交换参数位置
       // 这样能保证在MIN层使用的alpha，MAX层使用的beta
       const searchData: ISearch = {
         deep: deep - 1,
         beta: -alphaCut,
         alpha: -beta,
-        role: commons.reverseRole(role),
+        role: this.board.commons.reverseRole(role),
         step: step + 1,
         spread
       };
@@ -163,9 +177,7 @@ export class FilterCandidates {
       }
 
       // 查找这一步的后续可能走法和分数
-      const { evaluate, step: currentStep, steps } = this.search(searchData);
-
-      console.log('evaluate', evaluate);
+      const { evaluate, comScore, humScore, step: currentStep, steps } = this.search(searchData);
 
       // 因为在保留剪枝的对比值的时候会一直选取最大的那个保留
       // 在查询极小值的时候就把对比值和计算得到的值都取相反数
@@ -175,8 +187,11 @@ export class FilterCandidates {
       p.score = evaluate * -1;
       p.step = currentStep;
       p.steps = steps;
+      p.endgame = this.board.statistic.printBoard(this.board.getBoard().board);
 
-      board.remove(p);
+      this.board.remove(p);
+      p.scoreCom = comScore;
+      p.scoreHum = humScore;
       deepCandidates.push(p);
       alphaCut = Math.max(alphaCut, p.score);
 
@@ -194,23 +209,18 @@ export class FilterCandidates {
       // 一定要注意，这里必须是 greaterThan 即 明显大于
       // 而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
       // TODO 原代码就是greatOrEqualThan 具体使用那个方法以后留待测试
-      if (commons.greaterThan(p.score, beta)) {
+      if (this.board.commons.greaterThan(p.score, beta)) {
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
         p.abCut = true;
-        console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
         return deepCandidates;
       }
 
       // 超时判定
       if (new Date().getTime() - this.start > AI.timeLimit * 1000) {
-        console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
         // 超时，退出循环
         return deepCandidates;
       }
-      console.log(`%c========== end deep: ${deep} [${p.y}, ${p.x}] ==========`, 'color: gold;');
     }
-
-    console.log(`%c============= deepSearch start end: ${deep} =============`, 'color: red;');
 
     return deepCandidates;
   };
@@ -223,23 +233,24 @@ export class FilterCandidates {
   private search = (data: ISearch): ISResponse => {
     const { deep, alpha, beta, role, step, spread } = data;
     // 给当前的棋盘打分
-    const evaluate = board.evaluate(role, deep);
+    const { evaluate, whiteScore, blackScore } = this.board.evaluate(role);
     // 当前的分数有大于连五的分数
     // deep为 0 迭代到了最后需要结束的位置
     if (
       deep <= 0 ||
-      commons.greatOrEqualThan(evaluate, SCORE.FIVE) ||
-      commons.equalOrLessThan(evaluate, -SCORE.FIVE)
+      this.board.commons.greatOrEqualThan(evaluate, SCORE.FIVE) ||
+      this.board.commons.equalOrLessThan(evaluate, -SCORE.FIVE)
     ) {
-      return { evaluate, steps: [], step };
+      return { evaluate, comScore: whiteScore, humScore: blackScore, steps: [], step };
     }
     // 双方个下两个子之后，开启star spread 模式
     // 生成下一步的候选者
-    const points = board.gen(role, board.count > 10 ? step > 1 : step > 3, step > 1);
+    const count = this.board.getSteps().length;
+    const points = this.board.gen(role, count > 10 ? step > 1 : step > 3, step > 1);
 
     if (!points.length) {
       // 没有可以用的候选者 返回
-      return { evaluate, steps: [], step };
+      return { evaluate, comScore: whiteScore, humScore: blackScore, steps: [], step };
     } else {
       // 有候选者则继续迭代加深
       const values = this.deepSearch({
@@ -252,12 +263,19 @@ export class FilterCandidates {
         spread
       });
       // 生成当前局势的分数
-      const reduceData: ISResponse = { evaluate: this.MIN, steps: [], step };
+      const reduceData: ISResponse = {
+        evaluate: this.MIN,
+        comScore: whiteScore,
+        humScore: blackScore,
+        steps: [],
+        step
+      };
       // 通过计算自己的子节点找出最大或者最小的分数作为当前分数
       return values.reduce((s, c) => {
         const maxV = Math.max(s.evaluate, c.score);
         // TODO 这里需要判断step选择分数最大的，分数一样选择步数最小的
         return {
+          ...s,
           evaluate: maxV,
           step: maxV === c.score ? c.step : s.step,
           steps: values
@@ -282,5 +300,3 @@ export class FilterCandidates {
     console.log('searchCache', this.searchCache);
   };
 }
-
-export const filterCandidates = new FilterCandidates();

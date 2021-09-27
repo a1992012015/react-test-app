@@ -12,6 +12,7 @@ export const creatPiece = (data: ICreatPiece): IPiece => {
     step: data.step || 0,
     score: data.score || 0,
     steps: data.steps || [],
+    endgame: [],
     abCut: !!data.abCut,
     scoreHum: data.scoreHum || 0,
     scoreCom: data.scoreCom || 0
