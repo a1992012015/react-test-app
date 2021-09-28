@@ -3,11 +3,12 @@ import { WorkerType } from '../../stores/interfaces/worker.interface';
 import { GobangAI } from './services/gobang-ai.service';
 import { AI } from './configs/ai.config';
 
+let gobangAI: GobangAI = new GobangAI();
+
 // eslint-disable-next-line no-restricted-globals
 addEventListener('message', (event: MessageEvent<IWorkerRequest>) => {
-  let gobangAI: GobangAI = new GobangAI();
+  AI.log && console.log(`%c=========== ${WorkerType[event.data.type]} ===========`, 'color: red;');
   const { payload, type } = event.data;
-  AI.log && console.log(`%c=============== ${WorkerType[type]} ===============`, 'color: red;');
   AI.log && console.log('get message:', payload);
   if (type === WorkerType.START) {
     // 开始游戏

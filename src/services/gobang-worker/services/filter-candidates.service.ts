@@ -1,15 +1,19 @@
 import { cloneDeep } from 'lodash-es';
+
 import {
   ISearchCache,
   IDeepSearch,
   ISearch,
   ISResponse
 } from '../interfaces/filter-candidates.interface';
+import { IEvaluate, IOpenBoard } from '../interfaces/board.interface';
 import { IPiece } from '../interfaces/piece.interface';
-import { IBoard } from '../interfaces/board.interface';
 import { ERole } from '../interfaces/role.interface';
 import { SCORE } from '../configs/score.config';
+import { Statistic } from './statistic.service';
 import { creatPiece } from './piece.service';
+import { Commons } from './commons.service';
+import { Zobrist } from './zobrist.service';
 import { AI } from '../configs/ai.config';
 
 /**
@@ -17,29 +21,29 @@ import { AI } from '../configs/ai.config';
  * 每次开始迭代前，先生成一组候选列表，然后在迭代加深的过程中不断更新这个列表中的分数
  * 这样迭代的深度越大，则分数越精确，并且，任何时候达到时间限制而中断迭代的时候，能保证这个列表中的分数都是可靠的
  */
-export class FilterCandidates {
+export abstract class FilterCandidates {
   private readonly MAX = SCORE.FIVE * 10; // 黑棋
   private readonly MIN = this.MAX * -1; // 白棋
 
-  private searchCache: { [key: number]: ISearchCache } = {};
+  private searchCache: ISearchCache = {
+    evaluate: {},
+    candidates: {}
+  };
   private start = 0; // 开始深入计算的开始时间
 
-  private board: IBoard;
+  protected zobrist = new Zobrist(); // 初始化id
+  protected commons = new Commons(); // 工具函数
+  protected statistic = new Statistic(); // 打印函数
 
-  constructor(board: IBoard) {
-    this.board = board;
-  }
-
-  match = (): IPiece => {
-    const steps = this.board.getSteps();
-    const play = this.board.getPlay();
-    AI.debug && console.log('match => s', cloneDeep(steps));
+  protected match = (): IPiece => {
+    const play = this.getPlay();
+    AI.log && console.log('match => play', ERole[play]);
     return this.deepFilter(play, AI.searchDeep);
   };
 
   private deepFilter = (role: ERole, deep = AI.searchDeep): IPiece => {
     // 获取落子的候选者列表
-    const candidates = this.board.gen(role);
+    const candidates = this.gen(role);
 
     if (candidates.length > 1) {
       // 候选者大于一个的时候才开始迭代
@@ -66,10 +70,14 @@ export class FilterCandidates {
 
     console.log('searchPiece => init', cloneDeep(candidates));
 
-    // TODO 需要做迭代加深和迭代缓存，不然性能开销很大
-    // 暂时没有做这里
+    // 在每次开始迭代的时候清除缓存
+    // TODO 感觉不用清除，留待测试
+    this.searchCache = {
+      evaluate: {},
+      candidates: {}
+    };
+    // 迭代加深和迭代缓存
     let searchPiece: IPiece[] = [];
-    // TODO 初始值直接拉到最大，这里的初始值应该是2开始
     for (let i = deep; i <= deep; i += 2) {
       const minMaxData: IDeepSearch = {
         candidates,
@@ -82,11 +90,12 @@ export class FilterCandidates {
       };
       // 生成现在可能落子的所有后续结果和分数
       searchPiece = this.deepSearch(minMaxData);
-
+      // filter当前deep下面的最高分数
       const bestScore = searchPiece.reduce((s, c) => Math.max(s, c.score), 0);
-
-      if (this.board.commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
+      // 检查当前deep能不能赢
+      if (this.commons.greatOrEqualThan(bestScore, SCORE.FIVE)) {
         // 当有一步的分数大于或者等于活五，停止循环
+        console.log('%c出现五连', 'color: red;font-size: 20px;');
         break;
       }
     }
@@ -95,7 +104,7 @@ export class FilterCandidates {
 
     // 排序 升序
     searchPiece = searchPiece.sort((f, s) => {
-      if (this.board.commons.equal(f.score, s.score)) {
+      if (this.commons.equal(f.score, s.score)) {
         // 分数相等
         if (f.score >= 0) {
           // 大于零是优势，尽快获胜，因此取步数短的
@@ -136,7 +145,7 @@ export class FilterCandidates {
 
     console.log('searchPiece => random', cloneDeep(searchPiece));
 
-    const result = searchPiece[this.board.commons.getRandom(0, searchPiece.length)];
+    const result = searchPiece[this.commons.getRandom(0, searchPiece.length)];
 
     console.log('result', result);
 
@@ -160,14 +169,14 @@ export class FilterCandidates {
     for (let i = 0; i < candidates.length; i++) {
       const p = candidates[i];
       // 因为是冲过 gen 函数得到的可以的落子点，这里确定一下这一步的落子的选手
-      this.board.put({ ...p, role });
+      this.put({ ...p, role });
       // 因为一直用的是alpha参数作为计算，所以每进入下一层就交换参数位置
       // 这样能保证在MIN层使用的alpha，MAX层使用的beta
       const searchData: ISearch = {
         deep: deep - 1,
         beta: -alphaCut,
         alpha: -beta,
-        role: this.board.commons.reverseRole(role),
+        role: this.commons.reverseRole(role),
         step: step + 1,
         spread
       };
@@ -177,7 +186,13 @@ export class FilterCandidates {
       }
 
       // 查找这一步的后续可能走法和分数
-      const { evaluate, comScore, humScore, step: currentStep, steps } = this.search(searchData);
+      const {
+        evaluate,
+        whiteScore,
+        blackScore,
+        step: currentStep,
+        steps
+      } = this.search(searchData);
 
       // 因为在保留剪枝的对比值的时候会一直选取最大的那个保留
       // 在查询极小值的时候就把对比值和计算得到的值都取相反数
@@ -187,11 +202,11 @@ export class FilterCandidates {
       p.score = evaluate * -1;
       p.step = currentStep;
       p.steps = steps;
-      p.endgame = this.board.statistic.printBoard(this.board.getBoard().board);
+      p.endgame = this.statistic.printBoard(this.getBoard().board);
 
-      this.board.remove(p);
-      p.scoreCom = comScore;
-      p.scoreHum = humScore;
+      this.remove(p);
+      p.scoreCom = whiteScore;
+      p.scoreHum = blackScore;
       deepCandidates.push(p);
       alphaCut = Math.max(alphaCut, p.score);
 
@@ -209,7 +224,7 @@ export class FilterCandidates {
       // 一定要注意，这里必须是 greaterThan 即 明显大于
       // 而不是 greatOrEqualThan 不然会出现很多差不多的有用分支被剪掉，会出现致命错误
       // TODO 原代码就是greatOrEqualThan 具体使用那个方法以后留待测试
-      if (this.board.commons.greaterThan(p.score, beta)) {
+      if (this.commons.greatOrEqualThan(p.score, beta)) {
         p.score = this.MAX - 1; // 被剪枝的，直接用一个极大值来记录，但是注意必须比MAX小
         p.abCut = true;
         return deepCandidates;
@@ -232,25 +247,28 @@ export class FilterCandidates {
    */
   private search = (data: ISearch): ISResponse => {
     const { deep, alpha, beta, role, step, spread } = data;
+    // 从cache里面取出相同的棋形的分数
     // 给当前的棋盘打分
-    const { evaluate, whiteScore, blackScore } = this.board.evaluate(role);
+    const { evaluate, whiteScore, blackScore } = this.getCacheEvaluate(role, deep);
     // 当前的分数有大于连五的分数
     // deep为 0 迭代到了最后需要结束的位置
     if (
       deep <= 0 ||
-      this.board.commons.greatOrEqualThan(evaluate, SCORE.FIVE) ||
-      this.board.commons.equalOrLessThan(evaluate, -SCORE.FIVE)
+      this.commons.greatOrEqualThan(evaluate, SCORE.FIVE) ||
+      this.commons.equalOrLessThan(evaluate, -SCORE.FIVE)
     ) {
-      return { evaluate, comScore: whiteScore, humScore: blackScore, steps: [], step };
+      return { evaluate, whiteScore, blackScore, steps: [], step };
     }
     // 双方个下两个子之后，开启star spread 模式
     // 生成下一步的候选者
-    const count = this.board.getSteps().length;
-    const points = this.board.gen(role, count > 10 ? step > 1 : step > 3, step > 1);
+    console.log(`%c======== getCacheCandidates start deep: ${deep} ========`, 'color: blueviolet;');
+    const points = this.getCacheCandidates(role, step);
+    console.log('getCacheCandidates => candidates => 0', points);
+    console.log(`%c======== getCacheCandidates end deep: ${deep} ========`, 'color: blueviolet;');
 
     if (!points.length) {
       // 没有可以用的候选者 返回
-      return { evaluate, comScore: whiteScore, humScore: blackScore, steps: [], step };
+      return { evaluate, whiteScore, blackScore, steps: [], step };
     } else {
       // 有候选者则继续迭代加深
       const values = this.deepSearch({
@@ -265,8 +283,8 @@ export class FilterCandidates {
       // 生成当前局势的分数
       const reduceData: ISResponse = {
         evaluate: this.MIN,
-        comScore: whiteScore,
-        humScore: blackScore,
+        whiteScore: 0,
+        blackScore: 0,
         steps: [],
         step
       };
@@ -285,18 +303,90 @@ export class FilterCandidates {
   };
 
   /**
-   * 保存当前深度，当前父级一致的迭代结果，下次迭代到同样位置的时候直接调取结果不需要计算
+   * 保存当前局势的分数
+   * 这里的cache是为了在相同的deep层，用不同顺序走到相同局面的cache
+   * @param evaluate 需要cache的分数
+   * @param deep 需要cache分数的深度
    */
-  private saveCache = (): void => {
-    // TODO 这里缓存迭代结果
-    console.log('searchCache', this.searchCache);
+  private setCacheEvaluate = (evaluate: IEvaluate, deep: number): void => {
+    if (AI.cache) {
+      this.searchCache.evaluate[this.zobrist.getCode()] = { evaluate, deep };
+    }
   };
 
   /**
-   * 获取当前深度，当前父级一样的结果直接进入更深的迭代
+   * 获取当前棋盘局势一样cache的分数
+   * @param role 当前的选手
+   * @param currentDeep 当前的deep层数
    */
-  private getCache = (): void => {
-    // TODO 这里获取迭代结果
-    console.log('searchCache', this.searchCache);
+  private getCacheEvaluate = (role: ERole, currentDeep: number): IEvaluate => {
+    if (AI.cache) {
+      const evaluateData = this.searchCache.evaluate[this.zobrist.getCode()];
+      if (evaluateData?.deep >= currentDeep) {
+        return evaluateData.evaluate;
+      } else {
+        // 如果缓存的结果中搜索深度比当前小，那么任何一方出现双三及以上结果的情况下可用
+        // TODO: 只有这一个缓存策略是会导致开启缓存后会和以前的结果有一点点区别的，其他几种都是透明的缓存策略
+        if (
+          this.commons.greatOrEqualThan(evaluateData?.evaluate?.evaluate, SCORE.FOUR) ||
+          this.commons.equalOrLessThan(evaluateData?.evaluate?.evaluate, -SCORE.FOUR)
+        ) {
+          return evaluateData.evaluate;
+        }
+      }
+    }
+    // cache里面没找到相同局势的分数结果，就为当前局势打一个分数
+    const evaluate = this.evaluate(role);
+    // 立刻cache这个局势的分数，方便下一次查询
+    this.setCacheEvaluate(evaluate, currentDeep);
+    return evaluate;
   };
+
+  /**
+   * 保存当前局势的候选棋子
+   * 这里的cache是为了缓存，用不同顺序走到了相同局势下面的候选人结果
+   * @param candidates 需要缓存的候选人
+   */
+  private setCacheCandidates = (candidates: IPiece[]): void => {
+    if (AI.cache) {
+      // 从cache里面拿到相同局势的分数
+      this.searchCache.candidates[this.zobrist.getCode()] = cloneDeep(candidates);
+    }
+  };
+
+  /**
+   * 获取缓存的当前局势的候选棋子 没有的话就创建
+   * @param role 当前的选手
+   * @param step 当前的步数
+   */
+  private getCacheCandidates = (role: ERole, step: number): IPiece[] => {
+    if (AI.cache) {
+      // 从cache里面拿到相同局势下面的候选棋子
+      const candidates = this.searchCache.candidates[this.zobrist.getCode()];
+      if (candidates?.length) {
+        return cloneDeep(candidates);
+      }
+    }
+    // 在缓存里面没找到当前局势的候选棋子，就重新查找候选棋子
+    const count = this.getSteps().length;
+    // 只有在一共落子大于十颗才开始只考虑眠三以上的分数
+    const candidates = this.gen(role, count > 10 ? step > 1 : step > 3, step > 1);
+    // 这里立刻cache候选棋子，方便下次有相同局势的时候可以直接使用
+    this.setCacheCandidates(candidates);
+    return candidates;
+  };
+
+  protected abstract put(piece: IPiece): void;
+
+  protected abstract gen(role: ERole, onlyThrees?: boolean, starSpread?: boolean): IPiece[];
+
+  protected abstract remove(p: IPiece): void;
+
+  protected abstract evaluate(role: ERole): IEvaluate;
+
+  protected abstract getPlay(): ERole;
+
+  protected abstract getBoard(): IOpenBoard;
+
+  protected abstract getSteps(): IPiece[];
 }

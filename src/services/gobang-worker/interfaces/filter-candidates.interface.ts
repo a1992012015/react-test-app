@@ -1,5 +1,6 @@
 import { IPiece } from './piece.interface';
 import { ERole } from './role.interface';
+import { IEvaluate } from './board.interface';
 
 /**
  * 开始迭代查找候选者的参数
@@ -33,8 +34,8 @@ export interface ISResponse {
   evaluate: number; // 当前局势的分数
   steps: IPiece[]; // 下一步的所有可能
   step: number; // 这是第几步,
-  comScore: number; // 电脑局势的分数
-  humScore: number; // 玩家局势的分数
+  whiteScore: number; // 电脑局势的分数
+  blackScore: number; // 玩家局势的分数
 }
 
 /**
@@ -49,6 +50,13 @@ export interface IGCache {
  * 查找cache的参数
  */
 export interface ISearchCache {
-  deep: number;
-  piece: IPiece[];
+  evaluate: {
+    [key: number]: {
+      deep: number;
+      evaluate: IEvaluate;
+    };
+  };
+  candidates: {
+    [key: number]: IPiece[];
+  };
 }

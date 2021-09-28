@@ -1,30 +1,4 @@
-import { EvaluatePoint } from '../services/evaluate-point.service';
-import { Statistic } from '../services/statistic.service';
-import { Commons } from '../services/commons.service';
-import { Zobrist } from '../services/zobrist.service';
 import { IPiece } from './piece.interface';
-import { ERole } from './role.interface';
-
-/**
- * 棋盘
- */
-export interface IBoard {
-  evaluatePoint: EvaluatePoint; // 打分的工具
-  statistic: Statistic; // 打印函数
-  commons: Commons; // 工具函数
-  zobrist: Zobrist; // 初始化id
-  getBoard(): IOpenBoard;
-  getSteps(): IPiece[];
-  getPlay(): ERole;
-  getReverseRole(): ERole;
-  beginMatch(): IPiece;
-  put(piece: IPiece): void;
-  backward(): boolean;
-  forward(): boolean;
-  gen(role: ERole, onlyThrees?: boolean, starSpread?: boolean): IPiece[];
-  evaluate(role: ERole): IEvaluate;
-  remove(role: IPiece): void;
-}
 
 /**
  * 棋盘的所有棋子

@@ -1,4 +1,5 @@
-import { IBoard, IEvaluate, IOpenBoard, IScoreElement } from '../interfaces/board.interface';
+import { cloneDeep } from 'lodash-es';
+import { IEvaluate, IOpenBoard, IScoreElement } from '../interfaces/board.interface';
 import { IScorePoint } from '../interfaces/evaluate-point.interface';
 import { FilterCandidates } from './filter-candidates.service';
 import { EvaluatePoint } from './evaluate-point.service';
@@ -7,32 +8,25 @@ import { IOpen } from '../interfaces/opens.interface';
 import { ERole } from '../interfaces/role.interface';
 import { wuyue } from '../configs/opens.config';
 import { SCORE } from '../configs/score.config';
-import { Statistic } from './statistic.service';
 import { creatPiece } from './piece.service';
-import { Zobrist } from './zobrist.service';
-import { Commons } from './commons.service';
 import { AI } from '../configs/ai.config';
 
 /**
  * 棋盘
  */
-export class Board implements IBoard {
+export class Board extends FilterCandidates {
   private name = ''; // 棋局的名称
   private board: IPiece[][] = []; // 棋盘的局势
   private allSteps: IPiece[] = []; // 每一步的棋子
   private playChess: ERole = ERole.empty; // 执棋的棋子
   private stepsTail: IPiece[] = []; // 缓存悔棋的棋子 在落子后清除
-  private currentSteps: IPiece[] = []; // TODO 当前一次思考的步骤 感觉不到作用
   private scoreBlack: number[][] = []; // 储存玩家所有分数缓存
   private scoreWhite: number[][] = []; // 储存电脑所有分数缓存
 
-  commons = new Commons(); // 工具函数
-  zobrist = new Zobrist(); // 初始化id
-  statistic = new Statistic(); // 打印函数
-  evaluatePoint = new EvaluatePoint(); // 打分的工具
-  filterCandidates = new FilterCandidates(this); // 查找电脑可以落子的位置
+  private evaluatePoint = new EvaluatePoint(); // 打分的工具
 
   constructor(open?: IOpen, first?: boolean) {
+    super();
     this.init(open, first);
   }
 
@@ -65,7 +59,7 @@ export class Board implements IBoard {
    * AI开始计算下一步棋
    */
   beginMatch = (): IPiece => {
-    return this.filterCandidates.match();
+    return this.match();
   };
 
   /**
@@ -76,12 +70,11 @@ export class Board implements IBoard {
     piece.step = this.allSteps.length + 1;
     this.board[piece.y][piece.x] = piece;
     // 每走一步都让生成的id不一样
-    // const code = zobrist.go(piece);
+    this.zobrist.go(piece);
+    this.allSteps.push(piece);
+    this.stepsTail = [];
     // 更新分数
     this.updateScore(piece);
-    this.allSteps.push(piece);
-    this.currentSteps.push(piece);
-    this.stepsTail = [];
   };
 
   /**
@@ -123,17 +116,19 @@ export class Board implements IBoard {
   };
 
   /**
+   * 启发式评估函数
    * 生成可以落子的点
    * gen 函数的排序是非常重要的，因为好的排序能极大提升AB剪枝的效率。
    * 而对结果的排序，是要根据role来的
    * @param role 选手
-   * @param onlyThrees 只看活三
+   * @param onlyThrees 只看眠三
    * @param starSpread 开启双星延伸
    */
-  gen = (role: ERole, onlyThrees?: boolean, starSpread?: boolean): IPiece[] => {
+  protected gen = (role: ERole, onlyThrees?: boolean, starSpread?: boolean): IPiece[] => {
     if (this.allSteps.length <= 0) {
       return [creatPiece({ x: 7, y: 7, role })];
     }
+
     // 所有棋形的分组
     const scores: IScoreElement = {
       attackPoints: [], // 进攻点
@@ -151,7 +146,8 @@ export class Board implements IBoard {
       backTwos: [], // 另一role的活二
       neighbors: [] // 相邻的棋子
     };
-    this.checkStarSpread(role, scores, starSpread); // 防守点 进攻点
+    // 查找进攻点 防守点
+    this.checkStarSpread(role, scores, starSpread);
     // 查找所有的棋形
     for (let y = 0; y < this.board.length; y++) {
       for (let x = 0; x < this.board.length; x++) {
@@ -178,9 +174,20 @@ export class Board implements IBoard {
         }
       }
     }
-    console.log('scores', scores);
-
     return this.sortChessShape(scores, onlyThrees);
+  };
+
+  /**
+   * 移除棋盘上的棋子
+   * @param p 需要移除的棋子
+   */
+  protected remove = (p: IPiece): void => {
+    // 修改id到当前棋子的位置
+    this.zobrist.go(p);
+    this.board[p.y][p.x].role = ERole.empty;
+    this.allSteps.pop();
+    // 移除之后也需要更新周围的分数
+    this.updateScore(p);
   };
 
   /**
@@ -196,11 +203,7 @@ export class Board implements IBoard {
    * 1 * -1000 = -1000
    * @param role 当前的选手
    */
-  evaluate = (role: ERole): IEvaluate => {
-    // 这里加了缓存，但是并没有提升速度
-    // if (AI.cache && evaluateCache[this.zobrist.code]) {
-    //   return evaluateCache[this.zobrist.code];
-    // }
+  protected evaluate = (role: ERole): IEvaluate => {
     // 这里都是用正整数初始化的，所以初始值是0
     let whiteMaxScore = 0;
     let blackMaxScore = 0;
@@ -222,20 +225,6 @@ export class Board implements IBoard {
     // if (aiConfig.cache) this.evaluateCache[this.zobrist.code] = result
     const evaluate = (role === this.playChess ? 1 : -1) * (whiteMaxScore - blackMaxScore);
     return { evaluate, whiteScore: whiteMaxScore, blackScore: blackMaxScore };
-  };
-
-  /**
-   * 移除棋盘上的棋子
-   * @param p 需要移除的棋子
-   */
-  remove = (p: IPiece): void => {
-    // 修改id到当前棋子的位置
-    this.zobrist.go(p);
-    this.board[p.y][p.x].role = ERole.empty;
-    // 移除之后也需要更新周围的分数
-    this.updateScore(p);
-    this.allSteps.pop();
-    this.currentSteps.pop();
   };
 
   /**
@@ -286,7 +275,7 @@ export class Board implements IBoard {
   /**
    * 检查所有的棋形并判断需要检测那些位置
    * @param scores 现在所有的棋形
-   * @param onlyThrees 是否开启只看大于等于活三的棋形
+   * @param onlyThrees 是否开启只看大于等于眠三的棋形
    */
   private sortChessShape = (scores: IScoreElement, onlyThrees?: boolean): IPiece[] => {
     // 如果成五，是必杀棋，直接返回
@@ -305,7 +294,7 @@ export class Board implements IBoard {
     const candidates = [...scores.backFours, ...scores.firstFours];
     // 当有活四的棋形则把活四和眠四一起考虑
     if (candidates.length) {
-      return candidates.concat(scores.backBlockedFours).concat(scores.firstBlockedFours);
+      return [...candidates, ...scores.firstBlockedFours, ...scores.backBlockedFours];
     }
     // 合并所有大于活三的棋形
     const result = [
@@ -321,7 +310,7 @@ export class Board implements IBoard {
     if (scores.firstTwoThrees.length || scores.backTwoThrees.length) {
       return result;
     }
-    // 只返回大于等于活三的棋
+    // 只返回大于等于眠三的棋
     if (onlyThrees) {
       return result;
     }
@@ -329,7 +318,7 @@ export class Board implements IBoard {
     const twos = [...scores.firstTwos, ...scores.backTwos];
     twos.sort((a, b) => b.score - a.score);
     // 所有剩下的棋形全部合并在一起
-    const combine = result.concat(twos.length ? twos : scores.neighbors);
+    const combine = [...result, ...(twos.length ? twos : scores.neighbors)];
     // 这种分数低的，就不用全部计算了
     return combine.slice(0, AI.countLimit);
   };
@@ -389,6 +378,7 @@ export class Board implements IBoard {
       // 再看reverse的活二
       scores.backTwos.unshift(p);
     } else {
+      // 剩下的棋形
       scores.neighbors.push(p);
     }
   };
@@ -492,12 +482,12 @@ export class Board implements IBoard {
    */
   private checkStarSpread = (role: ERole, scores: IScoreElement, star?: boolean): void => {
     if (star && AI.star) {
-      const len = this.currentSteps.length;
+      const len = this.allSteps.length;
       const reverseRole = this.commons.reverseRole(role);
       // 查询防守点
       for (let i = len - 1; i >= 0; i -= 2) {
         // 查询对方的棋子是否有活三
-        const p = this.currentSteps[i];
+        const p = this.allSteps[i];
         if (this.checkRoleScore(p, reverseRole)) {
           scores.defendPoints.push(p);
           break;
@@ -506,11 +496,11 @@ export class Board implements IBoard {
       // 如果没有找到活三就把第一课棋子作为防守点
       if (!scores.defendPoints.length) {
         const isPush = this.playChess === ERole.white;
-        scores.defendPoints.push(isPush ? this.currentSteps[0] : this.currentSteps[1]);
+        scores.defendPoints.push(isPush ? this.allSteps[0] : this.allSteps[1]);
       }
       // 查询进攻点
-      for (let i = this.currentSteps.length - 2; i >= 0; i -= 2) {
-        const p = this.currentSteps[i];
+      for (let i = this.allSteps.length - 2; i >= 0; i -= 2) {
+        const p = this.allSteps[i];
         // 查询我方的棋子是否有活三
         if (this.checkRoleScore(p, role)) {
           scores.attackPoints.push(p);
@@ -520,7 +510,7 @@ export class Board implements IBoard {
       // 如果没有进攻点则把第一颗棋子作为进攻点
       if (!scores.attackPoints.length) {
         const isPush = this.playChess === ERole.black;
-        scores.attackPoints.push(isPush ? this.currentSteps[0] : this.currentSteps[1]);
+        scores.attackPoints.push(isPush ? this.allSteps[0] : this.allSteps[1]);
       }
     }
   };
@@ -577,10 +567,10 @@ export class Board implements IBoard {
   private update = (x: number, y: number, dir: number): void => {
     const current = this.board?.[y]?.[x]?.role;
     // 如果不是在棋盘之内就不用执行了
-    if (current) {
+    if (current !== undefined) {
       const data = { x, y, dir, board: this.board };
-      this.mergeScore({ ...data, role: ERole.white }, current, this.scoreWhite);
       this.mergeScore({ ...data, role: ERole.black }, current, this.scoreBlack);
+      this.mergeScore({ ...data, role: ERole.white }, current, this.scoreWhite);
     }
   };
 
@@ -591,7 +581,7 @@ export class Board implements IBoard {
    * @param scores 需要更新的分数数组
    */
   private mergeScore = (data: IScorePoint, role: ERole, scores: number[][]): void => {
-    if (role !== this.commons.reverseRole(role)) {
+    if (role !== this.commons.reverseRole(data.role)) {
       // 空位和自己的棋子才更新分数
       // 更新空位是为了 gen 函数查询候选人的时候使用
       scores[data.y][data.x] = this.evaluatePoint.scorePoint(data);

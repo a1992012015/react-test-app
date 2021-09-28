@@ -32,24 +32,6 @@ export class EvaluatePoint {
     this.testName = name || '';
   }
 
-  init = (): void => {
-    this.scoreCache = {
-      [ERole.empty]: [],
-      [ERole.black]: [
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15)
-      ],
-      [ERole.white]: [
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15),
-        this.commons.createScores(15, 15)
-      ]
-    };
-  };
-
   /**
    * 计算当前棋子的分数，给单个的棋子打分
    * 为了性能考虑，增加了一个dir参数
@@ -85,7 +67,7 @@ export class EvaluatePoint {
 
       this.log() && console.log('score', score);
 
-      this.scoreCache[role][dir || 0][y][x] = score;
+      this.scoreCache[role][0][y][x] = score;
       this.log() && this.statistic.printClone(board, 'scoreCache pieces');
       this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
       this.log() &&
@@ -122,7 +104,7 @@ export class EvaluatePoint {
 
       this.log() && console.log('score', score);
 
-      this.scoreCache[role][dir || 1][y][x] = score;
+      this.scoreCache[role][1][y][x] = score;
       this.log() && this.statistic.printClone(board, 'scoreCache pieces');
       this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
       this.log() &&
@@ -159,7 +141,7 @@ export class EvaluatePoint {
 
       this.log() && console.log('score', score);
 
-      this.scoreCache[role][dir || 2][y][x] = score;
+      this.scoreCache[role][2][y][x] = score;
       this.log() && this.statistic.printClone(board, 'scoreCache pieces');
       this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
       this.log() &&
@@ -196,7 +178,7 @@ export class EvaluatePoint {
 
       this.log() && console.log('score', score);
 
-      this.scoreCache[role][dir || 3][y][x] = score;
+      this.scoreCache[role][3][y][x] = score;
       this.log() && this.statistic.printClone(board, 'scoreCache pieces');
       this.log() && this.statistic.printClone(this.scoreCache, 'scoreCache');
       this.log() &&
@@ -211,13 +193,31 @@ export class EvaluatePoint {
     return result;
   };
 
+  private init = (): void => {
+    this.scoreCache = {
+      [ERole.empty]: [],
+      [ERole.black]: [
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15)
+      ],
+      [ERole.white]: [
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15),
+        this.commons.createScores(15, 15)
+      ]
+    };
+  };
+
   /**
    * 计算这条直线的分数
    * @param leftRole 当前落子左边的棋子分布
    * @param rightRole 当前棋子右边的棋子分布
    * @param role 当前棋子
    */
-  calculateScore = (leftRole: TCalculate, rightRole: TCalculate, role: ERole): number => {
+  private calculateScore = (leftRole: TCalculate, rightRole: TCalculate, role: ERole): number => {
     this.log() && console.log(`%c===== calculateScore start role: ${role} =====`, 'color: navy;');
     this.log() && console.log('testDir', this.testDir);
     // 查看 TCResult 这个定义了解变量含义

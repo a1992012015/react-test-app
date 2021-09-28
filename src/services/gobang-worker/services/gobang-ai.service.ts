@@ -6,7 +6,7 @@ import { creatPiece } from './piece.service';
 import { Board } from './board.service';
 
 export class GobangAI {
-  board = new Board();
+  board?: Board;
 
   /**
    * 初始化,开始游戏
@@ -34,10 +34,14 @@ export class GobangAI {
    * 电脑下棋
    */
   begin = (): IPiece => {
-    const piece = this.board.beginMatch();
-    piece.role = this.board.getPlay();
-    this.board.put(piece);
-    return piece;
+    if (!this.board) {
+      return creatPiece({ x: 0, y: 0, role: ERole.empty });
+    } else {
+      const piece = this.board.beginMatch();
+      piece.role = this.board.getPlay();
+      this.board.put(piece);
+      return piece;
+    }
   };
 
   /**
@@ -46,8 +50,12 @@ export class GobangAI {
    * @param y 落子的y坐标
    */
   turn = (x: number, y: number): IPiece => {
-    this.set(x, y, this.board.getReverseRole());
-    return this.begin();
+    if (!this.board) {
+      return creatPiece({ x: 0, y: 0, role: ERole.empty });
+    } else {
+      this.set(x, y, this.board.getReverseRole());
+      return this.begin();
+    }
   };
 
   /**
@@ -57,26 +65,36 @@ export class GobangAI {
    * @param r 落子的是谁
    */
   set = (x: number, y: number, r: ERole): void => {
-    this.board.put(creatPiece({ x, y, role: r }));
+    if (this.board) {
+      this.board.put(creatPiece({ x, y, role: r }));
+    }
   };
 
   /**
    * 悔棋
    */
   backward = (): IBackward => {
-    return {
-      backward: this.board.backward(),
-      board: this.board.getBoard()
-    };
+    if (!this.board) {
+      return { backward: false, board: { board: [], name: '' } };
+    } else {
+      return {
+        backward: this.board.backward(),
+        board: this.board.getBoard()
+      };
+    }
   };
 
   /**
    * 返回悔棋的哪一步
    */
   forward = (): IForward => {
-    return {
-      forward: this.board.forward(),
-      board: this.board.getBoard()
-    };
+    if (!this.board) {
+      return { forward: false, board: { board: [], name: '' } };
+    } else {
+      return {
+        forward: this.board.forward(),
+        board: this.board.getBoard()
+      };
+    }
   };
 }

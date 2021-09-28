@@ -9,7 +9,7 @@
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "antd": "^4.16.13",
-    "immutable": "^4.0.0-rc.14",
+    "immutable": "^4.0.0-rc.15",
     "lodash-es": "^4.17.21",
     "random-js": "^2.1.0",
     "react": "^17.0.2",

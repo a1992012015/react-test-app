@@ -9,8 +9,8 @@ import { ERole } from '../interfaces/role.interface';
 export class Zobrist {
   private readonly size: number = 0;
   private code = 0;
-  private com: number[] = [];
-  private hum: number[] = [];
+  private white: number[] = [];
+  private black: number[] = [];
   private random = new Random(MersenneTwister19937.autoSeed());
 
   constructor(size?: number) {
@@ -20,7 +20,7 @@ export class Zobrist {
 
   go = (piece: IPiece): number => {
     const index = this.size * piece.x + piece.y;
-    this.code ^= piece.role === ERole.white ? this.com[index] : this.hum[index];
+    this.code ^= piece.role === ERole.white ? this.white[index] : this.black[index];
     return this.code;
   };
 
@@ -29,17 +29,18 @@ export class Zobrist {
   };
 
   private init = (): void => {
-    this.com = [];
-    this.hum = [];
+    this.white = [];
+    this.black = [];
     for (let i = 0; i < this.size * this.size; i++) {
-      this.com.push(this.rand());
-      this.hum.push(this.rand());
+      this.white.push(this.rand());
+      this.black.push(this.rand());
     }
 
     this.code = this.rand();
   };
 
   private rand = (): number => {
-    return this.random.integer(1, 1000000000); // 再多一位就溢出了。。
+    // 返回 1 到 一万亿以内的随机整数
+    return this.random.integer(1, 1000000000000);
   };
 }

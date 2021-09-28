@@ -161,13 +161,18 @@ export class GobangController extends BaseComponent<IProps, IState> {
     const disabled = steps !== 0 && playChess === ERole.black ? white : block;
     return (
       <React.Fragment>
-        <Button type="primary" size="large" disabled={disabled} onClick={gameBackward}>
+        <Button
+          className={styles.btn}
+          type="primary"
+          size="large"
+          disabled={disabled}
+          onClick={gameBackward}>
           悔棋
         </Button>
-        <Button type="primary" size="large" onClick={gameReset}>
+        <Button className={styles.btn} type="primary" size="large" onClick={gameReset}>
           重置游戏
         </Button>
-        <Button type="primary" size="large" disabled onClick={gameForward}>
+        <Button className={styles.btn} type="primary" size="large" disabled onClick={gameForward}>
           放弃悔棋
         </Button>
       </React.Fragment>

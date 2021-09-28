@@ -5,15 +5,15 @@ import { IAI } from '../interfaces/ai.interface';
  */
 export const AI: IAI = {
   opening: true,
-  searchDeep: 6,
-  countLimit: 20,
+  searchDeep: 8,
+  countLimit: 10,
   timeLimit: 100,
   vcxDeep: 5,
   random: false,
   log: process.env.REACT_APP_LOG === 'true',
   spreadLimit: 1,
   star: true,
-  cache: false,
+  cache: true,
   window: false,
   debug: false
 };
