@@ -5,9 +5,9 @@ import divide from 'lodash-es/divide';
 import styles from './gobang-checkerboard.module.less';
 import logo from '../../../assets/logo.svg';
 import { GameType } from '../../../stores/interfaces/gobang.interface';
-import { creatPiece } from '../../../services/gobang-worker/services/piece.service';
-import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
-import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
+import { creatPiece } from '../../../services/gobang-2.0.0/services/piece.service';
+import { ERole } from '../../../services/gobang-2.0.0/interfaces/role.interface';
+import { IPiece } from '../../../services/gobang-2.0.0/interfaces/piece.interface';
 import { BaseComponent } from '../../../components/should-component-update';
 import { app } from '../../../configs/commons.config';
 

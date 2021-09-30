@@ -4,8 +4,8 @@ import { Button, Select } from 'antd';
 import styles from './gobang-controller.module.less';
 import { GameType } from '../../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../../components/should-component-update';
-import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
-import { IPiece } from '../../../services/gobang-worker/interfaces/piece.interface';
+import { ERole } from '../../../services/gobang-2.0.0/interfaces/role.interface';
+import { IPiece } from '../../../services/gobang-2.0.0/interfaces/piece.interface';
 import { app } from '../../../configs/commons.config';
 
 export interface IProps {

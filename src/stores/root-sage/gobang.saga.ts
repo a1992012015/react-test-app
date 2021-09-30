@@ -3,7 +3,7 @@ import { CallEffect, PutEffect, SelectEffect, TakeEffect } from '@redux-saga/cor
 import { SagaIterator } from 'redux-saga';
 
 import { changeWorkerPost } from '../actions/worker.action';
-import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IWorkerRequest } from '../../services/gobang-2.0.0/interfaces/gobang-worker.interface';
 import {
   gameChangeState,
   gamePut,
@@ -14,7 +14,7 @@ import {
   gameSagaPut,
   gameSagaStart
 } from '../actions/gobang.action';
-import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
+import { ERole } from '../../services/gobang-2.0.0/interfaces/role.interface';
 import {
   GameType,
   IGameChange,
@@ -24,10 +24,10 @@ import {
   SagaAction
 } from '../interfaces/gobang.interface';
 import { IWRBackward, IWRForward, WorkerType } from '../interfaces/worker.interface';
-import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { SCORE } from '../../services/gobang-worker/configs/score.config';
-import { IScorePoint } from '../../services/gobang-worker/interfaces/evaluate-point.interface';
-import { EvaluatePoint } from '../../services/gobang-worker/services/evaluate-point.service';
+import { IPiece } from '../../services/gobang-2.0.0/interfaces/piece.interface';
+import { SCORE } from '../../services/gobang-2.0.0/configs/score.config';
+import { IScorePoint } from '../../services/gobang-2.0.0/interfaces/evaluate-point.interface';
+import { EvaluatePoint } from '../../services/gobang-2.0.0/services/evaluate-point.service';
 import { app } from '../../configs/commons.config';
 
 const evaluatePoint = new EvaluatePoint('saga');
@@ -89,6 +89,7 @@ function* gobangGoOnWatch(): Generator<
  * 检查是否是重复落子
  */
 function gobangCheckLegalityWork(payload: IGamePut, board: IPiece[][], type: GameType): boolean {
+  return true;
   const { piece, gameType } = payload;
   // 检查是否重复落子
   const repeat = board.some((r) => {

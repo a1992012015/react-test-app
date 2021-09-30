@@ -9,16 +9,16 @@ import { GobangCheckerboard } from './gobang-checkerboard/gobang-checkerboard';
 import { GameType, IGameStatus } from '../../stores/interfaces/gobang.interface';
 import { BaseComponent } from '../../components/should-component-update';
 import { changeWorkerPost } from '../../stores/actions/worker.action';
-import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IWorkerRequest } from '../../services/gobang-2.0.0/interfaces/gobang-worker.interface';
 import { WorkerType } from '../../stores/interfaces/worker.interface';
-import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
+import { IPiece } from '../../services/gobang-2.0.0/interfaces/piece.interface';
 import { AppDispatch, RootState } from '../../stores/interfaces/store.interface';
 import { gameInit, gameSagaChangeBoard, gameSagaPut } from '../../stores/actions/gobang.action';
-import { creatPiece } from '../../services/gobang-worker/services/piece.service';
-import { IAI } from '../../services/gobang-worker/interfaces/ai.interface';
+import { creatPiece } from '../../services/gobang-2.0.0/services/piece.service';
+import { IAI } from '../../services/gobang-2.0.0/interfaces/ai.interface';
 import { dynamicTitle } from '../../components/dynamic-title';
 import { app } from '../../configs/commons.config';
-import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
+import { ERole } from '../../services/gobang-2.0.0/interfaces/role.interface';
 
 interface IState {
   width: number;

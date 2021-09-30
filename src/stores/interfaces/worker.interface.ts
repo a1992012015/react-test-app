@@ -1,6 +1,6 @@
-import { IPiece } from '../../services/gobang-worker/interfaces/piece.interface';
-import { IOpenBoard } from '../../services/gobang-worker/interfaces/board.interface';
-import { IStartOpen } from '../../services/gobang-worker/interfaces/gobang-ai.interface';
+import { IPiece } from '../../services/gobang-2.0.0/interfaces/piece.interface';
+import { IOpenBoard } from '../../services/gobang-2.0.0/interfaces/board.interface';
+import { IStartOpen } from '../../services/gobang-2.0.0/interfaces/gobang-ai.interface';
 
 /**
  * worker 的返回值

@@ -2,8 +2,8 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import { GameType, IGameStatus } from '../interfaces/gobang.interface';
 import { gameChangeState, gameInit, gamePut } from '../actions/gobang.action';
-import { ERole } from '../../services/gobang-worker/interfaces/role.interface';
-import { creatPiece } from '../../services/gobang-worker/services/piece.service';
+import { ERole } from '../../services/gobang-2.0.0/interfaces/role.interface';
+import { creatPiece } from '../../services/gobang-2.0.0/services/piece.service';
 
 const initialState: IGameStatus = {
   gameType: GameType.DUEL_READY,

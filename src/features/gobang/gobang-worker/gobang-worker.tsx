@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { BaseComponent } from '../../../components/should-component-update';
-import { IWorkerRequest } from '../../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IWorkerRequest } from '../../../services/gobang-2.0.0/interfaces/gobang-worker.interface';
 import { GameType, IGameStart } from '../../../stores/interfaces/gobang.interface';
 import {
   gameSagaChangeBackward,
@@ -20,7 +20,7 @@ import {
   WorkerType
 } from '../../../stores/interfaces/worker.interface';
 import { AppDispatch, RootState } from '../../../stores/interfaces/store.interface';
-import { ERole } from '../../../services/gobang-worker/interfaces/role.interface';
+import { ERole } from '../../../services/gobang-2.0.0/interfaces/role.interface';
 import { app } from '../../../configs/commons.config';
 
 interface IProps {
@@ -33,9 +33,12 @@ class GobangWorker extends BaseComponent<IProps> {
   gameWorker?: Worker;
 
   componentDidMount(): void {
-    this.gameWorker = new Worker('../../../services/gobang-worker/gobang.worker.ts', {
+    this.gameWorker = new Worker('../../../services/gobang-1.0.0/gobang.worker.ts', {
       type: 'module'
     });
+    // this.gameWorker = new Worker('../../../services/gobang-2.0.0/gobang.worker.ts', {
+    //   type: 'module'
+    // });
 
     this.gameWorker.onmessage = (event: MessageEvent<IWorkerResponse>) => {
       const { data } = event;
@@ -48,7 +51,6 @@ class GobangWorker extends BaseComponent<IProps> {
           gameType: putData.piece.role === ERole.white ? GameType.DUEL_BLOCK : GameType.DUEL_WHITE,
           piece: putData.piece
         };
-
         this.props.dispatch(gameSagaPut(payload));
       } else if (data.type === WorkerType.BOARD) {
         // 返回的开局
@@ -61,6 +63,8 @@ class GobangWorker extends BaseComponent<IProps> {
           open: boardData.open
         };
         this.props.dispatch(gameSagaStart(payload));
+
+        this.gameWorker?.postMessage({ type: 0, payload: { piece: { x: 7, y: 7 } } });
       } else if (data.type === WorkerType.BACKWARD) {
         app.log && console.log('悔棋成功。。。');
         const backwardData = data.payload as IWRBackward;

@@ -42,6 +42,7 @@ module.exports = {
     'default-case': 'error',
     'no-lonely-if': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/ban-ts-ignore': 'off',
     'import/no-extraneous-dependencies': [0],
     'no-else-return': ['off', { allowElseIf: true }],
     'import/no-named-as-default': 0,
@@ -74,5 +75,5 @@ module.exports = {
     'arrow-body-style': 'off',
     'prefer-arrow-callback': 'off'
   },
-  ignorePatterns: ['src/services/go-bang-ai/*', 'src/services/gobang-worker/obsolete/*']
+  ignorePatterns: ['src/services/gobang-2.0.0/obsolete/*']
 };

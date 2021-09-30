@@ -1,7 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { IGamePut, IGameChange, IGameStart } from '../interfaces/gobang.interface';
-import { IWorkerRequest } from '../../services/gobang-worker/interfaces/gobang-worker.interface';
+import { IWorkerRequest } from '../../services/gobang-2.0.0/interfaces/gobang-worker.interface';
 import { IWRBackward, IWRForward } from '../interfaces/worker.interface';
 
 export const gameChangeState = createAction<IGameChange>('gobang/state');
